@@ -1,5 +1,8 @@
 target: test
 
+pinyin.l: genpy.py
+	python genpy.py > pinyin.l
+
 y.tab.c y.tab.h: pinyin.y
 	bison -y -d $^
 

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <glib.h>
 
-void yyerror (GList **list, char *);
+void yyerror (void *scanner, GList **list, char *);
 %}
 
 
@@ -20,6 +20,10 @@ void yyerror (GList **list, char *);
 %token <str>  SHENGMU
 
 %parse-param {GList **list}
+%parse-param {void *scanner}
+%lex-param {void *scanner}
+
+
 %left '\''
 
 %%
@@ -60,12 +64,12 @@ pyword:
 
 %%
 
-void yyerror (GList **list, char *s)
+void yyerror (void *scanner, GList **list, char *s)
 {
 	fprintf(stderr, "%s\n",s);
 }
 
-int yywrap(GList **list)
+int yywrap(void *scanner, GList **list)
 {
 	return(1);
 }
