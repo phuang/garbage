@@ -8,4 +8,9 @@
 #define PINYIN_CORRECT_UEN_TO_UN  (1 << 4)
 #define PINYIN_CORRECT_VE_TO_UE   (1 << 5)
 
+struct pinyin_t {
+	char py[8];
+	char origin_py[8];
+};
+
 #endif

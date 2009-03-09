@@ -1,12 +1,15 @@
 #include <glib.h>
 #include "lex.yy.h"
+#include "pinyin.h"
 
 int main(int argc, char **argv)
 {
 	YY_BUFFER_STATE b;
 	yyscan_t scanner;
-
 	GList *list;
+
+	if (argc <= 2)
+		return 0;
 
 	gchar *buf = g_strdup (argv[2]);	
 	g_strreverse (buf);
@@ -17,10 +20,15 @@ int main(int argc, char **argv)
 	if (yyparse (&list, scanner) == 0) {
 		GList *p;
 		for (p = list; p != NULL; p = p->next) {
-			printf ("%s ", p->data);
-			g_slice_free1 (8, p->data);
+			printf ("%s ", ((struct pinyin_t *)p->data)->py);
 		}
 		printf("\n");
+		for (p = list; p != NULL; p = p->next) {
+			printf ("%s ", ((struct pinyin_t *)p->data)->origin_py);
+			g_slice_free (struct pinyin_t, p->data);
+		}
+		printf("\n");
+
 		g_list_free (list);
 	}
 	yy_delete_buffer (b, scanner);

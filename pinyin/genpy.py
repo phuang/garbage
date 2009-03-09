@@ -114,33 +114,38 @@ def gen_header():
 #include "y.tab.h"
 #include "pinyin.h"
 
-static gchar *
+static struct pinyin_t *
 py_dup (const gchar *str)
 {
-        gchar *new_str;
+        struct pinyin_t *py;
 
-        new_str = g_slice_alloc (8);
-        strcpy (new_str, str);
-        return new_str;
+        py = g_slice_new (struct pinyin_t);
+        strcpy (py->py, str);
+        strcpy (py->origin_py, str);
+        return py;
 }
 
-static gchar *
+static struct pinyin_t *
 py_correct_and_dup (const gchar *str,
+                    const gchar *w,
+		    gint w_len,
                     const gchar *c,
-                    gint len)
+		    gint c_len)
 {
-        gchar *new_str;
-        gint i;
-        new_str = py_dup (str);
-        for (i = 0; i < len; i++) {
-                new_str[i] = c[i];
-        }
-        return new_str;
+        struct pinyin_t *py;
+        
+	py = g_slice_new (struct pinyin_t);
+        strcpy (py->py, c);
+        strcpy (py->py + c_len, str + w_len);
+        strcpy (py->origin_py, str);
+        return py;
 }
 %}
 
 %option reentrant
 %option extra-type="guint"
+
+%s begined
 
 %%"""
 	print header
@@ -150,7 +155,7 @@ def gen_pinyin_rule():
 	l = map(lambda s: s[::-1], l)
 	l.sort()
 	rule = "|".join (l)
-	action = "{ yylval.str = py_dup (yytext); return PINYIN;}"
+	action = "{ BEGIN (begined); yylval.py = py_dup (yytext); return PINYIN;}"
 	print rule, action
 
 def gen_shengm_rule():
@@ -159,7 +164,7 @@ def gen_shengm_rule():
 	l = map(lambda s: s[::-1], l)
 	l.sort()
 	rule = "|".join (l)
-	action = "{ yylval.str = py_dup (yytext); return SHENGMU;}"
+	action = "{ BEGIN (begined); yylval.py = py_dup (yytext); return SHENGMU;}"
 	print rule, action
 
 def gen_auto_correct_rules():
@@ -181,8 +186,14 @@ def gen_auto_correct_rules():
 			l = map(lambda s: s[::-1], l)
 			l.sort()
 			rule = "|".join(l)
-			action = "{ if ((yyextra & %s) == 0 ) REJECT; yylval.str = py_correct_and_dup (yytext, \"%s\", %d); return PINYIN; }" % (flag, c[::-1], len(c))
+			action = "{ if ((yyextra & %s) == 0 ) REJECT;" % flag + \
+			         "  BEGIN (begined);" +  \
+				 "  yylval.py = py_correct_and_dup (yytext, \"%s\", %d, \"%s\", %d); return PINYIN; }" % (w[::-1], len(w), c[::-1], len(c))
 			print rule, action
+def gen_other_rules():
+	print "' { return yytext[0]; }"
+	print "<begined>. { return yytext[0]; }" 
+	print "." 
 
 
 def gen_pinyin_l():
@@ -190,6 +201,7 @@ def gen_pinyin_l():
 	gen_pinyin_rule()
 	gen_shengm_rule()
 	gen_auto_correct_rules()
+	gen_other_rules()
 	print "%%"
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <glib.h>
+#include "pinyin.h"
 
 void yyerror (void *scanner, GList **list, char *);
 %}
@@ -10,14 +11,14 @@ void yyerror (void *scanner, GList **list, char *);
 
 %union
 {
-	gchar *str;
+	struct pinyin_t *py;
 	GList *list;
 }
 
 %type <list>  pywords
-%type <str>  pyword
-%token <str>  PINYIN
-%token <str>  SHENGMU
+%type <py>  pyword
+%token <py>  PINYIN
+%token <py>  SHENGMU
 
 %parse-param {GList **list}
 %parse-param {void *scanner}
@@ -36,29 +37,37 @@ list:
 	{
 		*list = $1;
 	}
+	|	'\'' pywords
+	{
+		*list = $2;
+	}
 	;
 pywords:
 		pyword
 	{
 		$$ = g_list_append (NULL, $1);
 	}
-	|   pywords pyword
-	{
-		$$ = g_list_prepend ($$, $2);
-	}
 	|	pywords '\'' pyword
 	{
-		$$ = g_list_prepend ($$, $3);
+		$$ = g_list_prepend ($1, $3);
+	}
+	|	pywords pyword
+	{
+		$$ = g_list_prepend ($1, $2);
 	}
 	;
 pyword:
 		PINYIN
 	{
-		$$ = g_strreverse ($1);
+		g_strreverse ($1->py);
+		g_strreverse ($1->origin_py);
+		$$ = $1;
 	}
 	|	SHENGMU
 	{
-		$$ = g_strreverse ($1);
+		g_strreverse ($1->py);
+		g_strreverse ($1->origin_py);
+		$$ = $1;
 	}
 	;
 
