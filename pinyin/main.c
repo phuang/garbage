@@ -8,10 +8,10 @@ int main(int argc, char **argv)
 
 	GList *list;
 
-	gchar *buf = g_strdup (argv[1]);	
+	gchar *buf = g_strdup (argv[2]);	
 	g_strreverse (buf);
 
-	yylex_init_extra (0xffff, &scanner);
+	yylex_init_extra (atoi(argv[1]), &scanner);
 	b = yy_scan_string (buf, scanner);
 	
 	if (yyparse (&list, scanner) == 0) {
