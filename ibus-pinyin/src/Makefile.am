@@ -35,10 +35,33 @@ TESTS = \
 
 libexec_PROGRAMS = ibus-engine-pinyin
 
-ibus_engine_pinyin_SOURCES = \
+ibus_engine_built_c_sources = \
+	lex.yy.c \
+	y.tab.c \
+	$(NULL)
+ibus_engine_built_h_sources = \
+	lex.yy.h \
+	y.tab.h \
+	$(NULL)
+ibus_engine_built_sources = \
+	$(ibus_engine_built_c_sources) \
+	$(ibus_engine_built_h_sources) \
+	$(NULL)
+ibus_engine_c_sources = \
 	main.c \
+	pyparser.c \
 	engine.c \
+	$(ibus_engine_built_c_sources) \
+	$(NULL)
+ibus_engine_h_sources = \
+	pinyin.h \
+	pyparser.h \
 	engine.h \
+	$(ibus_engine_built_h_sources) \
+	$(NULL)
+ibus_engine_pinyin_SOURCES = \
+	$(ibus_engine_c_sources) \
+	$(ibus_engine_h_sources) \
 	$(NULL)
 ibus_engine_pinyin_CFLAGS = \
 	@IBUS_CFLAGS@ \
@@ -46,6 +69,10 @@ ibus_engine_pinyin_CFLAGS = \
 	$(NULL)
 ibus_engine_pinyin_LDFLAGS = \
 	@IBUS_LIBS@ \
+	$(NULL)
+
+BUILT_SOURCES = \
+	$(ibus_engine_built_sources) \
 	$(NULL)
 
 component_DATA = \
@@ -60,6 +87,15 @@ EXTRA_DIST = \
 CLEANFILES = \
 	pinyin.xml \
 	$(NULL)
+
+pyparser.l: genpy.py
+	python genpy.py > $@
+
+y.tab.c: pyparser.y
+	$(YACC) -d $^
+
+lex.yy.c lex.yy.h: pyparser.l
+	$(LEX) --header-file=lex.yy.h $^
 
 pinyin.xml: pinyin.xml.in
 	( \

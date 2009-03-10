@@ -1,36 +1,50 @@
+/* vim:set et sts=4: */
 #include <glib.h>
 #include "lex.yy.h"
 #include "pinyin.h"
+#include "pyparser.h"
 
-int main(int argc, char **argv)
+struct _PYParser {
+    yyscan_t scanner;
+};
+
+
+PYParser *
+py_parser_new (guint option)
 {
-	YY_BUFFER_STATE b;
-	yyscan_t scanner;
-	GList *list;
+    PYParser *parser;
 
-	if (argc <= 2)
-		return 0;
+    parser = g_slice_new (PYParser);
+    yylex_init_extra (option, &(parser->scanner));
 
-	gchar *buf = g_strdup (argv[2]);	
-	g_strreverse (buf);
-
-	yylex_init_extra (atoi(argv[1]), &scanner);
-	b = yy_scan_string (buf, scanner);
-	
-	if (yyparse (&list, scanner) == 0) {
-		GList *p;
-		for (p = list; p != NULL; p = p->next) {
-			printf ("%s ", ((struct pinyin_t *)p->data)->py);
-		}
-		printf("\n");
-		for (p = list; p != NULL; p = p->next) {
-			printf ("%s ", ((struct pinyin_t *)p->data)->origin_py);
-			g_slice_free (struct pinyin_t, p->data);
-		}
-		printf("\n");
-
-		g_list_free (list);
-	}
-	yy_delete_buffer (b, scanner);
-	yylex_destroy (scanner);
+    return parser;
 }
+
+void
+py_parser_destroy  (PYParser *parser)
+{
+    yylex_destroy (parser->scanner);
+    g_slice_free (PYParser, parser);
+}
+
+extern int yyparse (GList **list, void *scanner);
+
+GList *
+py_parser_parse (PYParser *parser, const gchar *str)
+{
+    YY_BUFFER_STATE b;
+    GList *result;
+    gchar buf[8];
+    strcpy (buf, str);
+    g_strreverse (buf);
+
+    b = yy_scan_string (buf, parser->scanner);
+    if (yyparse (&result, parser->scanner) != 0) {
+        result = NULL;
+    }
+
+    yy_delete_buffer (b, parser->scanner);
+
+    return result;
+}
+
