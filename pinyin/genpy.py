@@ -115,32 +115,6 @@ def gen_header():
 #include "y.tab.h"
 #include "pinyin.h"
 
-static struct pinyin_t *
-py_dup (const gchar *str)
-{
-        struct pinyin_t *py;
-
-        py = g_slice_new (struct pinyin_t);
-        strcpy (py->py, str);
-        memcpy (py->origin_py, py->py, sizeof (py->py));
-        return py;
-}
-
-static struct pinyin_t *
-py_correct_and_dup (const gchar *str,
-                    const gchar *w,
-		    gint w_len,
-                    const gchar *c,
-		    gint c_len)
-{
-        struct pinyin_t *py;
-        
-	py = g_slice_new (struct pinyin_t);
-        strcpy (py->py, c);
-        strcpy (py->py + c_len, str + w_len);
-        strcpy (py->origin_py, str);
-        return py;
-}
 %}
 
 %option reentrant
@@ -153,20 +127,28 @@ py_correct_and_dup (const gchar *str,
 
 def gen_pinyin_rule():
 	l = PINYIN_DICT.keys()
-	l = map(lambda s: s[::-1], l)
 	l.sort()
-	rule = "|".join (l)
-	action = "{ BEGIN (begined); yylval.py = py_dup (yytext); return PINYIN;}"
-	print rule, action
+	for p in l:
+		action = """%s { /* parse pinyin %s */ 
+	BEGIN (begined);
+	yylval.py = g_slice_new (struct pinyin_t);
+	yylval.py->py = \"%s\";
+	yylval.py->origin_py = \"%s\";
+	return PINYIN; }""" % (p[::-1], p, p, p)
+		print action
 
 def gen_shengm_rule():
 	l = SHENGMU_DICT.keys()
 	l.remove("")
-	l = map(lambda s: s[::-1], l)
 	l.sort()
-	rule = "|".join (l)
-	action = "{ BEGIN (begined); yylval.py = py_dup (yytext); return SHENGMU;}"
-	print rule, action
+	for p in l:
+		action = """%s { /* parse sheng mu %s */ 
+	BEGIN (begined);
+	yylval.py = g_slice_new (struct pinyin_t);
+	yylval.py->py = \"%s\";
+	yylval.py->origin_py = \"%s\";
+	return SHENGMU; }""" % (p[::-1], p, p, p)
+		print action
 
 def gen_auto_correct_rules():
 	pinyin_list = PINYIN_DICT.keys()
@@ -180,21 +162,22 @@ def gen_auto_correct_rules():
 		l = []
 		for p in pinyin_list:
 			if p.endswith(c) and p != c:
-				p = p.replace(c, w)
-				if p not in pinyin_list:
-					l.append(p)
-		if l:
-			l = map(lambda s: s[::-1], l)
-			l.sort()
-			rule = "|".join(l)
-			action = "{ if ((yyextra & %s) == 0 ) REJECT;" % flag + \
-			         "  BEGIN (begined);" +  \
-				 "  yylval.py = py_correct_and_dup (yytext, \"%s\", %d, \"%s\", %d); return PINYIN; }" % (w[::-1], len(w), c[::-1], len(c))
-			print rule, action
+				wp = p.replace(c, w)
+				action = \
+"""%s { /* parse wrong pinyin %s */
+	if ((yyextra & %s) == 0 )
+		REJECT;
+	BEGIN (begined);
+	yylval.py = g_slice_new (struct pinyin_t);
+	yylval.py->py = \"%s\";
+	yylval.py->origin_py = \"%s\";
+	return PINYIN; }"""
+				print action % (wp[::-1], wp, flag, p, wp)
+
 def gen_other_rules():
 	print "' { return yytext[0]; }"
 	print "<begined>. { return yytext[0]; }" 
-	print "." 
+	print ". /* eat all */" 
 
 
 def gen_pinyin_l():

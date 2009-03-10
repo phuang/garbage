@@ -9,8 +9,8 @@
 #define PINYIN_CORRECT_VE_TO_UE   (1 << 5)
 
 struct pinyin_t {
-	char py[8];
-	char origin_py[8];
+	const char *py;
+	const char *origin_py;
 };
 
 #endif

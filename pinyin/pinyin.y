@@ -59,14 +59,10 @@ pywords:
 pyword:
 		PINYIN
 	{
-		g_strreverse ($1->py);
-		g_strreverse ($1->origin_py);
 		$$ = $1;
 	}
 	|	SHENGMU
 	{
-		g_strreverse ($1->py);
-		g_strreverse ($1->origin_py);
 		$$ = $1;
 	}
 	;
