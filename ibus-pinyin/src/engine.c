@@ -192,11 +192,11 @@ ibus_pinyin_engine_destroy (IBusPinyinEngine *pinyin)
 static void
 ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
 {
-    const gunichar *str = L"Hello";;
+    const gchar *str = "Hello";;
     IBusText *text;
 
     if (str != NULL && str[0] != 0) {
-        text = ibus_text_new_from_ucs4 (str);
+        text = ibus_text_new_from_string (str);
         ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x00ffffff, 0, -1);
         ibus_text_append_attribute (text, IBUS_ATTR_TYPE_BACKGROUND, 0x00000000, 0, -1);
         ibus_engine_update_preedit_text ((IBusEngine *)pinyin,
@@ -215,16 +215,6 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
 static void
 ibus_pinyin_engine_update_auxiliary_text (IBusPinyinEngine *pinyin)
 {
-    guint cursor_pos;
-    const char* comment;
-    IBusText* text;
-
-    cursor_pos = ibus_lookup_table_get_cursor_pos (pinyin->table);
-    comment = hanja_list_get_nth_comment (pinyin->hanja_list, cursor_pos);
-
-    text = ibus_text_new_from_string (comment);
-    ibus_engine_update_auxiliary_text ((IBusEngine *)pinyin, text, TRUE);
-    g_object_unref (text);
 }
 
 static void
@@ -254,13 +244,6 @@ ibus_pinyin_engine_toggle_lookup_table (IBusPinyinEngine *pinyin)
 }
 
 static gboolean
-ibus_pinyin_engine_process_candidate_key_event (IBusPinyinEngine    *pinyin,
-                                                guint                keyval,
-                                                guint                modifiers)
-{
-}
-
-static gboolean
 ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                                       guint           keyval,
                                       guint           modifiers)
@@ -273,21 +256,6 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
 static void
 ibus_pinyin_engine_toggle_pinyin_mode (IBusPinyinEngine *pinyin)
 {
-    IBusText *text;
-    pinyin->pinyin_mode = ! pinyin->pinyin_mode;
-
-    ibus_pinyin_engine_flush (pinyin);
-
-    if (pinyin->pinyin_mode) {
-        text = ibus_text_new_from_static_string ("한");
-    }
-    else {
-        text = ibus_text_new_from_static_string ("A");
-    }
-
-    ibus_property_set_label (pinyin->pinyin_mode_prop, text);
-    ibus_engine_update_property ((IBusEngine *)pinyin, pinyin->pinyin_mode_prop);
-    g_object_unref (text);
 }
 
 static void
@@ -299,7 +267,7 @@ ibus_pinyin_engine_focus_in (IBusEngine *engine)
 static void
 ibus_pinyin_engine_focus_out (IBusEngine *engine)
 {
-    parent_class->focus_out ((IBusEngine *) pinyin);
+    parent_class->focus_out (engine);
 }
 
 static void
