@@ -111,6 +111,7 @@ def gen_header():
 %{
 #include <stdio.h>
 #include <glib.h>
+#include <string.h>
 #include "y.tab.h"
 #include "pinyin.h"
 
@@ -121,7 +122,7 @@ py_dup (const gchar *str)
 
         py = g_slice_new (struct pinyin_t);
         strcpy (py->py, str);
-        strcpy (py->origin_py, str);
+        memcpy (py->origin_py, py->py, sizeof (py->py));
         return py;
 }
 
