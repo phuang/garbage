@@ -152,7 +152,7 @@ ibus_pinyin_engine_class_init (IBusPinyinEngineClass *klass)
     engine_class->cursor_up = ibus_pinyin_engine_cursor_up;
     engine_class->cursor_down = ibus_pinyin_engine_cursor_down;
 
-    klass->parser = py_parser_new (0);
+    klass->parser = py_parser_new (0xfffffffe);
 }
 
 static void
@@ -229,6 +229,7 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
 
         GList *pys, *p;
         GString *preedit_text;
+        gint cursor_pos;
 
         pys = py_parser_parse (IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->parser, pinyin->input_buffer->str, pinyin->input_cursor);
 
@@ -246,7 +247,10 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
             g_string_append_c (preedit_text, '\'');
             g_string_append (preedit_text, ((struct pinyin_t *) p->data)->py);
         }
+        cursor_pos = preedit_text->len;
 
+        g_string_append (preedit_text, pinyin->input_buffer->str + pinyin->input_cursor);
+        
         py_parse_free_result (pys);
         
         text = ibus_text_new_from_string (preedit_text->str);
@@ -254,7 +258,7 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
         // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_BACKGROUND, 0x00000000, 0, -1);
         ibus_engine_update_preedit_text ((IBusEngine *)pinyin,
                                          text,
-                                         preedit_text->len,
+                                         cursor_pos,
                                          TRUE);
         g_object_unref (text);
         g_string_free (preedit_text, TRUE);

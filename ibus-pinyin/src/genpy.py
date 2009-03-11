@@ -104,7 +104,28 @@ SHENGMU_DICT = {
     "r" : 18, "z" : 19, "c" : 20, "s" : 21, "y" : 22, "w" : 23
 }
 
+pinyin_list = PINYIN_DICT.keys()
+pinyin_list.sort()
+	
+shengmu_list = SHENGMU_DICT.keys()
+shengmu_list.remove("")
+shengmu_list.sort()
+
 auto_correct = [("ng", "gn"), ("ng", "mg"), ("iu", "iou"), ("ui", "uei"), ("un", "uen"), ("ue", "ve")]
+fuzzy_shengmu = [("c", "ch"), ("z", "zh"), ("s", "sh"), ("l", "n"), ("f", "h"), ("r", "l"), ("k", "g")]
+fuzzy_yunmu = [("an", "ang"), ("en", "eng"), ("in", "ing"), ("uan", "uang")]
+
+def get_sheng_yun(pinyin):
+	if pinyin == None:
+		return None, None
+	if pinyin == "ng":
+		return None, "ng"
+	
+	for i in range(2, 0, -1):
+		s = pinyin[:i]
+		if s in shengmu_list:
+			return s, pinyin[i:]
+	return None, pinyin
 
 def gen_header():
 	header = """
@@ -126,9 +147,8 @@ def gen_header():
 	print header
 
 def gen_pinyin_rule():
-	l = PINYIN_DICT.keys()
-	l.sort()
-	for p in l:
+	l = pinyin_list
+	for p in pinyin_list:
 		action = """%s { /* parse pinyin %s */ 
 	BEGIN (begined);
 	yylval.py = g_slice_new (struct pinyin_t);
@@ -138,10 +158,7 @@ def gen_pinyin_rule():
 		print action
 
 def gen_shengm_rule():
-	l = SHENGMU_DICT.keys()
-	l.remove("")
-	l.sort()
-	for p in l:
+	for p in shengmu_list:
 		action = """%s { /* parse sheng mu %s */
 	if (yyextra & PINYIN_FULL_PINYIN)
 		REJECT;
@@ -153,12 +170,6 @@ def gen_shengm_rule():
 		print action
 
 def gen_auto_correct_rules():
-	pinyin_list = PINYIN_DICT.keys()
-	pinyin_list.sort()
-	
-	shengmu_list = SHENGMU_DICT.keys()
-	shengmu_list.sort()
-	
 	for c, w in auto_correct:
 		flag = "PINYIN_CORRECT_%s_TO_%s" % (w.upper(), c.upper())
 		l = []
@@ -167,7 +178,7 @@ def gen_auto_correct_rules():
 				wp = p.replace(c, w)
 				action = \
 """%s { /* parse wrong pinyin %s */
-	if ((yyextra & %s) == 0 )
+	if ((yyextra & %s) == 0)
 		REJECT;
 	BEGIN (begined);
 	yylval.py = g_slice_new (struct pinyin_t);
@@ -175,6 +186,53 @@ def gen_auto_correct_rules():
 	yylval.py->origin_py = \"%s\";
 	return PINYIN; }"""
 				print action % (wp[::-1], wp, flag, p, wp)
+def gen_fuzzy_shengmu_rules():
+	for s1, s2 in fuzzy_shengmu:
+		flag = "PINYIN_FUZZY_%s_%s" % (s1.upper(), s2.upper())
+		for p in pinyin_list:
+			s, y = get_sheng_yun(p)
+			if s in (s1, s2):
+				fp = None
+				if s1 + y not in pinyin_list:
+					fp = s1 + y
+				if s2 + y not in pinyin_list:
+					fp = s2 + y
+				if fp != None:
+					action = \
+"""%s { /* parse fuzzy pinyin %s : (%s == %s)*/
+	if ((yyextra & %s) == 0)
+		REJECT;
+	BEGIN (begined);
+	yylval.py = g_slice_new (struct pinyin_t);
+	yylval.py->py = \"%s\";
+	yylval.py->origin_py = \"%s\";
+	return PINYIN;}"""
+					print action % (fp[::-1], fp, s1, s2, flag, p, fp)
+
+def gen_fuzzy_yunmu_rules():
+	for y1, y2 in fuzzy_yunmu:
+		flag = "PINYIN_FUZZY_%s_%s" % (y1.upper(), y2.upper())
+		for p in pinyin_list:
+			s, y = get_sheng_yun(p)
+			if s == None:
+				s = ""
+			if y in (y1, y2):
+				fp = None
+				if s + y1 not in pinyin_list:
+					fp = s + y1
+				if s + y2 not in pinyin_list:
+					fp = s + y2
+				if fp != None:
+					action = \
+"""%s { /* parse fuzzy pinyin %s : (%s == %s)*/
+	if ((yyextra & %s) == 0)
+		REJECT;
+	BEGIN (begined);
+	yylval.py = g_slice_new (struct pinyin_t);
+	yylval.py->py = \"%s\";
+	yylval.py->origin_py = \"%s\";
+	return PINYIN;}"""
+					print action % (fp[::-1], fp, y1, y2, flag, p, fp)
 
 def gen_other_rules():
 	print "' { return yytext[0]; }"
@@ -182,13 +240,15 @@ def gen_other_rules():
 	print ". /* eat all */" 
 
 
-def gen_pinyin_l():
+def gen_pinyin_lex():
 	gen_header()
 	gen_pinyin_rule()
 	gen_shengm_rule()
 	gen_auto_correct_rules()
+	gen_fuzzy_shengmu_rules()
+	gen_fuzzy_yunmu_rules()
 	gen_other_rules()
 	print "%%"
 
 if __name__ == "__main__":
-	gen_pinyin_l()
+	gen_pinyin_lex()
