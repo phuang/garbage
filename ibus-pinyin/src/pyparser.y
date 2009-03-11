@@ -37,7 +37,7 @@ list:
 	{
 		*list = $1;
 	}
-	|	'\'' pywords
+	|	'\''  pywords
 	{
 		*list = $2;
 	}

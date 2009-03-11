@@ -30,15 +30,23 @@ py_parser_destroy  (PYParser *parser)
 extern int yyparse (GList **list, void *scanner);
 
 GList *
-py_parser_parse (PYParser *parser, const gchar *str)
+py_parser_parse (PYParser    *parser,
+                 const gchar *str,
+                 gint         len)
 {
     YY_BUFFER_STATE b;
     GList *result;
-    gchar buf[8];
-    strcpy (buf, str);
+    gchar *buf;
+
+    if (len < 0)
+        len = strlen (str);
+    
+    buf = g_strndup (str, len);
     g_strreverse (buf);
 
-    b = yy_scan_string (buf, parser->scanner);
+    b = yy_scan_bytes (buf, len, parser->scanner);
+    g_free (buf);
+    
     if (yyparse (&result, parser->scanner) != 0) {
         result = NULL;
     }
@@ -48,3 +56,13 @@ py_parser_parse (PYParser *parser, const gchar *str)
     return result;
 }
 
+void py_parse_free_result (GList *result)
+{
+    GList *p;
+
+    for (p = result; p != NULL; p = p->next) {
+        g_slice_free (struct pinyin_t, p->data);
+    }
+
+    g_list_free (result);
+}

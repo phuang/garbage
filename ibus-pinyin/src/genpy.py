@@ -142,7 +142,9 @@ def gen_shengm_rule():
 	l.remove("")
 	l.sort()
 	for p in l:
-		action = """%s { /* parse sheng mu %s */ 
+		action = """%s { /* parse sheng mu %s */
+	if (yyextra & PINYIN_FULL_PINYIN)
+		REJECT;
 	BEGIN (begined);
 	yylval.py = g_slice_new (struct pinyin_t);
 	yylval.py->py = \"%s\";

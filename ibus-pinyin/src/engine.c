@@ -2,7 +2,20 @@
 
 #include <ibus.h>
 #include <string.h>
+#include "pyparser.h"
 #include "engine.h"
+
+#define IBUS_PINYIN_ENGINE(obj)             \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), IBUS_TYPE_PINYIN_ENGINE, IBusPinyinEngine))
+#define IBUS_PINYIN_ENGINE_CLASS(klass)     \
+    (G_TYPE_CHECK_CLASS_CAST ((klass), IBUS_TYPE_PINYIN_ENGINE, IBusPinyinEngineClass))
+#define IBUS_IS_PINYIN_ENGINE(obj)          \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), IBUS_TYPE_PINYIN_ENGINE))
+#define IBUS_IS_PINYIN_ENGINE_CLASS(klass)  \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass), IBUS_TYPE_PINYIN_ENGINE))
+#define IBUS_PINYIN_ENGINE_GET_CLASS(obj)   \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj), IBUS_TYPE_PINYIN_ENGINE, IBusPinyinEngineClass))
+
 
 typedef struct _IBusPinyinEngine IBusPinyinEngine;
 typedef struct _IBusPinyinEngineClass IBusPinyinEngineClass;
@@ -22,6 +35,9 @@ struct _IBusPinyinEngine {
 
 struct _IBusPinyinEngineClass {
 	IBusEngineClass parent;
+
+        /* members */
+        PYParser *parser;
 };
 
 /* functions prototype */
@@ -135,6 +151,8 @@ ibus_pinyin_engine_class_init (IBusPinyinEngineClass *klass)
 
     engine_class->cursor_up = ibus_pinyin_engine_cursor_up;
     engine_class->cursor_down = ibus_pinyin_engine_cursor_down;
+
+    klass->parser = py_parser_new (0);
 }
 
 static void
@@ -208,14 +226,38 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
     IBusText *text;
 
     if (pinyin->input_buffer) {
-        text = ibus_text_new_from_string (pinyin->input_buffer->str);
+
+        GList *pys, *p;
+        GString *preedit_text;
+
+        pys = py_parser_parse (IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->parser, pinyin->input_buffer->str, pinyin->input_cursor);
+
+        p = pys;
+
+        if (p) {
+            preedit_text = g_string_new (((struct pinyin_t *) p->data)->py);
+        }
+        else {
+            preedit_text = g_string_new ("");
+        }
+
+        for (p = p->next; p != NULL; p = p->next) {
+            
+            g_string_append_c (preedit_text, '\'');
+            g_string_append (preedit_text, ((struct pinyin_t *) p->data)->py);
+        }
+
+        py_parse_free_result (pys);
+        
+        text = ibus_text_new_from_string (preedit_text->str);
         // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x00ffffff, 0, -1);
         // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_BACKGROUND, 0x00000000, 0, -1);
         ibus_engine_update_preedit_text ((IBusEngine *)pinyin,
                                          text,
-                                         pinyin->input_cursor,
+                                         preedit_text->len,
                                          TRUE);
         g_object_unref (text);
+        g_string_free (preedit_text, TRUE);
     }
     else {
         text = ibus_text_new_from_static_string ("");
