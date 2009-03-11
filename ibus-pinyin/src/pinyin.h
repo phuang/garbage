@@ -22,9 +22,6 @@
 #define PINYIN_FUZZY_IN_ING	  (1 << 16)
 #define PINYIN_FUZZY_UAN_UANG	  (1 << 17)
 
-
-
-
 struct pinyin_t {
 	const char *py;
 	const char *origin_py;
