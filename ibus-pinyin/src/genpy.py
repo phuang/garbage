@@ -169,7 +169,7 @@ def gen_pinyin_rule():
     l = pinyin_list
     for p in pinyin_list:
         action = """%s { /* parse pinyin %s */
-    BEGIN (begined);
+    // BEGIN (begined);
     yylval.py = pinyin_new (\"%s\", \"%s\");
     return PINYIN; }""" % (p[::-1], p, p, p)
         print action
@@ -179,7 +179,7 @@ def gen_shengm_rule():
         action = """%s { /* parse sheng mu %s */
     if (yyextra & PINYIN_FULL_PINYIN)
         REJECT;
-    BEGIN (begined);
+    // BEGIN (begined);
     yylval.py = pinyin_new (\"%s\", \"%s\");
     return SHENGMU; }""" % (p[::-1], p, p, p)
         print action
@@ -195,7 +195,7 @@ def gen_auto_correct_rules():
 """%s { /* parse wrong pinyin %s */
     if ((yyextra & %s) == 0)
         REJECT;
-    BEGIN (begined);
+    // BEGIN (begined);
     yylval.py = pinyin_new (\"%s\", \"%s\");
     return PINYIN; }"""
                 print action % (wp[::-1], wp, flag, wp, p)
@@ -215,7 +215,7 @@ def gen_fuzzy_shengmu_rules():
 """%s { /* parse fuzzy pinyin %s : (%s == %s)*/
     if ((yyextra & %s) == 0)
         REJECT;
-    BEGIN (begined);
+    // BEGIN (begined);
     yylval.py = pinyin_new (\"%s\", \"%s\");
     return PINYIN;}"""
                     print action % (fp[::-1], fp, s1, s2, flag, fp, p)
@@ -238,14 +238,14 @@ def gen_fuzzy_yunmu_rules():
 """%s { /* parse fuzzy pinyin %s : (%s == %s)*/
     if ((yyextra & %s) == 0)
         REJECT;
-    BEGIN (begined);
+    // BEGIN (begined);
     yylval.py = pinyin_new (\"%s\", \"%s\");
     return PINYIN;}"""
                     print action % (fp[::-1], fp, y1, y2, flag, fp, p)
 
 def gen_other_rules():
-    print "<begined>' { return yytext[0]; }"
-    print "' { return SKIP; }"
+    print "' { return yytext[0]; }"
+    # print "' { return SKIP; }"
     print ". { return SKIP; }"
     # print ". /* eat all */"
 

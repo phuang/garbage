@@ -21,12 +21,13 @@ typedef struct _IBusPinyinEngine IBusPinyinEngine;
 typedef struct _IBusPinyinEngineClass IBusPinyinEngineClass;
 
 struct _IBusPinyinEngine {
-	IBusEngine parent;
+    IBusEngine parent;
 
     /* members */
     GString *input_buffer;
     guint    input_cursor;
     GList   *pinyin_list;
+    guint    pinyin_len;
 
     IBusLookupTable *table;
     IBusProperty    *pinyin_mode_prop;
@@ -34,21 +35,21 @@ struct _IBusPinyinEngine {
 };
 
 struct _IBusPinyinEngineClass {
-	IBusEngineClass parent;
+    IBusEngineClass parent;
 
         /* members */
         PYParser *parser;
 };
 
 /* functions prototype */
-static void	ibus_pinyin_engine_class_init   (IBusPinyinEngineClass  *klass);
-static void	ibus_pinyin_engine_init		(IBusPinyinEngine	*pinyin);
+static void    ibus_pinyin_engine_class_init   (IBusPinyinEngineClass  *klass);
+static void    ibus_pinyin_engine_init        (IBusPinyinEngine    *pinyin);
 static GObject*
             ibus_pinyin_engine_constructor      (GType                   type,
                                                  guint                   n_construct_params,
                                                  GObjectConstructParam  *construct_params);
-static void	ibus_pinyin_engine_destroy	(IBusPinyinEngine	*pinyin);
-static gboolean	ibus_pinyin_engine_process_key_event
+static void    ibus_pinyin_engine_destroy    (IBusPinyinEngine    *pinyin);
+static gboolean    ibus_pinyin_engine_process_key_event
                                                 (IBusEngine             *engine,
                                                  guint                   keyval,
                                                  guint                   modifiers);
@@ -78,10 +79,10 @@ static void ibus_pinyin_property_activate   (IBusEngine             *engine,
                                              const gchar            *prop_name,
                                              gint                    prop_state);
 static void ibus_pinyin_engine_property_show
-											(IBusEngine             *engine,
+                                            (IBusEngine             *engine,
                                              const gchar            *prop_name);
 static void ibus_pinyin_engine_property_hide
-											(IBusEngine             *engine,
+                                            (IBusEngine             *engine,
                                              const gchar            *prop_name);
 #endif
 
@@ -100,28 +101,28 @@ static IBusEngineClass *parent_class = NULL;
 GType
 ibus_pinyin_engine_get_type (void)
 {
-	static GType type = 0;
+    static GType type = 0;
 
-	static const GTypeInfo type_info = {
-		sizeof (IBusPinyinEngineClass),
-		(GBaseInitFunc) NULL,
-		(GBaseFinalizeFunc) NULL,
-		(GClassInitFunc) ibus_pinyin_engine_class_init,
-		NULL,
-		NULL,
-		sizeof (IBusPinyinEngine),
-		0,
-		(GInstanceInitFunc) ibus_pinyin_engine_init,
-	};
+    static const GTypeInfo type_info = {
+        sizeof (IBusPinyinEngineClass),
+        (GBaseInitFunc) NULL,
+        (GBaseFinalizeFunc) NULL,
+        (GClassInitFunc) ibus_pinyin_engine_class_init,
+        NULL,
+        NULL,
+        sizeof (IBusPinyinEngine),
+        0,
+        (GInstanceInitFunc) ibus_pinyin_engine_init,
+    };
 
-	if (type == 0) {
-		type = g_type_register_static (IBUS_TYPE_ENGINE,
+    if (type == 0) {
+        type = g_type_register_static (IBUS_TYPE_ENGINE,
                                                "IBusPinyinEngine",
                                                &type_info,
                                                (GTypeFlags) 0);
-	}
+    }
 
-	return type;
+    return type;
 }
 
 static void
@@ -161,6 +162,7 @@ ibus_pinyin_engine_init (IBusPinyinEngine *pinyin)
     pinyin->input_cursor = 0;
 
     pinyin->pinyin_list = NULL;
+    pinyin->pinyin_len = 0;
 
     pinyin->pinyin_mode_prop = ibus_property_new ("pinyin_mode_prop",
                                            PROP_TYPE_NORMAL,
@@ -203,6 +205,13 @@ ibus_pinyin_engine_destroy (IBusPinyinEngine *pinyin)
 
     pinyin->input_cursor = 0;
 
+    if (pinyin->pinyin_list) {
+        py_parse_free_result (pinyin->pinyin_list);
+        pinyin->pinyin_list = NULL;
+    }
+
+    pinyin->pinyin_len = 0;
+
     if (pinyin->prop_list) {
         g_object_unref (pinyin->prop_list);
         pinyin->prop_list = NULL;
@@ -236,9 +245,14 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
         if (pinyin->pinyin_list) {
             py_parse_free_result (pinyin->pinyin_list);
             pinyin->pinyin_list = NULL;
+            pinyin->pinyin_len = 0;
         }
 
-        len = py_parser_parse (IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->parser, pinyin->input_buffer->str, pinyin->input_cursor, &(pinyin->pinyin_list));
+        pinyin->pinyin_len = py_parser_parse (
+                                    IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->parser,
+                                    pinyin->input_buffer->str,
+                                    pinyin->input_cursor,
+                                    &(pinyin->pinyin_list));
 
         p = pinyin->pinyin_list;
         if (p) {
@@ -253,14 +267,19 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
             g_string_append (preedit_text, ((struct pinyin_t *) p->data)->pinyin);
         }
 
-        g_string_append (preedit_text, pinyin->input_buffer->str + len);
+        len = preedit_text->len;
+
+        if (pinyin->pinyin_len < pinyin->input_buffer->len) {
+            g_string_append_c (preedit_text, '\'');
+            g_string_append (preedit_text, pinyin->input_buffer->str + pinyin->pinyin_len);
+        }
 
         cursor_pos = preedit_text->len - pinyin->input_buffer->len + pinyin->input_cursor;
 
 
         text = ibus_text_new_from_string (preedit_text->str);
-        // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x00ffffff, 0, -1);
-        // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_BACKGROUND, 0x00000000, 0, -1);
+        ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x00ff0000, len, -1);
+        ibus_text_append_attribute (text, IBUS_ATTR_TYPE_BACKGROUND, 0x00ffffff, len, -1);
         ibus_engine_update_preedit_text ((IBusEngine *)pinyin,
                                          text,
                                          cursor_pos,
@@ -395,7 +414,9 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                 need_update = TRUE;
             }
             else if (modifiers == IBUS_CONTROL_MASK) {
-                pinyin->input_cursor --;
+                if (pinyin->input_cursor > pinyin->pinyin_len) {
+                    pinyin->input_cursor = pinyin->pinyin_len;
+                }
                 need_update = TRUE;
             }
         }
