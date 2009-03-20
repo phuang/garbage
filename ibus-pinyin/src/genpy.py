@@ -154,9 +154,9 @@ pinyin_new (const gchar *text,
 
 %option reentrant
 %option extra-type="guint"
-%option noinput 
-%option noyywrap 
-%option nounput 
+%option noinput
+%option noyywrap
+%option nounput
 
 %s begined
 
