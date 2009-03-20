@@ -25,6 +25,11 @@
 struct pinyin_t {
 	const char *text;
 	const char *pinyin;
+	gint		len;
 };
+
+#define PINYIN_TEXT(p) (((struct pinyin_t *)p)->text)
+#define PINYIN_PINYIN(p) (((struct pinyin_t *)p)->pinyin)
+#define PINYIN_LEN(p) (((struct pinyin_t *)p)->len)
 
 #endif

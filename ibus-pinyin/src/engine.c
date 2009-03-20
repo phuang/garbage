@@ -206,7 +206,7 @@ ibus_pinyin_engine_destroy (IBusPinyinEngine *pinyin)
     pinyin->input_cursor = 0;
 
     if (pinyin->pinyin_list) {
-        py_parse_free_result (pinyin->pinyin_list);
+        py_parser_free_result (pinyin->pinyin_list);
         pinyin->pinyin_list = NULL;
     }
 
@@ -243,7 +243,7 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
         gint len;
 
         if (pinyin->pinyin_list) {
-            py_parse_free_result (pinyin->pinyin_list);
+            py_parser_free_result (pinyin->pinyin_list);
             pinyin->pinyin_list = NULL;
             pinyin->pinyin_len = 0;
         }
@@ -256,7 +256,7 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
 
         p = pinyin->pinyin_list;
         if (p) {
-            preedit_text = g_string_new (((struct pinyin_t *) p->data)->pinyin);
+            preedit_text = g_string_new (PINYIN_PINYIN (p->data));
         }
         else {
             preedit_text = g_string_new ("");
@@ -264,13 +264,12 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
 
         while (p != NULL && (p = p->next)) {
             g_string_append_c (preedit_text, '\'');
-            g_string_append (preedit_text, ((struct pinyin_t *) p->data)->pinyin);
+            g_string_append (preedit_text, PINYIN_PINYIN (p->data));
         }
 
         len = preedit_text->len;
 
         if (pinyin->pinyin_len < pinyin->input_buffer->len) {
-            g_string_append_c (preedit_text, '\'');
             g_string_append (preedit_text, pinyin->input_buffer->str + pinyin->pinyin_len);
         }
 
@@ -353,7 +352,8 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                                IBUS_HYPER_MASK |
                                IBUS_META_MASK );
 
-    if (keyval >= IBUS_a && keyval <= IBUS_z) {     // input is letter
+    if ((keyval >= IBUS_a && keyval <= IBUS_z) ||
+        (keyval == IBUS_apostrophe)) {     // input is letter
         if (G_UNLIKELY (modifiers != 0)) {          // with some modifiers
             if (pinyin->input_buffer->len > 0) {    // ignoreinput if input buffer is not empty
                 retval = TRUE;
@@ -383,9 +383,15 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                 need_update = TRUE;
             }
             else if (modifiers == IBUS_CONTROL_MASK) {
-                pinyin->input_cursor --;
-                g_string_erase (pinyin->input_buffer, pinyin->input_cursor, 1);
-
+                gint new_cursor;
+                if (pinyin->input_cursor > pinyin->pinyin_len) {
+                    new_cursor = pinyin->pinyin_len;
+                }
+                else {
+                    new_cursor = pinyin->input_cursor - PINYIN_LEN (g_list_last (pinyin->pinyin_list)->data);
+                }
+                g_string_erase (pinyin->input_buffer, new_cursor, pinyin->input_cursor - new_cursor);
+                pinyin->input_cursor = new_cursor;
                 need_update = TRUE;
             }
         }
@@ -397,15 +403,10 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                 need_update = TRUE;
             }
             else if (modifiers == IBUS_CONTROL_MASK) {
-                g_string_erase (pinyin->input_buffer, pinyin->input_cursor, 1);
+                g_string_erase (pinyin->input_buffer, pinyin->input_cursor, -1);
                 need_update = TRUE;
             }
         }
-        break;
-    case IBUS_Escape:
-        g_string_assign (pinyin->input_buffer, "");
-        pinyin->input_cursor = 0;
-        need_update = TRUE;
         break;
     case IBUS_Left:
         if (pinyin->input_cursor > 0) {
@@ -416,6 +417,9 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
             else if (modifiers == IBUS_CONTROL_MASK) {
                 if (pinyin->input_cursor > pinyin->pinyin_len) {
                     pinyin->input_cursor = pinyin->pinyin_len;
+                }
+                else {
+                    pinyin->input_cursor -= PINYIN_LEN(g_list_last (pinyin->pinyin_list)->data);
                 }
                 need_update = TRUE;
             }
@@ -432,6 +436,11 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                 need_update = TRUE;
             }
         }
+        break;
+    case IBUS_Escape:
+        g_string_assign (pinyin->input_buffer, "");
+        pinyin->input_cursor = 0;
+        need_update = TRUE;
         break;
     default:
         break;

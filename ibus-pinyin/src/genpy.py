@@ -140,7 +140,8 @@ def gen_header():
 
 static struct pinyin_t *
 pinyin_new (const gchar *text,
-            const gchar *pinyin)
+            const gchar *pinyin,
+            gint         len)
 {
     struct pinyin_t *py;
     
@@ -148,6 +149,7 @@ pinyin_new (const gchar *text,
 
     py->text = text;
     py->pinyin = pinyin;
+    py->len = len;
 
     return py;
 }
@@ -160,8 +162,6 @@ pinyin_new (const gchar *text,
 %option noyywrap
 %option nounput
 
-%s begined
-
 %%"""
     print header
 
@@ -169,9 +169,8 @@ def gen_pinyin_rule():
     l = pinyin_list
     for p in pinyin_list:
         action = """%s { /* parse pinyin %s */
-    // BEGIN (begined);
-    yylval.py = pinyin_new (\"%s\", \"%s\");
-    return PINYIN; }""" % (p[::-1], p, p, p)
+    yylval.py = pinyin_new (\"%s\", \"%s\", %d);
+    return PINYIN; }""" % (p[::-1], p, p, p, len(p))
         print action
 
 def gen_shengm_rule():
@@ -179,9 +178,8 @@ def gen_shengm_rule():
         action = """%s { /* parse sheng mu %s */
     if (yyextra & PINYIN_FULL_PINYIN)
         REJECT;
-    // BEGIN (begined);
-    yylval.py = pinyin_new (\"%s\", \"%s\");
-    return SHENGMU; }""" % (p[::-1], p, p, p)
+    yylval.py = pinyin_new (\"%s\", \"%s\", %d);
+    return SHENGMU; }""" % (p[::-1], p, p, p, len(p))
         print action
 
 def gen_auto_correct_rules():
@@ -195,10 +193,9 @@ def gen_auto_correct_rules():
 """%s { /* parse wrong pinyin %s */
     if ((yyextra & %s) == 0)
         REJECT;
-    // BEGIN (begined);
-    yylval.py = pinyin_new (\"%s\", \"%s\");
+    yylval.py = pinyin_new (\"%s\", \"%s\", %d);
     return PINYIN; }"""
-                print action % (wp[::-1], wp, flag, wp, p)
+                print action % (wp[::-1], wp, flag, wp, p, len(wp))
 def gen_fuzzy_shengmu_rules():
     for s1, s2 in fuzzy_shengmu:
         flag = "PINYIN_FUZZY_%s_%s" % (s1.upper(), s2.upper())
@@ -215,10 +212,9 @@ def gen_fuzzy_shengmu_rules():
 """%s { /* parse fuzzy pinyin %s : (%s == %s)*/
     if ((yyextra & %s) == 0)
         REJECT;
-    // BEGIN (begined);
-    yylval.py = pinyin_new (\"%s\", \"%s\");
+    yylval.py = pinyin_new (\"%s\", \"%s\", %d);
     return PINYIN;}"""
-                    print action % (fp[::-1], fp, s1, s2, flag, fp, p)
+                    print action % (fp[::-1], fp, s1, s2, flag, fp, p, len(fp))
 
 def gen_fuzzy_yunmu_rules():
     for y1, y2 in fuzzy_yunmu:
@@ -238,16 +234,13 @@ def gen_fuzzy_yunmu_rules():
 """%s { /* parse fuzzy pinyin %s : (%s == %s)*/
     if ((yyextra & %s) == 0)
         REJECT;
-    // BEGIN (begined);
-    yylval.py = pinyin_new (\"%s\", \"%s\");
+    yylval.py = pinyin_new (\"%s\", \"%s\", %d);
     return PINYIN;}"""
-                    print action % (fp[::-1], fp, y1, y2, flag, fp, p)
+                    print action % (fp[::-1], fp, y1, y2, flag, fp, p, len(fp))
 
 def gen_other_rules():
-    print "' { return yytext[0]; }"
-    # print "' { return SKIP; }"
+    print "' { return '\\\''; }"
     print ". { return SKIP; }"
-    # print ". /* eat all */"
 
 
 def gen_pinyin_lex():

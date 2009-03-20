@@ -62,7 +62,7 @@ py_parser_parse (PYParser    *parser,
     return len - skip;
 }
 
-void py_parse_free_result (GList *result)
+void py_parser_free_result (GList *result)
 {
     GList *p;
 
