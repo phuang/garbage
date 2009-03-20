@@ -27,33 +27,39 @@ py_parser_destroy  (PYParser *parser)
     g_slice_free (PYParser, parser);
 }
 
-extern int yyparse (GList **list, void *scanner);
+extern int yyparse (gint *skip, GList **list, void *scanner);
 
-GList *
+gint
 py_parser_parse (PYParser    *parser,
                  const gchar *str,
-                 gint         len)
+                 gint         len,
+                 GList       **list)
 {
     YY_BUFFER_STATE b;
     GList *result;
     gchar *buf;
+    gint skip;
 
     if (len < 0)
         len = strlen (str);
-    
+
     buf = g_strndup (str, len);
     g_strreverse (buf);
 
     b = yy_scan_bytes (buf, len, parser->scanner);
     g_free (buf);
-    
-    if (yyparse (&result, parser->scanner) != 0) {
+
+    result = NULL;
+    skip = 0;
+    if (yyparse (&skip, &result, parser->scanner) != 0) {
         result = NULL;
+        skip = len;
     }
 
+    *list = result;
     yy_delete_buffer (b, parser->scanner);
 
-    return result;
+    return len - skip;
 }
 
 void py_parse_free_result (GList *result)

@@ -235,9 +235,10 @@ def gen_fuzzy_yunmu_rules():
 					print action % (fp[::-1], fp, y1, y2, flag, p, fp)
 
 def gen_other_rules():
-	print "' { return yytext[0]; }"
-	print "<begined>. { return yytext[0]; }" 
-	print ". /* eat all */" 
+	print "<begined>' { return yytext[0]; }"
+	print "' { return SKIP; }"
+	print ". { return SKIP; }"
+	# print ". /* eat all */" 
 
 
 def gen_pinyin_lex():

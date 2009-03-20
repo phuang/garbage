@@ -24,7 +24,6 @@ struct _IBusPinyinEngine {
 	IBusEngine parent;
 
     /* members */
-
     GString *input_buffer;
     guint    input_cursor;
 
@@ -73,8 +72,6 @@ static void ibus_pinyin_engine_page_up          (IBusEngine             *engine)
 static void ibus_pinyin_engine_page_down        (IBusEngine             *engine);
 static void ibus_pinyin_engine_cursor_up        (IBusEngine             *engine);
 static void ibus_pinyin_engine_cursor_down      (IBusEngine             *engine);
-static void ibus_pinyin_engine_toggle_pinyin_mode
-                                                (IBusPinyinEngine       *pinyin);
 #if 0
 static void ibus_pinyin_property_activate   (IBusEngine             *engine,
                                              const gchar            *prop_name,
@@ -87,14 +84,15 @@ static void ibus_pinyin_engine_property_hide
                                              const gchar            *prop_name);
 #endif
 
-static void ibus_pinyin_engine_flush        (IBusPinyinEngine       *pinyin);
 static void ibus_pinyin_engine_update_preedit_text
                                             (IBusPinyinEngine       *pinyin);
+#if 0
 static void ibus_config_value_changed       (IBusConfig             *config,
                                              const gchar            *section,
                                              const gchar            *name,
                                              GValue                 *value,
                                              gpointer                user_data);
+#endif
 
 static IBusEngineClass *parent_class = NULL;
 
@@ -131,21 +129,21 @@ ibus_pinyin_engine_class_init (IBusPinyinEngineClass *klass)
     GObjectClass *object_class = G_OBJECT_CLASS (klass);
     IBusObjectClass *ibus_object_class = IBUS_OBJECT_CLASS (klass);
     IBusEngineClass *engine_class = IBUS_ENGINE_CLASS (klass);
-    
+
     parent_class = (IBusEngineClass *) g_type_class_peek_parent (klass);
-    
+
     object_class->constructor = ibus_pinyin_engine_constructor;
     ibus_object_class->destroy = (IBusObjectDestroyFunc) ibus_pinyin_engine_destroy;
-    
+
     engine_class->process_key_event = ibus_pinyin_engine_process_key_event;
-    
+
     engine_class->reset = ibus_pinyin_engine_reset;
     engine_class->enable = ibus_pinyin_engine_enable;
     engine_class->disable = ibus_pinyin_engine_disable;
-    
+
     engine_class->focus_in = ibus_pinyin_engine_focus_in;
     engine_class->focus_out = ibus_pinyin_engine_focus_out;
-    
+
     engine_class->page_up = ibus_pinyin_engine_page_up;
     engine_class->page_down = ibus_pinyin_engine_page_down;
 
@@ -230,11 +228,11 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
         GList *pys, *p;
         GString *preedit_text;
         gint cursor_pos;
+        gint len;
 
-        pys = py_parser_parse (IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->parser, pinyin->input_buffer->str, pinyin->input_cursor);
+        len = py_parser_parse (IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->parser, pinyin->input_buffer->str, pinyin->input_cursor, &pys);
 
         p = pys;
-
         if (p) {
             preedit_text = g_string_new (((struct pinyin_t *) p->data)->py);
         }
@@ -242,17 +240,17 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
             preedit_text = g_string_new ("");
         }
 
-        for (p = p->next; p != NULL; p = p->next) {
-            
+        while (p != NULL && (p = p->next)) {
             g_string_append_c (preedit_text, '\'');
             g_string_append (preedit_text, ((struct pinyin_t *) p->data)->py);
         }
-        cursor_pos = preedit_text->len;
 
-        g_string_append (preedit_text, pinyin->input_buffer->str + pinyin->input_cursor);
-        
+        g_string_append (preedit_text, pinyin->input_buffer->str + len);
+
+        cursor_pos = preedit_text->len - pinyin->input_buffer->len + pinyin->input_cursor;
+
         py_parse_free_result (pys);
-        
+
         text = ibus_text_new_from_string (preedit_text->str);
         // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x00ffffff, 0, -1);
         // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_BACKGROUND, 0x00000000, 0, -1);
@@ -270,6 +268,7 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
     }
 }
 
+#if 0
 static void
 ibus_pinyin_engine_update_auxiliary_text (IBusPinyinEngine *pinyin)
 {
@@ -300,6 +299,7 @@ static void
 ibus_pinyin_engine_toggle_lookup_table (IBusPinyinEngine *pinyin)
 {
 }
+#endif
 
 static gboolean
 ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
@@ -311,89 +311,109 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
     gboolean retval = FALSE;
     gboolean need_update = FALSE;
 
+
     if (modifiers & IBUS_RELEASE_MASK) {
         return TRUE;
     }
 
-    switch (keyval) {
-    case IBUS_BackSpace:
-        if (pinyin->input_cursor > 0) {
-            pinyin->input_cursor --;
-            g_string_erase (pinyin->input_buffer, pinyin->input_cursor, 1);
+    modifiers =  modifiers & ( IBUS_SHIFT_MASK |
+                               IBUS_CONTROL_MASK |
+                               IBUS_MOD1_MASK |
+                               IBUS_MOD2_MASK |
+                               IBUS_MOD3_MASK |
+                               IBUS_MOD4_MASK |
+                               IBUS_MOD5_MASK |
+                               IBUS_SUPER_MASK |
+                               IBUS_HYPER_MASK |
+                               IBUS_META_MASK );
+
+    if (keyval >= IBUS_a && keyval <= IBUS_z) {     // input is letter
+        if (G_UNLIKELY (modifiers != 0)) {          // with some modifiers
+            if (pinyin->input_buffer->len > 0) {    // ignoreinput if input buffer is not empty
+                retval = TRUE;
+            }
+        }
+        else {
+            g_string_insert_c (pinyin->input_buffer, pinyin->input_cursor++, keyval);
             retval = TRUE;
             need_update = TRUE;
         }
-        else {
-            if (pinyin->input_buffer->len == 0)
-                retval = FALSE;
-            else
-                retval = TRUE;
+        goto _out;
+    }
+
+    if (pinyin->input_buffer->len == 0) { // pass by when input buffer is empty
+        goto _out;
+    }
+
+    retval = TRUE;
+
+    switch (keyval) {
+    case IBUS_BackSpace:
+        if (pinyin->input_cursor > 0) {
+            if (modifiers == 0) {
+                pinyin->input_cursor --;
+                g_string_erase (pinyin->input_buffer, pinyin->input_cursor, 1);
+
+                need_update = TRUE;
+            }
+            else if (modifiers == IBUS_CONTROL_MASK) {
+                pinyin->input_cursor --;
+                g_string_erase (pinyin->input_buffer, pinyin->input_cursor, 1);
+
+                need_update = TRUE;
+            }
         }
         break;
     case IBUS_Delete:
         if (pinyin->input_cursor < pinyin->input_buffer->len) {
-            g_string_erase (pinyin->input_buffer, pinyin->input_cursor, 1);
-            retval = TRUE;
-            need_update = TRUE;
-        }
-        else {
-            if (pinyin->input_buffer->len == 0)
-                retval = FALSE;
-            else
-                retval = TRUE;
+            if (modifiers == 0) {
+                g_string_erase (pinyin->input_buffer, pinyin->input_cursor, 1);
+                need_update = TRUE;
+            }
+            else if (modifiers == IBUS_CONTROL_MASK) {
+                g_string_erase (pinyin->input_buffer, pinyin->input_cursor, 1);
+                need_update = TRUE;
+            }
         }
         break;
     case IBUS_Escape:
-        if (pinyin->input_buffer->len == 0) {
-            retval = FALSE;
-        }
-        else {
-            g_string_assign (pinyin->input_buffer, "");
-            pinyin->input_cursor = 0;
-            retval = TRUE;
-            need_update = TRUE;
-        }
+        g_string_assign (pinyin->input_buffer, "");
+        pinyin->input_cursor = 0;
+        need_update = TRUE;
         break;
     case IBUS_Left:
-        if (pinyin->input_buffer->len == 0) {
-            retval = FALSE;
-        }
-        else {
-            if (pinyin->input_cursor > 0) {
+        if (pinyin->input_cursor > 0) {
+            if (modifiers == 0) {
                 pinyin->input_cursor --;
                 need_update = TRUE;
             }
-            retval = TRUE;
+            else if (modifiers == IBUS_CONTROL_MASK) {
+                pinyin->input_cursor --;
+                need_update = TRUE;
+            }
         }
         break;
-     case IBUS_Right:
-        if (pinyin->input_buffer->len == 0) {
-            retval = FALSE;
-        }
-        else {
-            if (pinyin->input_cursor < pinyin->input_buffer->len) {
+    case IBUS_Right:
+        if (pinyin->input_cursor < pinyin->input_buffer->len) {
+            if (modifiers == 0) {
                 pinyin->input_cursor ++;
                 need_update = TRUE;
             }
-            retval = TRUE;
+            else if (modifiers == IBUS_CONTROL_MASK) {
+                pinyin->input_cursor = pinyin->input_buffer->len;
+                need_update = TRUE;
+            }
         }
         break;
     default:
-        g_string_insert_c (pinyin->input_buffer, pinyin->input_cursor++, keyval);
-        retval = TRUE;
-        need_update = TRUE;
         break;
     }
 
+_out:
     if (need_update) {
         ibus_pinyin_engine_update_preedit_text (pinyin);
     }
     return retval;
-}
-
-static void
-ibus_pinyin_engine_toggle_pinyin_mode (IBusPinyinEngine *pinyin)
-{
 }
 
 static void
@@ -450,6 +470,7 @@ ibus_pinyin_engine_cursor_down (IBusEngine *engine)
     parent_class->cursor_down (engine);
 }
 
+#if 0
 static void
 ibus_config_value_changed (IBusConfig   *config,
                            const gchar  *section,
@@ -458,3 +479,4 @@ ibus_config_value_changed (IBusConfig   *config,
                            gpointer      user_data)
 {
 }
+#endif

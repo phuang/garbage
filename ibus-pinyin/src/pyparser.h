@@ -10,9 +10,10 @@ typedef struct _PYParser PYParser;
 
 PYParser    *py_parser_new          (guint          option);
 void         py_parser_destroy      (PYParser       *parser);
-GList       *py_parser_parse        (PYParser       *parser,
+gint         py_parser_parse        (PYParser       *parser,
                                      const gchar    *str,
-                                     gint            len);
+                                     gint            len,
+                                     GList          **list);
 void         py_parse_free_result   (GList          *result);
 void         py_parse_set_option    (PYParser       *parser,
                                      guint           option);
