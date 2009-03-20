@@ -1,3 +1,5 @@
+# vim:set et sts=4:
+
 import sys
 
 PINYIN_DICT = {
@@ -106,7 +108,7 @@ SHENGMU_DICT = {
 
 pinyin_list = PINYIN_DICT.keys()
 pinyin_list.sort()
-	
+
 shengmu_list = SHENGMU_DICT.keys()
 shengmu_list.remove("")
 shengmu_list.sort()
@@ -116,19 +118,19 @@ fuzzy_shengmu = [("c", "ch"), ("z", "zh"), ("s", "sh"), ("l", "n"), ("f", "h"), 
 fuzzy_yunmu = [("an", "ang"), ("en", "eng"), ("in", "ing"), ("uan", "uang")]
 
 def get_sheng_yun(pinyin):
-	if pinyin == None:
-		return None, None
-	if pinyin == "ng":
-		return None, "ng"
-	
-	for i in range(2, 0, -1):
-		s = pinyin[:i]
-		if s in shengmu_list:
-			return s, pinyin[i:]
-	return None, pinyin
+    if pinyin == None:
+        return None, None
+    if pinyin == "ng":
+        return None, "ng"
+    
+    for i in range(2, 0, -1):
+        s = pinyin[:i]
+        if s in shengmu_list:
+            return s, pinyin[i:]
+    return None, pinyin
 
 def gen_header():
-	header = """
+    header = """
 %{
 #include <stdio.h>
 #include <glib.h>
@@ -138,16 +140,16 @@ def gen_header():
 
 static struct pinyin_t *
 pinyin_new (const gchar *text,
-			const gchar *pinyin)
+            const gchar *pinyin)
 {
-	struct pinyin_t *py;
-	
-	py = g_slice_new (struct pinyin_t);
+    struct pinyin_t *py;
+    
+    py = g_slice_new (struct pinyin_t);
 
-	py->text = text;
-	py->pinyin = pinyin;
+    py->text = text;
+    py->pinyin = pinyin;
 
-	return py;
+    return py;
 }
 
 %}
@@ -161,102 +163,102 @@ pinyin_new (const gchar *text,
 %s begined
 
 %%"""
-	print header
+    print header
 
 def gen_pinyin_rule():
-	l = pinyin_list
-	for p in pinyin_list:
-		action = """%s { /* parse pinyin %s */ 
-	BEGIN (begined);
-	yylval.py = pinyin_new (\"%s\", \"%s\");
-	return PINYIN; }""" % (p[::-1], p, p, p)
-		print action
+    l = pinyin_list
+    for p in pinyin_list:
+        action = """%s { /* parse pinyin %s */
+    BEGIN (begined);
+    yylval.py = pinyin_new (\"%s\", \"%s\");
+    return PINYIN; }""" % (p[::-1], p, p, p)
+        print action
 
 def gen_shengm_rule():
-	for p in shengmu_list:
-		action = """%s { /* parse sheng mu %s */
-	if (yyextra & PINYIN_FULL_PINYIN)
-		REJECT;
-	BEGIN (begined);
-	yylval.py = pinyin_new (\"%s\", \"%s\");
-	return SHENGMU; }""" % (p[::-1], p, p, p)
-		print action
+    for p in shengmu_list:
+        action = """%s { /* parse sheng mu %s */
+    if (yyextra & PINYIN_FULL_PINYIN)
+        REJECT;
+    BEGIN (begined);
+    yylval.py = pinyin_new (\"%s\", \"%s\");
+    return SHENGMU; }""" % (p[::-1], p, p, p)
+        print action
 
 def gen_auto_correct_rules():
-	for c, w in auto_correct:
-		flag = "PINYIN_CORRECT_%s_TO_%s" % (w.upper(), c.upper())
-		l = []
-		for p in pinyin_list:
-			if p.endswith(c) and p != c:
-				wp = p.replace(c, w)
-				action = \
+    for c, w in auto_correct:
+        flag = "PINYIN_CORRECT_%s_TO_%s" % (w.upper(), c.upper())
+        l = []
+        for p in pinyin_list:
+            if p.endswith(c) and p != c:
+                wp = p.replace(c, w)
+                action = \
 """%s { /* parse wrong pinyin %s */
-	if ((yyextra & %s) == 0)
-		REJECT;
-	BEGIN (begined);
-	yylval.py = pinyin_new (\"%s\", \"%s\");
-	return PINYIN; }"""
-				print action % (wp[::-1], wp, flag, wp, p)
+    if ((yyextra & %s) == 0)
+        REJECT;
+    BEGIN (begined);
+    yylval.py = pinyin_new (\"%s\", \"%s\");
+    return PINYIN; }"""
+                print action % (wp[::-1], wp, flag, wp, p)
 def gen_fuzzy_shengmu_rules():
-	for s1, s2 in fuzzy_shengmu:
-		flag = "PINYIN_FUZZY_%s_%s" % (s1.upper(), s2.upper())
-		for p in pinyin_list:
-			s, y = get_sheng_yun(p)
-			if s in (s1, s2):
-				fp = None
-				if s1 + y not in pinyin_list:
-					fp = s1 + y
-				if s2 + y not in pinyin_list:
-					fp = s2 + y
-				if fp != None:
-					action = \
+    for s1, s2 in fuzzy_shengmu:
+        flag = "PINYIN_FUZZY_%s_%s" % (s1.upper(), s2.upper())
+        for p in pinyin_list:
+            s, y = get_sheng_yun(p)
+            if s in (s1, s2):
+                fp = None
+                if s1 + y not in pinyin_list:
+                    fp = s1 + y
+                if s2 + y not in pinyin_list:
+                    fp = s2 + y
+                if fp != None:
+                    action = \
 """%s { /* parse fuzzy pinyin %s : (%s == %s)*/
-	if ((yyextra & %s) == 0)
-		REJECT;
-	BEGIN (begined);
-	yylval.py = pinyin_new (\"%s\", \"%s\");
-	return PINYIN;}"""
-					print action % (fp[::-1], fp, s1, s2, flag, fp, p)
+    if ((yyextra & %s) == 0)
+        REJECT;
+    BEGIN (begined);
+    yylval.py = pinyin_new (\"%s\", \"%s\");
+    return PINYIN;}"""
+                    print action % (fp[::-1], fp, s1, s2, flag, fp, p)
 
 def gen_fuzzy_yunmu_rules():
-	for y1, y2 in fuzzy_yunmu:
-		flag = "PINYIN_FUZZY_%s_%s" % (y1.upper(), y2.upper())
-		for p in pinyin_list:
-			s, y = get_sheng_yun(p)
-			if s == None:
-				s = ""
-			if y in (y1, y2):
-				fp = None
-				if s + y1 not in pinyin_list:
-					fp = s + y1
-				if s + y2 not in pinyin_list:
-					fp = s + y2
-				if fp != None:
-					action = \
+    for y1, y2 in fuzzy_yunmu:
+        flag = "PINYIN_FUZZY_%s_%s" % (y1.upper(), y2.upper())
+        for p in pinyin_list:
+            s, y = get_sheng_yun(p)
+            if s == None:
+                s = ""
+            if y in (y1, y2):
+                fp = None
+                if s + y1 not in pinyin_list:
+                    fp = s + y1
+                if s + y2 not in pinyin_list:
+                    fp = s + y2
+                if fp != None:
+                    action = \
 """%s { /* parse fuzzy pinyin %s : (%s == %s)*/
-	if ((yyextra & %s) == 0)
-		REJECT;
-	BEGIN (begined);
-	yylval.py = pinyin_new (\"%s\", \"%s\");
-	return PINYIN;}"""
-					print action % (fp[::-1], fp, y1, y2, flag, fp, p)
+    if ((yyextra & %s) == 0)
+        REJECT;
+    BEGIN (begined);
+    yylval.py = pinyin_new (\"%s\", \"%s\");
+    return PINYIN;}"""
+                    print action % (fp[::-1], fp, y1, y2, flag, fp, p)
 
 def gen_other_rules():
-	print "<begined>' { return yytext[0]; }"
-	print "' { return SKIP; }"
-	print ". { return SKIP; }"
-	# print ". /* eat all */" 
+    print "<begined>' { return yytext[0]; }"
+    print "' { return SKIP; }"
+    print ". { return SKIP; }"
+    # print ". /* eat all */"
 
 
 def gen_pinyin_lex():
-	gen_header()
-	gen_pinyin_rule()
-	gen_shengm_rule()
-	gen_auto_correct_rules()
-	gen_fuzzy_shengmu_rules()
-	gen_fuzzy_yunmu_rules()
-	gen_other_rules()
-	print "%%"
+    gen_header()
+    gen_pinyin_rule()
+    gen_shengm_rule()
+    gen_auto_correct_rules()
+    gen_fuzzy_shengmu_rules()
+    gen_fuzzy_yunmu_rules()
+    gen_other_rules()
+    print "%%"
 
 if __name__ == "__main__":
-	gen_pinyin_lex()
+    gen_pinyin_lex()
