@@ -23,8 +23,8 @@
 #define PINYIN_FUZZY_UAN_UANG	  (1 << 17)
 
 struct pinyin_t {
-	const char *py;
-	const char *origin_py;
+	const char *text;
+	const char *pinyin;
 };
 
 #endif

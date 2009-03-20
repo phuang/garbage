@@ -26,6 +26,7 @@ struct _IBusPinyinEngine {
     /* members */
     GString *input_buffer;
     guint    input_cursor;
+    GList   *pinyin_list;
 
     IBusLookupTable *table;
     IBusProperty    *pinyin_mode_prop;
@@ -159,6 +160,8 @@ ibus_pinyin_engine_init (IBusPinyinEngine *pinyin)
     pinyin->input_buffer = g_string_new ("");
     pinyin->input_cursor = 0;
 
+    pinyin->pinyin_list = NULL;
+
     pinyin->pinyin_mode_prop = ibus_property_new ("pinyin_mode_prop",
                                            PROP_TYPE_NORMAL,
                                            NULL,
@@ -225,16 +228,21 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
 
     if (pinyin->input_buffer) {
 
-        GList *pys, *p;
+        GList *p;
         GString *preedit_text;
         gint cursor_pos;
         gint len;
 
-        len = py_parser_parse (IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->parser, pinyin->input_buffer->str, pinyin->input_cursor, &pys);
+        if (pinyin->pinyin_list) {
+            py_parse_free_result (pinyin->pinyin_list);
+            pinyin->pinyin_list = NULL;
+        }
 
-        p = pys;
+        len = py_parser_parse (IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->parser, pinyin->input_buffer->str, pinyin->input_cursor, &(pinyin->pinyin_list));
+
+        p = pinyin->pinyin_list;
         if (p) {
-            preedit_text = g_string_new (((struct pinyin_t *) p->data)->py);
+            preedit_text = g_string_new (((struct pinyin_t *) p->data)->pinyin);
         }
         else {
             preedit_text = g_string_new ("");
@@ -242,14 +250,13 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
 
         while (p != NULL && (p = p->next)) {
             g_string_append_c (preedit_text, '\'');
-            g_string_append (preedit_text, ((struct pinyin_t *) p->data)->py);
+            g_string_append (preedit_text, ((struct pinyin_t *) p->data)->pinyin);
         }
 
         g_string_append (preedit_text, pinyin->input_buffer->str + len);
 
         cursor_pos = preedit_text->len - pinyin->input_buffer->len + pinyin->input_cursor;
 
-        py_parse_free_result (pys);
 
         text = ibus_text_new_from_string (preedit_text->str);
         // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x00ffffff, 0, -1);
