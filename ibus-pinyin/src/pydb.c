@@ -5,7 +5,6 @@
 #include "pinyin.h"
 #include "pydb.h"
 
-typedef struct _PYDB PYDB;
 
 struct _PYDB {
     sqlite3 *db;
@@ -40,6 +39,13 @@ py_db_free (PYDB *db)
     g_free (db); 
 }
 
+GArray *
+py_db_query (PYDB   *db,
+             GArray *pinyin)
+{
+    return NULL;
+}
+
 #ifdef TEST
 
 #include <sys/time.h>
@@ -71,6 +77,8 @@ int main ()
 
     setlocale (LC_ALL, "");
     PYDB *db = py_db_new ();
+    if (db == NULL)
+        return 0;
     py_db_test (db);
 
     gettimeofday (&tv1, NULL);

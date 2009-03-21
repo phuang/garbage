@@ -4,11 +4,14 @@
 #include <glib.h>
 #include "pinyin.h"
 #include "pyparser.h"
+#include "pyscanner.h"
 
 #define DEBUG(args...)
 // #define DEBUG g_debug
 
-static void yyerror (gint *len, GList **list, void *scanner, char *s);
+static void yyerror (gint *len, GArray **array, void *scanner, char *s);
+static GArray *pinyin_array_reverse (GArray *array);
+
 %}
 
 
@@ -18,7 +21,7 @@ static void yyerror (gint *len, GList **list, void *scanner, char *s);
 {
     struct pinyin_t *py;
     struct {
-        GList *list;
+        GArray *array;
         gint len;
     } pys;
     gint skip;
@@ -32,7 +35,7 @@ static void yyerror (gint *len, GList **list, void *scanner, char *s);
 %token SKIP
 
 %parse-param {gint *len}
-%parse-param {GList **list}
+%parse-param {GArray **array}
 %parse-param {void *scanner}
 %lex-param   {void *scanner}
 
@@ -43,20 +46,24 @@ static void yyerror (gint *len, GList **list, void *scanner, char *s);
 input:
     {
         DEBUG ("NULL                => input\n");
-        *list = NULL;
+        *array = g_array_new (TRUE, TRUE, sizeof (struct pinyin_t *));
         *len = 0;
     }
     |   error pywords
     {
         DEBUG ("error + pywords     => input\n");
-        *list = $2.list;
+        
+        *array = pinyin_array_reverse ($2.array);
+        g_array_free ($2.array, TRUE);
         *len = $2.len;
+        
         yyerrok;
     }
     |   pywords
     {
         DEBUG ("pywords             => input\n");
-        *list = $1.list;
+        *array = pinyin_array_reverse ($1.array);
+        g_array_free ($1.array, TRUE);
         *len = $1.len;
     }
     ;
@@ -64,19 +71,20 @@ pywords:
         pyword
     {
         DEBUG ("pyword              => pywords");
-        $$.list = g_list_append (NULL, $1);
+        $$.array = g_array_new (TRUE, TRUE, sizeof (struct pinyin_t *));
+        g_array_append_val ($$.array, $1);
         $$.len = $1->len;
     }
     |   pywords '\'' pyword
     {
         DEBUG ("pywords ' pyword    => pywords");
-        $$.list = g_list_prepend ($1.list, $3);
+        $$.array = g_array_append_val ($1.array, $3);
         $$.len = $1.len + 1 + $3->len;
     }
     |   pywords pyword
     {
         DEBUG ("pywords pyword      => pywords");
-        $$.list = g_list_prepend ($1.list, $2);
+        $$.array = g_array_append_val ($1.array, $2);
         $$.len = $2->len + $1.len;
     }
     ;
@@ -95,11 +103,24 @@ pyword:
 
 %%
 
-static void yyerror (gint *len, GList **list, void *scanner, char *s)
+static void yyerror (gint *len, GArray **array, void *scanner, char *s)
 {
     DEBUG (s);
-    py_parser_free_result (*list);
-    *list = NULL;
+    py_parser_free_result (*array);
+    *array = NULL;
     *len = 0;
 }
 
+static GArray *pinyin_array_reverse (GArray *array)
+{
+    GArray *new_array;
+    gint i;
+
+    new_array = g_array_sized_new (TRUE, TRUE, sizeof (struct pinyin_t *), array->len);
+    
+    for (i = array->len - 1; i >= 0; i--) {
+        g_array_append_val (new_array, g_array_index (array, struct pinyin_t *, i));
+    }
+
+    return new_array;
+}

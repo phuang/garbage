@@ -13,8 +13,8 @@ void         py_parser_destroy      (PYParser       *parser);
 gint         py_parser_parse        (PYParser       *parser,
                                      const gchar    *str,
                                      gint            len,
-                                     GList          **list);
-void         py_parser_free_result  (GList          *result);
+                                     GArray         **array);
+void         py_parser_free_result  (GArray         *array);
 void         py_parser_set_option   (PYParser       *parser,
                                      guint           option);
 guint        py_parser_get_option   (PYParser       *parser);

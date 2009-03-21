@@ -27,16 +27,16 @@ py_parser_destroy  (PYParser *parser)
     g_slice_free (PYParser, parser);
 }
 
-extern int yyparse (gint *skip, GList **list, void *scanner);
+extern int yyparse (gint *skip, GArray **array, void *scanner);
 
 gint
 py_parser_parse (PYParser    *parser,
                  const gchar *str,
                  gint         len,
-                 GList       **list)
+                 GArray     **array)
 {
     YY_BUFFER_STATE b;
-    GList *result;
+    GArray *result;
     gchar *buf;
     gint retval;
 
@@ -56,22 +56,24 @@ py_parser_parse (PYParser    *parser,
         retval = 0;
     }
 
-    *list = result;
+    *array = result;
     yy_delete_buffer (b, parser->scanner);
 
     return retval;
 }
 
 void
-py_parser_free_result (GList *result)
+py_parser_free_result (GArray *result)
 {
-    GList *p;
+    struct pinyin_t **p;
 
-    for (p = result; p != NULL; p = p->next) {
-        pinyin_free (p->data);
+    p = (struct pinyin_t **) result->data;
+
+    while (*p != NULL) {
+        pinyin_free (*(p++));
     }
 
-    g_list_free (result);
+    g_array_free (result, TRUE);
 }
 
 void
