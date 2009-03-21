@@ -68,7 +68,7 @@ py_parser_free_result (GList *result)
     GList *p;
 
     for (p = result; p != NULL; p = p->next) {
-        g_slice_free (struct pinyin_t, p->data);
+        pinyin_free (p->data);
     }
 
     g_list_free (result);

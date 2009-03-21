@@ -137,26 +137,6 @@ def gen_header():
 #include "y.tab.h"
 #include "pinyin.h"
 
-static struct pinyin_t *
-pinyin_new (const gchar *text,
-            const gchar *pinyin,
-            const gchar *sheng,
-            const gchar *yun,
-            gint         len)
-{
-    struct pinyin_t *py;
-
-    py = g_slice_new (struct pinyin_t);
-
-    py->text = text;
-    py->pinyin = pinyin;
-    py->sheng = sheng;
-    py->yun = yun;
-    py->len = len;
-
-    return py;
-}
-
 %}
 
 %option reentrant
@@ -182,7 +162,8 @@ def output_action(token, text, pinyin, comment=None, flag=None, invflag=None):
     if sheng == None:
         sheng = ""
     print '    yylval.py = pinyin_new ("%s", "%s", "%s", "%s", %d );' % (text, pinyin, sheng, yun, len(text))
-    print '    return %s; }' % token
+    print '    return %s;' % token
+    print '}'
 
 def gen_pinyin_rule():
     l = pinyin_list

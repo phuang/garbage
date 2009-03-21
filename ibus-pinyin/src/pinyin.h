@@ -31,6 +31,29 @@ struct pinyin_t {
     gint        len;
 };
 
+static struct pinyin_t *
+pinyin_new (const gchar *text,
+            const gchar *pinyin,
+            const gchar *sheng,
+            const gchar *yun,
+            int          len)
+{
+   struct pinyin_t *py;
+   py = g_slice_new (struct pinyin_t);
+   py->text = text;
+   py->pinyin = pinyin;
+   py->sheng = sheng;
+   py->yun = yun;
+   py->len = len;
+   return py;
+}
+
+static void
+pinyin_free (struct pinyin_t *py)
+{
+    g_slice_free (struct pinyin_t, py);
+}
+
 #define PINYIN_TEXT(p)      (((struct pinyin_t *)p)->text)
 #define PINYIN_PINYIN(p)    (((struct pinyin_t *)p)->pinyin)
 #define PINYIN_SHENG(p)     (((struct pinyin_t *)p)->sheng)
