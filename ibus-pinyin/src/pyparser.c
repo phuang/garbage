@@ -1,8 +1,8 @@
 /* vim:set et sts=4: */
 #include <glib.h>
-#include "lex.yy.h"
 #include "pinyin.h"
 #include "pyparser.h"
+#include "pyscanner.h"
 
 struct _PYParser {
     yyscan_t scanner;

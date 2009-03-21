@@ -26,12 +26,13 @@ def get_sheng_yun(pinyin):
     return None, pinyin
 
 def gen_header():
+    # %option header-file="pyscanner.h"
     header = """
 %{
 #include <stdio.h>
 #include <glib.h>
 #include <string.h>
-#include "y.tab.h"
+#include "pygrammar.h"
 
 #define USE_PINYIN_NEW
 #include "pinyin.h"
@@ -46,11 +47,11 @@ def gen_header():
 
 %%"""
     print header
-
 def output_action(token, text, pinyin, comment=None, flag=None, invflag=None):
     if comment == None:
         comment = "parse %s for %s" % (text, pinyin)
-    print "%s { /* %s */" % (text[::-1], comment)
+    print "%s {" % text[::-1]
+    print "    /* %s */" % comment
 
     if flag != None:
         print "    if ((yyextra & %s) == 0) REJECT;" % flag

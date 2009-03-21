@@ -25,7 +25,15 @@ AM_CFLAGS = \
 AM_LDFLAGS = \
 	@IBUS_LIBS@ \
 	$(NULL)
-YFLAGS = \
+
+AM_YFLAGS = \
+	-d \
+	--verbose \
+	$(NULL)
+
+AM_LFLAGS = \
+	--outfile=$(LEX_OUTPUT_ROOT).c \
+	--header-file=$(LEX_OUTPUT_ROOT).h \
 	$(NULL)
 
 check_PROGRAMS = \
@@ -37,20 +45,10 @@ TESTS = \
 
 libexec_PROGRAMS = ibus-engine-pinyin
 
-ibus_engine_built_c_sources = \
-	lex.yy.c \
-	y.tab.c \
-	$(NULL)
-ibus_engine_built_h_sources = \
-	lex.yy.h \
-	y.tab.h \
-	$(NULL)
-ibus_engine_built_sources = \
-	$(ibus_engine_built_c_sources) \
-	$(ibus_engine_built_h_sources) \
-	$(NULL)
 ibus_engine_c_sources = \
 	main.c \
+	pygrammar.y \
+	pyscanner.l \
 	pyparser.c \
 	engine.c \
 	$(ibus_engine_built_c_sources) \
@@ -74,7 +72,6 @@ ibus_engine_pinyin_LDFLAGS = \
 	$(NULL)
 
 BUILT_SOURCES = \
-	$(ibus_engine_built_sources) \
 	$(NULL)
 
 component_DATA = \
@@ -90,19 +87,12 @@ EXTRA_DIST = \
 	$(NULL)
 
 CLEANFILES = \
-	$(ibus_engine_built_sources) \
 	pinyin.xml \
-	pyparser.l \
+	pypscanner.l \
 	$(NULL)
 
-pyparser.l: genpy.py
+pyscanner.l: genpy.py
 	python $(srcdir)/genpy.py > $@
-
-y.tab.c: pyparser.y
-	$(YACC) $(YFLAGS) -d $^
-
-lex.yy.c lex.yy.h: pyparser.l
-	$(LEX) --header-file=lex.yy.h $^
 
 pinyin.xml: pinyin.xml.in
 	( \
@@ -114,3 +104,7 @@ pinyin.xml: pinyin.xml.in
 
 test: ibus-engine-pinyin
 	$(builddir)/ibus-engine-pinyin
+
+
+.l.c:
+	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ $(LEX_OUTPUT_ROOT).h $*.h -- $(LEXCOMPILE)

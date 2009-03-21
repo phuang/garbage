@@ -2,7 +2,6 @@
 %{
 #include <stdio.h>
 #include <glib.h>
-#include "lex.yy.h"
 #include "pinyin.h"
 #include "pyparser.h"
 
@@ -27,11 +26,7 @@ static void yyerror (gint *len, GList **list, void *scanner, char *s);
 
 %type  <pys>   pywords
 %type  <py>    pyword
-/*
-%type  <skip>  skip_all
-%type  <skip>  skip_pywords
-%type  <skip>  skip_chars
-*/
+
 %token <py>    PINYIN
 %token <py>    SHENGMU
 %token SKIP
@@ -40,7 +35,6 @@ static void yyerror (gint *len, GList **list, void *scanner, char *s);
 %parse-param {GList **list}
 %parse-param {void *scanner}
 %lex-param   {void *scanner}
-
 
 %left '\''
 
