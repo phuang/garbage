@@ -29,8 +29,8 @@ def get_sheng_yun(pinyin):
 	return None, pinyin
 
 def encode_pinyin(pinyin):
-	if pinyin == None:
-		return None
+	if pinyin == None or pinyin == "":
+		return -1
 	e = 0
 	for c in pinyin:
 		e = (e << 5) + ord(c) - ord('a')

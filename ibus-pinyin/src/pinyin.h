@@ -28,6 +28,8 @@ struct pinyin_t {
     const char *pinyin;
     const char *sheng;
     const char *yun;
+    gint        sheng_id;
+    gint        yun_id;
     gint        len;
 };
 
@@ -37,6 +39,8 @@ pinyin_new (const gchar *text,
             const gchar *pinyin,
             const gchar *sheng,
             const gchar *yun,
+            gint         sheng_id,
+            gint         yun_id,
             int          len)
 {
    struct pinyin_t *py;
@@ -45,6 +49,8 @@ pinyin_new (const gchar *text,
    py->pinyin = pinyin;
    py->sheng = sheng;
    py->yun = yun;
+   py->sheng_id = sheng_id;
+   py->yun_id = yun_id;
    py->len = len;
    return py;
 }

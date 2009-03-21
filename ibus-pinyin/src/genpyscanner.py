@@ -18,12 +18,20 @@ def get_sheng_yun(pinyin):
     if pinyin == None:
         return None, None
     if pinyin == "ng":
-        return None, "ng"
+        return "", "ng"
     for i in range(2, 0, -1):
         s = pinyin[:i]
         if s in shengmu_list:
             return s, pinyin[i:]
-    return None, pinyin
+    return "", pinyin
+
+def encode_pinyin(pinyin):
+    if pinyin == None or pinyin == "":
+        return -1
+    e = 0
+    for c in pinyin:
+        e = (e << 5) + ord(c) - ord('a')
+    return e
 
 def gen_header():
     header = """
@@ -58,9 +66,7 @@ def output_action(token, text, pinyin, comment=None, flag=None, invflag=None):
         print "    if ((yyextra & %s)) REJECT;" % invflag
 
     sheng, yun = get_sheng_yun(pinyin)
-    if sheng == None:
-        sheng = ""
-    print '    yylval.py = pinyin_new ("%s", "%s", "%s", "%s", %d);' % (text, pinyin, sheng, yun, len(text))
+    print '    yylval.py = pinyin_new ("%s", "%s", "%s", "%s", %d, %d, %d);' % (text, pinyin, sheng, yun, encode_pinyin(sheng), encode_pinyin(yun), len(text))
     print '    return %s;' % token
     print '}'
 
@@ -101,8 +107,6 @@ def gen_fuzzy_yunmu_rules():
         flag = "PINYIN_FUZZY_%s_%s" % (y1.upper(), y2.upper())
         for p in pinyin_list:
             s, y = get_sheng_yun(p)
-            if s == None:
-                s = ""
             if y in (y1, y2):
                 fp = None
                 if s + y1 not in pinyin_list:
