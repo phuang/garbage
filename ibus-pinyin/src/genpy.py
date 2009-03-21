@@ -135,6 +135,8 @@ def gen_header():
 #include <glib.h>
 #include <string.h>
 #include "y.tab.h"
+
+#define USE_PINYIN_NEW
 #include "pinyin.h"
 
 %}

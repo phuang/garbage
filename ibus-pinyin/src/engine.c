@@ -352,9 +352,8 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                                IBUS_HYPER_MASK |
                                IBUS_META_MASK );
 
-    /* process letter and ' at first */
-    if ((keyval >= IBUS_a && keyval <= IBUS_z) ||
-        (keyval == IBUS_apostrophe)) {
+    /* process letter at first */
+    if (keyval >= IBUS_a && keyval <= IBUS_z) {
         if (G_UNLIKELY (modifiers != 0)) {          // with some modifiers
             if (pinyin->input_buffer->len > 0) {    // ignore input if input buffer is not empty
                 retval = TRUE;
@@ -364,6 +363,19 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
             g_string_insert_c (pinyin->input_buffer, pinyin->input_cursor++, keyval);
             retval = TRUE;
             need_update = TRUE;
+        }
+        goto _out;
+    }
+
+    if (keyval == IBUS_apostrophe) {
+        if (pinyin->input_buffer->len > 0) {
+            if (G_UNLIKELY (modifiers != 0)) {          // with some modifiers
+            }
+            else {
+                g_string_insert_c (pinyin->input_buffer, pinyin->input_cursor++, keyval);
+                need_update = TRUE;
+            }
+            retval = TRUE;
         }
         goto _out;
     }

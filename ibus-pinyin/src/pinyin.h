@@ -31,6 +31,7 @@ struct pinyin_t {
     gint        len;
 };
 
+#ifdef USE_PINYIN_NEW
 static struct pinyin_t *
 pinyin_new (const gchar *text,
             const gchar *pinyin,
@@ -47,12 +48,9 @@ pinyin_new (const gchar *text,
    py->len = len;
    return py;
 }
+#endif
 
-static void
-pinyin_free (struct pinyin_t *py)
-{
-    g_slice_free (struct pinyin_t, py);
-}
+#define pinyin_free(py) g_slice_free (struct pinyin_t, py)
 
 #define PINYIN_TEXT(p)      (((struct pinyin_t *)p)->text)
 #define PINYIN_PINYIN(p)    (((struct pinyin_t *)p)->pinyin)
