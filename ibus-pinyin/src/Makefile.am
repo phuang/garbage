@@ -18,6 +18,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+@MAINTAINER_MODE_FALSE@skip_genpyscanner=test -f $@ ||
 GENPYSCANNER = genpyscanner.py
 
 AM_CFLAGS = \
@@ -95,7 +96,7 @@ CLEANFILES = \
 	$(NULL)
 
 pyscanner.l: $(GENPYSCANNER)
-	test -f $@ || $(PYTHON) $(srcdir)/$(GENPYSCANNER) > $@
+	$(skip_genpyscanner) $(PYTHON) $(srcdir)/$(GENPYSCANNER) > $@
 
 pinyin.xml: pinyin.xml.in
 	( \
