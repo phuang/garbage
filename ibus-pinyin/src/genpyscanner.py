@@ -26,7 +26,6 @@ def get_sheng_yun(pinyin):
     return None, pinyin
 
 def gen_header():
-    # %option header-file="pyscanner.h"
     header = """
 %{
 #include <stdio.h>
@@ -61,7 +60,7 @@ def output_action(token, text, pinyin, comment=None, flag=None, invflag=None):
     sheng, yun = get_sheng_yun(pinyin)
     if sheng == None:
         sheng = ""
-    print '    yylval.py = pinyin_new ("%s", "%s", "%s", "%s", %d );' % (text, pinyin, sheng, yun, len(text))
+    print '    yylval.py = pinyin_new ("%s", "%s", "%s", "%s", %d);' % (text, pinyin, sheng, yun, len(text))
     print '    return %s;' % token
     print '}'
 

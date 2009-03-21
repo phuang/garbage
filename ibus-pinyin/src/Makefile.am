@@ -18,6 +18,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+GENPYSCANNER = genpyscanner.py
+
 AM_CFLAGS = \
 	@IBUS_CFLAGS@ \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
@@ -46,14 +48,15 @@ TESTS = \
 libexec_PROGRAMS = ibus-engine-pinyin
 
 ibus_engine_c_sources = \
-	main.c \
 	pygrammar.y \
 	pyscanner.l \
+	main.c \
 	pyparser.c \
 	engine.c \
 	$(ibus_engine_built_c_sources) \
 	$(NULL)
 ibus_engine_h_sources = \
+	pyscanner.h \
 	pinyin.h \
 	pyparser.h \
 	engine.h \
@@ -80,19 +83,19 @@ component_DATA = \
 componentdir = @datadir@/ibus/component
 
 EXTRA_DIST = \
+	$(GENPYSCANNER) \
+	pyscanner.l \
+	pygrammar.y \
 	pinyin.xml.in \
-	genpy.py \
 	pydict.py \
-	pyparser.y \
 	$(NULL)
 
 CLEANFILES = \
 	pinyin.xml \
-	pypscanner.l \
 	$(NULL)
 
-pyscanner.l: genpy.py
-	python $(srcdir)/genpy.py > $@
+pyscanner.l: $(GENPYSCANNER)
+	$(PYTHON) $(srcdir)/$(GENPYSCANNER) > $@
 
 pinyin.xml: pinyin.xml.in
 	( \
@@ -104,7 +107,6 @@ pinyin.xml: pinyin.xml.in
 
 test: ibus-engine-pinyin
 	$(builddir)/ibus-engine-pinyin
-
 
 .l.c:
 	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ $(LEX_OUTPUT_ROOT).h $*.h -- $(LEXCOMPILE)
