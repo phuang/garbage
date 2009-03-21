@@ -84,15 +84,18 @@ componentdir = @datadir@/ibus/component
 
 EXTRA_DIST = \
 	pinyin.xml.in \
+	genpy.py \
+	pyparser.y \
 	$(NULL)
 
 CLEANFILES = \
 	$(ibus_engine_built_sources) \
 	pinyin.xml \
+	pyparser.l \
 	$(NULL)
 
 pyparser.l: genpy.py
-	python genpy.py > $@
+	python $(srcdir)/genpy.py > $@
 
 y.tab.c: pyparser.y
 	$(YACC) $(YFLAGS) -d $^
