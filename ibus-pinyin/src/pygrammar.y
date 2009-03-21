@@ -54,7 +54,6 @@ input:
         DEBUG ("error + pywords     => input\n");
         
         *array = pinyin_array_reverse ($2.array);
-        g_array_free ($2.array, TRUE);
         *len = $2.len;
         
         yyerrok;
@@ -63,7 +62,6 @@ input:
     {
         DEBUG ("pywords             => input\n");
         *array = pinyin_array_reverse ($1.array);
-        g_array_free ($1.array, TRUE);
         *len = $1.len;
     }
     ;
@@ -103,24 +101,28 @@ pyword:
 
 %%
 
-static void yyerror (gint *len, GArray **array, void *scanner, char *s)
+static void
+yyerror (gint *len, GArray **array, void *scanner, char *s)
 {
     DEBUG (s);
-    py_parser_free_result (*array);
+    if (*array) {
+        py_parser_free_result (*array);
+    }
     *array = NULL;
     *len = 0;
 }
 
-static GArray *pinyin_array_reverse (GArray *array)
+static GArray *
+pinyin_array_reverse (GArray *array)
 {
-    GArray *new_array;
     gint i;
+    struct pinyin_t *tmp;
 
-    new_array = g_array_sized_new (TRUE, TRUE, sizeof (struct pinyin_t *), array->len);
-    
-    for (i = array->len - 1; i >= 0; i--) {
-        g_array_append_val (new_array, g_array_index (array, struct pinyin_t *, i));
+    for (i = 0; i < array->len >> 1; i++) {
+        tmp = g_array_index (array, struct pinyin_t *, i);
+        g_array_index (array, struct pinyin_t *, i) = g_array_index (array, struct pinyin_t *, array->len - i - 1);
+        g_array_index (array, struct pinyin_t *, array->len - i - 1) = tmp;
     }
 
-    return new_array;
+    return array;
 }
