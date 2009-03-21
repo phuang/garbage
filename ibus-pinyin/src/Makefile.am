@@ -23,10 +23,12 @@ GENPYSCANNER = genpyscanner.py
 
 AM_CFLAGS = \
 	@IBUS_CFLAGS@ \
+	@SQLITE_CFLAGS@ \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	$(NULL)
 AM_LDFLAGS = \
 	@IBUS_LIBS@ \
+	@SQLITE_LIBS@ \
 	$(NULL)
 
 AM_YFLAGS = \
@@ -39,13 +41,6 @@ AM_LFLAGS = \
 	--header-file=$(LEX_OUTPUT_ROOT).h \
 	$(NULL)
 
-check_PROGRAMS = \
-	$(NULL)
-
-TESTS = \
-	$(check_PROGRAMS) \
-	$(NULL)
-
 libexec_PROGRAMS = ibus-engine-pinyin
 
 ibus_engine_c_sources = \
@@ -54,6 +49,7 @@ ibus_engine_c_sources = \
 	main.c \
 	pyparser.c \
 	pyengine.c \
+	pydb.c \
 	$(ibus_engine_built_c_sources) \
 	$(NULL)
 ibus_engine_h_sources = \
@@ -61,6 +57,7 @@ ibus_engine_h_sources = \
 	pinyin.h \
 	pyparser.h \
 	pyengine.h \
+	pydb.h \
 	$(ibus_engine_built_h_sources) \
 	$(NULL)
 ibus_engine_pinyin_SOURCES = \
@@ -73,6 +70,7 @@ ibus_engine_pinyin_CFLAGS = \
 	$(NULL)
 ibus_engine_pinyin_LDFLAGS = \
 	@IBUS_LIBS@ \
+	@SQLITE_LIBS@ \
 	$(NULL)
 
 BUILT_SOURCES = \
@@ -93,6 +91,23 @@ EXTRA_DIST = \
 
 CLEANFILES = \
 	pinyin.xml \
+	$(NULL)
+
+check_PROGRAMS = \
+	test-pydb \
+	$(NULL)
+
+TESTS = \
+	$(check_PROGRAMS) \
+	$(NULL)
+
+test_pydb_SOURCES = \
+	pydb.c \
+	pydb.h \
+	$(NULL)
+test_pydb_CFLAGS = \
+	$(AM_CFLAGS) \
+	-DTEST \
 	$(NULL)
 
 pyscanner.l: $(GENPYSCANNER)
