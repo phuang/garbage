@@ -266,29 +266,41 @@ ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
             g_string_append_c (preedit_text, '\'');
             g_string_append (preedit_text, PINYIN_PINYIN (p->data));
         }
+        g_debug ("pinyin = %s, len = %d", preedit_text->str, pinyin->pinyin_len);
 
-        len = preedit_text->len;
+        if (pinyin->pinyin_len == pinyin->input_cursor) {
+            cursor_pos =  preedit_text->len;
+            g_string_append (preedit_text, "|");
+            len = preedit_text->len;
 
-        if (pinyin->pinyin_len < pinyin->input_buffer->len) {
             g_string_append (preedit_text, pinyin->input_buffer->str + pinyin->pinyin_len);
+            // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x000000ff, len, -1);
+        }
+        else {
+            len = preedit_text->len;
+            g_string_append_len (preedit_text,
+                                 pinyin->input_buffer->str + pinyin->pinyin_len,
+                                 pinyin->input_cursor - pinyin->pinyin_len);
+            // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x000000ff, len, preedit_text->len);
+
+            cursor_pos =  preedit_text->len;
+            g_string_append (preedit_text, "|");
+            len = preedit_text->len;
+
+            g_string_append (preedit_text, pinyin->input_buffer->str + pinyin->input_cursor);
+            // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x000000ff, len, -1);
         }
 
-        cursor_pos = preedit_text->len - pinyin->input_buffer->len + pinyin->input_cursor;
-
-
         text = ibus_text_new_from_string (preedit_text->str);
-        ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x00ff0000, len, -1);
-        ibus_text_append_attribute (text, IBUS_ATTR_TYPE_BACKGROUND, 0x00ffffff, len, -1);
-        ibus_engine_update_preedit_text ((IBusEngine *)pinyin,
+        ibus_engine_update_auxiliary_text ((IBusEngine *)pinyin,
                                          text,
-                                         cursor_pos,
                                          TRUE);
         g_object_unref (text);
         g_string_free (preedit_text, TRUE);
     }
     else {
         text = ibus_text_new_from_static_string ("");
-        ibus_engine_update_preedit_text ((IBusEngine *)pinyin, text, 0, FALSE);
+        ibus_engine_update_auxiliary_text ((IBusEngine *)pinyin, text, FALSE);
         g_object_unref (text);
     }
 }
