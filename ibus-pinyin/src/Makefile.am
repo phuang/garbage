@@ -85,6 +85,7 @@ componentdir = @datadir@/ibus/component
 EXTRA_DIST = \
 	pinyin.xml.in \
 	genpy.py \
+	pydict.py \
 	pyparser.y \
 	$(NULL)
 
