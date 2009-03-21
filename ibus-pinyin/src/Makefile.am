@@ -52,14 +52,14 @@ ibus_engine_c_sources = \
 	pyscanner.l \
 	main.c \
 	pyparser.c \
-	engine.c \
+	pyengine.c \
 	$(ibus_engine_built_c_sources) \
 	$(NULL)
 ibus_engine_h_sources = \
 	pyscanner.h \
 	pinyin.h \
 	pyparser.h \
-	engine.h \
+	pyengine.h \
 	$(ibus_engine_built_h_sources) \
 	$(NULL)
 ibus_engine_pinyin_SOURCES = \
@@ -95,7 +95,7 @@ CLEANFILES = \
 	$(NULL)
 
 pyscanner.l: $(GENPYSCANNER)
-	$(PYTHON) $(srcdir)/$(GENPYSCANNER) > $@
+	test -f $@ || $(PYTHON) $(srcdir)/$(GENPYSCANNER) > $@
 
 pinyin.xml: pinyin.xml.in
 	( \

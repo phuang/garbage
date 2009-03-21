@@ -3,7 +3,7 @@
 #include <ibus.h>
 #include <string.h>
 #include "pyparser.h"
-#include "engine.h"
+#include "pyengine.h"
 
 #define IBUS_PINYIN_ENGINE(obj)             \
     (G_TYPE_CHECK_INSTANCE_CAST ((obj), IBUS_TYPE_PINYIN_ENGINE, IBusPinyinEngine))

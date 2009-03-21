@@ -3,7 +3,7 @@
 #include <ibus.h>
 #include <stdlib.h>
 #include <locale.h>
-#include "engine.h"
+#include "pyengine.h"
 
 #define N_(text) text
 

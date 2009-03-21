@@ -55,6 +55,11 @@ PKG_CHECK_MODULES(IBUS, [
     ibus-1.0
 ])
 
+# check sqlite
+PKG_CHECK_MODULES(SQLITE, [
+    sqlite3
+])
+
 # check env
 AC_PATH_PROG(ENV, env)
 AC_SUBST(ENV)
