@@ -122,7 +122,6 @@ def get_sheng_yun(pinyin):
         return None, None
     if pinyin == "ng":
         return None, "ng"
-    
     for i in range(2, 0, -1):
         s = pinyin[:i]
         if s in shengmu_list:
@@ -141,14 +140,18 @@ def gen_header():
 static struct pinyin_t *
 pinyin_new (const gchar *text,
             const gchar *pinyin,
+            const gchar *sheng,
+            const gchar *yun,
             gint         len)
 {
     struct pinyin_t *py;
-    
+
     py = g_slice_new (struct pinyin_t);
 
     py->text = text;
     py->pinyin = pinyin;
+    py->sheng = sheng;
+    py->yun = yun;
     py->len = len;
 
     return py;
@@ -165,22 +168,30 @@ pinyin_new (const gchar *text,
 %%"""
     print header
 
+def output_action(token, text, pinyin, comment=None, flag=None, invflag=None):
+    if comment == None:
+        comment = "parse %s for %s" % (text, pinyin)
+    print "%s { /* %s */" % (text[::-1], comment)
+
+    if flag != None:
+        print "    if ((yyextra & %s) == 0) REJECT;" % flag
+    if invflag != None:
+        print "    if ((yyextra & %s)) REJECT;" % invflag
+
+    sheng, yun = get_sheng_yun(pinyin)
+    if sheng == None:
+        sheng = ""
+    print '    yylval.py = pinyin_new ("%s", "%s", "%s", "%s", %d );' % (text, pinyin, sheng, yun, len(text))
+    print '    return %s; }' % token
+
 def gen_pinyin_rule():
     l = pinyin_list
     for p in pinyin_list:
-        action = """%s { /* parse pinyin %s */
-    yylval.py = pinyin_new (\"%s\", \"%s\", %d);
-    return PINYIN; }""" % (p[::-1], p, p, p, len(p))
-        print action
+        output_action("PINYIN", p, p, "parse pinyin %s" % p)
 
 def gen_shengm_rule():
     for p in shengmu_list:
-        action = """%s { /* parse sheng mu %s */
-    if (yyextra & PINYIN_FULL_PINYIN)
-        REJECT;
-    yylval.py = pinyin_new (\"%s\", \"%s\", %d);
-    return SHENGMU; }""" % (p[::-1], p, p, p, len(p))
-        print action
+        output_action("SHENGMU", p, p, "parse sheng %s" % p, invflag="PINYIN_FULL_PINYIN")
 
 def gen_auto_correct_rules():
     for c, w in auto_correct:
@@ -189,13 +200,8 @@ def gen_auto_correct_rules():
         for p in pinyin_list:
             if p.endswith(c) and p != c:
                 wp = p.replace(c, w)
-                action = \
-"""%s { /* parse wrong pinyin %s */
-    if ((yyextra & %s) == 0)
-        REJECT;
-    yylval.py = pinyin_new (\"%s\", \"%s\", %d);
-    return PINYIN; }"""
-                print action % (wp[::-1], wp, flag, wp, p, len(wp))
+                output_action("PINYIN", wp, p, "parse wrong pinyin %s" % wp, flag=flag)
+
 def gen_fuzzy_shengmu_rules():
     for s1, s2 in fuzzy_shengmu:
         flag = "PINYIN_FUZZY_%s_%s" % (s1.upper(), s2.upper())
@@ -208,13 +214,7 @@ def gen_fuzzy_shengmu_rules():
                 if s2 + y not in pinyin_list:
                     fp = s2 + y
                 if fp != None:
-                    action = \
-"""%s { /* parse fuzzy pinyin %s : (%s == %s)*/
-    if ((yyextra & %s) == 0)
-        REJECT;
-    yylval.py = pinyin_new (\"%s\", \"%s\", %d);
-    return PINYIN;}"""
-                    print action % (fp[::-1], fp, s1, s2, flag, fp, p, len(fp))
+                    output_action("PINYIN", fp, fp, "parse fuzzy pinyin %s (%s == %s)" % (fp, s1, s2), flag=flag)
 
 def gen_fuzzy_yunmu_rules():
     for y1, y2 in fuzzy_yunmu:
@@ -230,13 +230,7 @@ def gen_fuzzy_yunmu_rules():
                 if s + y2 not in pinyin_list:
                     fp = s + y2
                 if fp != None:
-                    action = \
-"""%s { /* parse fuzzy pinyin %s : (%s == %s)*/
-    if ((yyextra & %s) == 0)
-        REJECT;
-    yylval.py = pinyin_new (\"%s\", \"%s\", %d);
-    return PINYIN;}"""
-                    print action % (fp[::-1], fp, y1, y2, flag, fp, p, len(fp))
+                    output_action("PINYIN", fp, fp, "parse fuzzy pinyin %s (%s == %s)" % (fp, y1, y2), flag=flag)
 
 def gen_other_rules():
     print "' { return '\\\''; }"

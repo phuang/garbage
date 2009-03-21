@@ -42,13 +42,13 @@ struct _IBusPinyinEngineClass {
 };
 
 /* functions prototype */
-static void    ibus_pinyin_engine_class_init   (IBusPinyinEngineClass  *klass);
-static void    ibus_pinyin_engine_init        (IBusPinyinEngine    *pinyin);
+static void    ibus_pinyin_engine_class_init    (IBusPinyinEngineClass  *klass);
+static void    ibus_pinyin_engine_init          (IBusPinyinEngine    *pinyin);
 static GObject*
             ibus_pinyin_engine_constructor      (GType                   type,
                                                  guint                   n_construct_params,
                                                  GObjectConstructParam  *construct_params);
-static void    ibus_pinyin_engine_destroy    (IBusPinyinEngine    *pinyin);
+static void    ibus_pinyin_engine_destroy       (IBusPinyinEngine    *pinyin);
 static gboolean    ibus_pinyin_engine_process_key_event
                                                 (IBusEngine             *engine,
                                                  guint                   keyval,
