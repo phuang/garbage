@@ -352,10 +352,11 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                                IBUS_HYPER_MASK |
                                IBUS_META_MASK );
 
+    /* process letter and ' at first */
     if ((keyval >= IBUS_a && keyval <= IBUS_z) ||
-        (keyval == IBUS_apostrophe)) {     // input is letter
+        (keyval == IBUS_apostrophe)) {
         if (G_UNLIKELY (modifiers != 0)) {          // with some modifiers
-            if (pinyin->input_buffer->len > 0) {    // ignoreinput if input buffer is not empty
+            if (pinyin->input_buffer->len > 0) {    // ignore input if input buffer is not empty
                 retval = TRUE;
             }
         }

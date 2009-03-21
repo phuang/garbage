@@ -25,6 +25,8 @@ AM_CFLAGS = \
 AM_LDFLAGS = \
 	@IBUS_LIBS@ \
 	$(NULL)
+YFLAGS = \
+	$(NULL)
 
 check_PROGRAMS = \
 	$(NULL)
@@ -85,6 +87,7 @@ EXTRA_DIST = \
 	$(NULL)
 
 CLEANFILES = \
+	$(ibus_engine_built_sources) \
 	pinyin.xml \
 	$(NULL)
 
@@ -92,7 +95,7 @@ pyparser.l: genpy.py
 	python genpy.py > $@
 
 y.tab.c: pyparser.y
-	$(YACC) -d $^
+	$(YACC) $(YFLAGS) -d $^
 
 lex.yy.c lex.yy.h: pyparser.l
 	$(LEX) --header-file=lex.yy.h $^

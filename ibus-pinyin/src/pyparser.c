@@ -38,7 +38,7 @@ py_parser_parse (PYParser    *parser,
     YY_BUFFER_STATE b;
     GList *result;
     gchar *buf;
-    gint skip;
+    gint retval;
 
     if (len < 0)
         len = strlen (str);
@@ -50,16 +50,16 @@ py_parser_parse (PYParser    *parser,
     g_free (buf);
 
     result = NULL;
-    skip = 0;
-    if (yyparse (&skip, &result, parser->scanner) != 0) {
+    retval = 0;
+    if (yyparse (&retval, &result, parser->scanner) != 0) {
         result = NULL;
-        skip = len;
+        retval = 0;
     }
 
     *list = result;
     yy_delete_buffer (b, parser->scanner);
 
-    return len - skip;
+    return retval;
 }
 
 void py_parser_free_result (GList *result)
