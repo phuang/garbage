@@ -327,15 +327,120 @@ ibus_pinyin_engine_toggle_lookup_table (IBusPinyinEngine *pinyin)
 #endif
 
 static gboolean
+ibus_pinyin_engine_append_char (IBusPinyinEngine *pinyin,
+                                gint              c,
+                                gboolean          update)
+{
+    g_string_insert_c (pinyin->input_buffer, pinyin->input_cursor++, c);
+
+    if (update) {
+        ibus_pinyin_engine_update_preedit_text (pinyin);
+    }
+    return TRUE;
+}
+
+static gboolean
+ibus_pinyin_engine_move_input_cursor (IBusPinyinEngine *pinyin,
+                                      gboolean          left,
+                                      gboolean          word,
+                                      gboolean          update)
+{
+    if (left) {
+        if (G_UNLIKELY (pinyin->input_cursor == 0))
+            return FALSE;
+
+        if (G_LIKELY (word == FALSE)) {
+            pinyin->input_cursor --;
+        }
+        else {
+            if (pinyin->input_cursor > pinyin->pinyin_len) {
+                pinyin->input_cursor = pinyin->pinyin_len;
+            }
+            else {
+                pinyin->input_cursor -= PINYIN_LEN(g_list_last (pinyin->pinyin_list)->data);
+            }
+        }
+    }
+    else {
+        if (G_UNLIKELY (pinyin->input_cursor == pinyin->input_buffer->len))
+            return FALSE;
+
+        if (G_LIKELY (word == FALSE)) {
+            pinyin->input_cursor ++;
+        }
+        else {
+            pinyin->input_cursor = pinyin->input_buffer->len;
+        }
+
+    }
+
+    if (G_LIKELY (update)) {
+        ibus_pinyin_engine_update_preedit_text (pinyin);
+    }
+    return TRUE;
+}
+
+static gboolean
+ibus_pinyin_engine_remove_input (IBusPinyinEngine *pinyin,
+                                 gboolean          before,
+                                 gboolean          word,
+                                 gboolean          update)
+{
+    if (before) {
+        gint new_cursor;
+
+        if (G_UNLIKELY (pinyin->input_cursor == 0))
+            return FALSE;
+
+        if (G_LIKELY (word == FALSE)) {
+            new_cursor = pinyin->input_cursor - 1;
+        }
+        else {
+            if (pinyin->input_cursor > pinyin->pinyin_len) {
+                new_cursor = pinyin->pinyin_len;
+            }
+            else {
+                new_cursor = pinyin->input_cursor - PINYIN_LEN (g_list_last (pinyin->pinyin_list)->data);
+            }
+        }
+
+        g_string_erase (pinyin->input_buffer, new_cursor, pinyin->input_cursor - new_cursor);
+        pinyin->input_cursor = new_cursor;
+    }
+    else {
+        gint len;
+        if (G_UNLIKELY (pinyin->input_cursor == pinyin->input_buffer->len))
+            return FALSE;
+        len = word ? -1 : 1;
+        g_string_erase (pinyin->input_buffer, pinyin->input_cursor, len);
+    }
+
+    if (G_LIKELY (update)) {
+        ibus_pinyin_engine_update_preedit_text (pinyin);
+    }
+    return TRUE;
+}
+
+static gboolean
+ibus_pinyin_engine_reset_input (IBusPinyinEngine *pinyin,
+                                gboolean          update)
+{
+    g_string_assign (pinyin->input_buffer, "");
+    pinyin->input_cursor = 0;
+
+    if (G_LIKELY (update)) {
+        ibus_pinyin_engine_update_preedit_text (pinyin);
+    }
+
+    return TRUE;
+}
+
+static gboolean
 ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                                       guint           keyval,
                                       guint           modifiers)
 {
     IBusPinyinEngine *pinyin = (IBusPinyinEngine *) engine;
-
-    gboolean retval = FALSE;
-    gboolean need_update = FALSE;
-
 
     if (modifiers & IBUS_RELEASE_MASK) {
         return TRUE;
@@ -354,116 +459,71 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
 
     /* process letter at first */
     if (keyval >= IBUS_a && keyval <= IBUS_z) {
-        if (G_UNLIKELY (modifiers != 0)) {          // with some modifiers
-            if (pinyin->input_buffer->len > 0) {    // ignore input if input buffer is not empty
-                retval = TRUE;
-            }
+       if (G_LIKELY (modifiers == 0)) {
+            ibus_pinyin_engine_append_char (pinyin, keyval, TRUE);
+            return TRUE;
         }
-        else {
-            g_string_insert_c (pinyin->input_buffer, pinyin->input_cursor++, keyval);
-            retval = TRUE;
-            need_update = TRUE;
+        if (pinyin->input_buffer->len > 0) {
+            return TRUE;
         }
-        goto _out;
+        return FALSE;
     }
 
+    /* process ' */
     if (keyval == IBUS_apostrophe) {
         if (pinyin->input_buffer->len > 0) {
-            if (G_UNLIKELY (modifiers != 0)) {          // with some modifiers
+            if (G_LIKELY (modifiers == 0)) {
+                ibus_pinyin_engine_append_char (pinyin, IBUS_apostrophe, TRUE);
             }
-            else {
-                g_string_insert_c (pinyin->input_buffer, pinyin->input_cursor++, keyval);
-                need_update = TRUE;
-            }
-            retval = TRUE;
+            return TRUE;
         }
-        goto _out;
+        return FALSE;
     }
 
     if (pinyin->input_buffer->len == 0) { // pass by when input buffer is empty
-        goto _out;
+        return FALSE;
     }
-
-    retval = TRUE;
 
     switch (keyval) {
     case IBUS_BackSpace:
-        if (pinyin->input_cursor > 0) {
-            if (modifiers == 0) {
-                pinyin->input_cursor --;
-                g_string_erase (pinyin->input_buffer, pinyin->input_cursor, 1);
-
-                need_update = TRUE;
-            }
-            else if (modifiers == IBUS_CONTROL_MASK) {
-                gint new_cursor;
-                if (pinyin->input_cursor > pinyin->pinyin_len) {
-                    new_cursor = pinyin->pinyin_len;
-                }
-                else {
-                    new_cursor = pinyin->input_cursor - PINYIN_LEN (g_list_last (pinyin->pinyin_list)->data);
-                }
-                g_string_erase (pinyin->input_buffer, new_cursor, pinyin->input_cursor - new_cursor);
-                pinyin->input_cursor = new_cursor;
-                need_update = TRUE;
-            }
+        if (G_LIKELY (modifiers == 0)) {
+            ibus_pinyin_engine_remove_input (pinyin, TRUE, FALSE, TRUE);
         }
-        break;
+        else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
+            ibus_pinyin_engine_remove_input (pinyin, TRUE, TRUE, TRUE);
+        }
+        return TRUE;
     case IBUS_Delete:
-        if (pinyin->input_cursor < pinyin->input_buffer->len) {
-            if (modifiers == 0) {
-                g_string_erase (pinyin->input_buffer, pinyin->input_cursor, 1);
-                need_update = TRUE;
-            }
-            else if (modifiers == IBUS_CONTROL_MASK) {
-                g_string_erase (pinyin->input_buffer, pinyin->input_cursor, -1);
-                need_update = TRUE;
-            }
+        if (G_LIKELY (modifiers == 0)) {
+            ibus_pinyin_engine_remove_input (pinyin, FALSE, FALSE, TRUE);
         }
-        break;
+        else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
+            ibus_pinyin_engine_remove_input (pinyin, FALSE, TRUE, TRUE);
+        }
+        return TRUE;
     case IBUS_Left:
-        if (pinyin->input_cursor > 0) {
-            if (modifiers == 0) {
-                pinyin->input_cursor --;
-                need_update = TRUE;
-            }
-            else if (modifiers == IBUS_CONTROL_MASK) {
-                if (pinyin->input_cursor > pinyin->pinyin_len) {
-                    pinyin->input_cursor = pinyin->pinyin_len;
-                }
-                else {
-                    pinyin->input_cursor -= PINYIN_LEN(g_list_last (pinyin->pinyin_list)->data);
-                }
-                need_update = TRUE;
-            }
+        if (G_LIKELY (modifiers == 0)) {
+            ibus_pinyin_engine_move_input_cursor (pinyin, TRUE, FALSE, TRUE);
         }
-        break;
+        else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
+            ibus_pinyin_engine_move_input_cursor (pinyin, TRUE, TRUE, TRUE);
+        }
+        return TRUE;
     case IBUS_Right:
-        if (pinyin->input_cursor < pinyin->input_buffer->len) {
-            if (modifiers == 0) {
-                pinyin->input_cursor ++;
-                need_update = TRUE;
-            }
-            else if (modifiers == IBUS_CONTROL_MASK) {
-                pinyin->input_cursor = pinyin->input_buffer->len;
-                need_update = TRUE;
-            }
+        if (G_LIKELY (modifiers == 0)) {
+            ibus_pinyin_engine_move_input_cursor (pinyin, FALSE, FALSE, TRUE);
         }
-        break;
+        else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
+            ibus_pinyin_engine_move_input_cursor (pinyin, FALSE, TRUE, TRUE);
+        }
+        return TRUE;
     case IBUS_Escape:
-        g_string_assign (pinyin->input_buffer, "");
-        pinyin->input_cursor = 0;
-        need_update = TRUE;
-        break;
+        ibus_pinyin_engine_reset_input (pinyin, TRUE);
+        return TRUE;
     default:
-        break;
+        return TRUE;
     }
-
-_out:
-    if (need_update) {
-        ibus_pinyin_engine_update_preedit_text (pinyin);
-    }
-    return retval;
+    return TRUE;
 }
 
 static void
