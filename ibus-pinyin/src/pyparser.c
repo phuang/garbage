@@ -62,7 +62,8 @@ py_parser_parse (PYParser    *parser,
     return retval;
 }
 
-void py_parser_free_result (GList *result)
+void
+py_parser_free_result (GList *result)
 {
     GList *p;
 
@@ -72,3 +73,17 @@ void py_parser_free_result (GList *result)
 
     g_list_free (result);
 }
+
+void
+py_parser_set_option (PYParser *parser,
+                      guint     option)
+{
+    yyset_extra (option, parser->scanner);
+}
+
+guint
+py_parser_get_option (PYParser  *parser)
+{
+    return yyget_extra (parser->scanner);
+}
+
