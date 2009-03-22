@@ -9,8 +9,16 @@ typedef struct _PYPhrase PYPhrase;
 
 struct _PYPhrase {
     gchar *phrase;
-    struct pinyin_t *pinyin;
+    gint freq;
+    gint pinyin_id[16][2];
     gint len;
 };
 
+PYDB    *py_db_new      ();
+void     py_db_free     (PYDB   *db);
+GArray  *py_db_query    (PYDB   *db,
+                         GArray *pinyin,
+                         gint    m);
+void     py_db_query_result_free
+                        (GArray *result);
 #endif

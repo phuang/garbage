@@ -27,10 +27,10 @@ def get_sheng_yun(pinyin):
 
 def encode_pinyin(pinyin):
     if pinyin == None or pinyin == "":
-        return -1
+        return 0
     e = 0
     for c in pinyin:
-        e = (e << 5) + ord(c) - ord('a')
+        e = (e << 5) + (ord(c) - ord('a') + 1)
     return e
 
 def gen_header():

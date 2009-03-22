@@ -6,7 +6,7 @@ con2 = sqlite3.connect("py-new.db")
 con2.execute ("PRAGMA synchronous = NORMAL;")
 con2.execute ("PRAGMA temp_store = MEMORY;")
 
-sql = "create table py_phrase_%d (%s, phrase text, freq integer)"
+sql = "create table py_phrase_%d (phrase text, freq integer, %s)"
 
 for i in range(0, 16):
 	column= []
@@ -30,10 +30,10 @@ def get_sheng_yun(pinyin):
 
 def encode_pinyin(pinyin):
 	if pinyin == None or pinyin == "":
-		return -1
+		return 0
 	e = 0
 	for c in pinyin:
-		e = (e << 5) + ord(c) - ord('a')
+		e = (e << 5) + (ord(c) - ord('a') + 1)
 	return e
 
 insert_sql = "insert into py_phrase_%d values (%s);"
@@ -65,7 +65,7 @@ for r in con1.execute("select * from py_phrase order by freq"):
 		sheng_yun.append(y)
 	
 	
-	column = map(encode_pinyin, sheng_yun) + [phrase, new_freq]
+	column = [phrase, new_freq] + map(encode_pinyin, sheng_yun)
 
 	sql = insert_sql % (i, ",".join(["?"] * len(column)))
 	con2.execute (sql, column)
