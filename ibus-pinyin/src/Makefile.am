@@ -106,6 +106,8 @@ TESTS = \
 test_pydb_SOURCES = \
 	pydb.c \
 	pydb.h \
+	pyphrasearray.c \
+	pyphrasearray.h \
 	$(NULL)
 test_pydb_CFLAGS = \
 	$(AM_CFLAGS) \
