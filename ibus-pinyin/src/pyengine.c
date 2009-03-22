@@ -533,7 +533,7 @@ ibus_pinyin_engine_reset_input (IBusPinyinEngine *pinyin,
     pinyin->input_cursor = 0;
 
     if (G_LIKELY (update)) {
-        ibus_pinyin_engine_update (pinyin, FALSE);
+        ibus_pinyin_engine_update (pinyin, TRUE);
     }
 
     return TRUE;
@@ -563,7 +563,9 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
 
     /* process letter at first */
     if (keyval >= IBUS_a && keyval <= IBUS_z) {
-       if (G_LIKELY (modifiers == 0)) {
+        if (G_LIKELY (modifiers == 0)) {
+            if (G_UNLIKELY (pinyin->input_buffer->len >= 48))
+                return TRUE;
             ibus_pinyin_engine_append_char (pinyin, keyval, TRUE);
             return TRUE;
         }

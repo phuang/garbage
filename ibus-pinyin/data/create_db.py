@@ -5,6 +5,7 @@ con1 = sqlite3.connect("py.db")
 con2 = sqlite3.connect("py-new.db")
 con2.execute ("PRAGMA synchronous = NORMAL;")
 con2.execute ("PRAGMA temp_store = MEMORY;")
+con2.execute ("PRAGMA default_cache_size = 5000;")
 
 sql = "create table py_phrase_%d (phrase text, freq integer, %s)"
 
