@@ -30,6 +30,10 @@ struct pinyin_t {
     const char *yun;
     gint        sheng_id;
     gint        yun_id;
+    const char *fsheng;
+    const char *fyun;
+    gint        fsheng_id;
+    gint        fyun_id;
     gint        len;
 };
 
@@ -41,6 +45,10 @@ pinyin_new (const gchar *text,
             const gchar *yun,
             gint         sheng_id,
             gint         yun_id,
+            const gchar *fsheng,
+            const gchar *fyun,
+            gint         fsheng_id,
+            gint         fyun_id,
             int          len)
 {
    struct pinyin_t *py;

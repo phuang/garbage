@@ -14,6 +14,16 @@ auto_correct = [("ng", "gn"), ("ng", "mg"), ("iu", "iou"), ("ui", "uei"), ("un",
 fuzzy_shengmu = [("c", "ch"), ("z", "zh"), ("s", "sh"), ("l", "n"), ("f", "h"), ("r", "l"), ("k", "g")]
 fuzzy_yunmu = [("an", "ang"), ("en", "eng"), ("in", "ing"), ("uan", "uang")]
 
+fuzzy_shengmu_dict = {}
+for s1, s2 in fuzzy_shengmu:
+    fuzzy_shengmu_dict[s1] = s2
+    fuzzy_shengmu_dict[s2] = s1
+
+fuzzy_yunmu_dict = {}
+for y1, y2 in fuzzy_yunmu:
+    fuzzy_yunmu_dict[y1] = y2
+    fuzzy_yunmu_dict[y2] = y1
+
 def get_sheng_yun(pinyin):
     if pinyin == None:
         return None, None
@@ -66,7 +76,22 @@ def output_action(token, text, pinyin, comment=None, flag=None, invflag=None):
         print "    if ((yyextra & %s)) REJECT;" % invflag
 
     sheng, yun = get_sheng_yun(pinyin)
-    print '    yylval.py = pinyin_new ("%s", "%s", "%s", "%s", %d, %d, %d);' % (text, pinyin, sheng, yun, encode_pinyin(sheng), encode_pinyin(yun), len(text))
+    fsheng = fuzzy_shengmu_dict.get(sheng, "")
+    fyun = fuzzy_yunmu_dict.get(yun, "")
+
+    if fsheng:
+        if fsheng + yun not in pinyin_list and fsheng + fyun not in pinyin_list:
+            fsheng = ""
+    if fyun:
+        if sheng + fyun not in pinyin_list and fsheng + fyun not in pinyin_list:
+            fyun = ""
+
+    print '    yylval.py = pinyin_new ("%s", "%s",' % (text, pinyin)
+    print '                            "%s", "%s",' % (sheng, yun)
+    print '                            %d, %d,'     % (encode_pinyin(sheng), encode_pinyin(yun))
+    print '                            %s, %s,'     % ('"%s"' % fsheng if fsheng else "NULL", '"%s"' % fyun if fyun else "NULL")
+    print '                            %d, %d,'     % (encode_pinyin(fsheng), encode_pinyin(fyun))
+    print '                            %d);'        % (len(text))
     print '    return %s;' % token
     print '}'
 
