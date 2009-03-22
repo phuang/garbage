@@ -49,6 +49,7 @@ ibus_engine_c_sources = \
 	main.c \
 	pyparser.c \
 	pyengine.c \
+	pyphrasearray.c \
 	pydb.c \
 	$(ibus_engine_built_c_sources) \
 	$(NULL)
@@ -57,6 +58,7 @@ ibus_engine_h_sources = \
 	pinyin.h \
 	pyparser.h \
 	pyengine.h \
+	pyphrasearray.h \
 	pydb.h \
 	$(ibus_engine_built_h_sources) \
 	$(NULL)

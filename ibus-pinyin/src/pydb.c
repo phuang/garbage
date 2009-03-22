@@ -1,4 +1,5 @@
 /* vim:set et sts=4: */
+#include <string.h>
 #include <locale.h>
 #include <glib.h>
 #include <sqlite3.h>
@@ -39,24 +40,28 @@ py_db_free (PYDB *db)
     g_free (db);
 }
 
-GArray *
-py_db_query (PYDB   *db,
-             GArray *pinyin,
-             gint    m)
+gboolean
+py_db_query_internal (PYDB          *db,
+                      GArray        *pinyin,
+                      gint           pinyin_begin,
+                      gint           pinyin_len,
+                      PYPhraseArray *result,
+                      gint           m)
 {
     GString *sql;
-    GArray *result;
     sqlite3_stmt *stmt;
     gint i;
 
-    if (pinyin->len > 16)
-        return NULL;
+    if (pinyin_len > pinyin->len - pinyin_begin)
+        pinyin_len = pinyin->len - pinyin_begin;
+    if (pinyin_len > 16)
+        return FALSE;
 
     /* prepare sql */
     sql = g_string_new ("");
-    g_string_append_printf (sql, " select * from main.py_phrase_%d where ", pinyin->len - 1);
+    g_string_append_printf (sql, " select * from main.py_phrase_%d where ", pinyin_len - 1);
 
-    for (i = 0; i < pinyin->len; i++) {
+    for (i = pinyin_begin; i < pinyin_begin + pinyin_len; i++) {
         struct pinyin_t *p;
         p = g_array_index (pinyin, struct pinyin_t *, i);
 
@@ -76,44 +81,55 @@ py_db_query (PYDB   *db,
 
     /* query database */
     if (sqlite3_prepare (db->db, sql->str, -1, &stmt, NULL) != SQLITE_OK) {
-        return NULL;
+        return FALSE;
     }
 
-    result = g_array_sized_new (TRUE, FALSE, sizeof (PYPhrase), 128);
-
-    i = 0;
     while (sqlite3_step (stmt) == SQLITE_ROW) {
         PYPhrase *p;
         gint j;
+        
+        p = py_phrase_new ();
 
-        g_array_set_size (result, i + 1);
-        p = &g_array_index (result, PYPhrase, i);
-        i++;
-
-        p->phrase = g_strdup ((const gchar *)sqlite3_column_text (stmt, 0));
+        strcpy (p->phrase, (gchar *) sqlite3_column_text (stmt, 0));
         p->freq = sqlite3_column_int (stmt, 1);
         p->len = pinyin->len;
 
-        for (j = 0; j < pinyin->len; j++) {
+        for (j = 0; j < pinyin_len; j++) {
             p->pinyin_id[j][0] = sqlite3_column_int (stmt, (j << 1) + 2);
             p->pinyin_id[j][1] = sqlite3_column_int (stmt, (j << 1) + 3);
         }
+        py_phrase_array_append (result, p);
+        py_phrase_unref (p);
     }
 
     sqlite3_finalize (stmt);
-    return result;
+    return TRUE;
 }
 
-void
-py_db_query_result_free (GArray *result)
+PYPhraseArray *
+py_db_query (PYDB   *db,
+             GArray *pinyin,
+             gint    m)
 {
+    PYPhrase *phrase;
+    PYPhraseArray *result;
+    gint len;
     gint i;
 
-    for (i = 0; i < result->len; i++) {
-        PYPhrase *p = &g_array_index (result, PYPhrase, i);
-        g_free (p->phrase);
+    result = py_phrase_array_new ();
+    len = MIN (pinyin->len, MAX_PHRASE_LEN);
+
+    for (i = len; i > 0; i --) {
+        if (m < 0) {
+            py_db_query_internal (db, pinyin, 0, i, result, -1);
+        }
+        else {
+            py_db_query_internal (db, pinyin, 0, i, result, m - py_phrase_array_len (result));
+            if (py_phrase_array_len(result) >= m)
+                break;
+        }
     }
-    g_array_free (result, TRUE);
+    return result;
 }
 
 #ifdef TEST

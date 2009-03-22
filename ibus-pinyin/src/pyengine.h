@@ -1,6 +1,6 @@
 /* vim:set et sts=4: */
-#ifndef __PYENGINE_H__
-#define __PYENGINE_H__
+#ifndef __PY_ENGINE_H__
+#define __PY_ENGINE_H__
 
 #include <ibus.h>
 

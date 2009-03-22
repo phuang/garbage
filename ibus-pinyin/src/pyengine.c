@@ -335,7 +335,7 @@ ibus_pinyin_engine_update_auxiliray_text (IBusPinyinEngine *pinyin)
 static void
 ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
 {
-    GArray *phrases;
+    PYPhraseArray *phrases;
     gint i;
     
     ibus_lookup_table_clear (pinyin->table);
@@ -347,7 +347,7 @@ ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
         return;
     }
         
-    phrases = py_db_query (pinyin->db, pinyin->pinyin_array, 10);
+    phrases = py_db_query (pinyin->db, pinyin->pinyin_array, -1);
 
     if (G_UNLIKELY (phrases == NULL)) {
         ibus_engine_update_lookup_table ((IBusEngine *)pinyin,
@@ -356,11 +356,11 @@ ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
         return;
     }
     
-    for (i = 0; i < phrases->len; i++) {
+    for (i = 0; i < py_phrase_array_len (phrases); i++) {
         PYPhrase *p;
         IBusText *text;
 
-        p = &g_array_index (phrases, PYPhrase, i);
+        p = py_phrase_array_index (phrases, i);
         
         text = ibus_text_new_from_string (p->phrase);
         ibus_lookup_table_append_candidate (pinyin->table, text);
@@ -369,8 +369,8 @@ ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
     
     ibus_engine_update_lookup_table ((IBusEngine *)pinyin,
                                      pinyin->table,
-                                     phrases->len != 0);
-    py_db_query_result_free (phrases);
+                                     py_phrase_array_len (phrases) != 0);
+    py_phrase_array_unref (phrases);
 }
 
 static void
@@ -383,17 +383,6 @@ ibus_pinyin_engine_update (IBusPinyinEngine *pinyin)
 }
 
 #if 0
-static void
-ibus_pinyin_engine_update_auxiliary_text (IBusPinyinEngine *pinyin)
-{
-}
-
-static void
-ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
-{
-    ibus_engine_update_lookup_table ((IBusEngine *)pinyin, pinyin->table, TRUE);
-}
-
 static void
 ibus_pinyin_engine_commit_current_candidate (IBusPinyinEngine *pinyin)
 {
@@ -608,6 +597,26 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
         }
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
             ibus_pinyin_engine_move_input_cursor (pinyin, FALSE, TRUE, TRUE);
+        }
+        return TRUE;
+   case IBUS_Up:
+        if (ibus_lookup_table_cursor_up (pinyin->table)) {
+            ibus_engine_update_lookup_table ((IBusEngine *)pinyin, pinyin->table, TRUE);
+        }
+        return TRUE;
+    case IBUS_Down:
+        if (ibus_lookup_table_cursor_down (pinyin->table)) {
+            ibus_engine_update_lookup_table ((IBusEngine *)pinyin, pinyin->table, TRUE);
+        }
+        return TRUE;
+   case IBUS_Page_Up:
+        if (ibus_lookup_table_page_up (pinyin->table)) {
+            ibus_engine_update_lookup_table ((IBusEngine *)pinyin, pinyin->table, TRUE);
+        }
+        return TRUE;
+    case IBUS_Page_Down:
+        if (ibus_lookup_table_page_down (pinyin->table)) {
+            ibus_engine_update_lookup_table ((IBusEngine *)pinyin, pinyin->table, TRUE);
         }
         return TRUE;
     case IBUS_Escape:
