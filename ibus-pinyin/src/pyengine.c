@@ -420,17 +420,17 @@ ibus_pinyin_engine_append_char (IBusPinyinEngine *pinyin,
 static gboolean
 ibus_pinyin_engine_move_input_cursor (IBusPinyinEngine *pinyin,
                                       gboolean          left,
-                                      gboolean          word,
+                                      gint              type,
                                       gboolean          update)
 {
     if (left) {
         if (G_UNLIKELY (pinyin->input_cursor == 0))
             return FALSE;
 
-        if (G_LIKELY (word == FALSE)) {
+        if (G_LIKELY (type == 0)) {
             pinyin->input_cursor --;
         }
-        else {
+        else if (G_LIKELY (type == 1)) {
             if (pinyin->input_cursor > pinyin->pinyin_len) {
                 pinyin->input_cursor = pinyin->pinyin_len;
             }
@@ -440,18 +440,22 @@ ibus_pinyin_engine_move_input_cursor (IBusPinyinEngine *pinyin,
                 pinyin->input_cursor -= p->len;
             }
         }
+        else {
+            if (pinyin->input_cursor > 0) {
+                pinyin->input_cursor = 0;
+            }
+        }
     }
     else {
         if (G_UNLIKELY (pinyin->input_cursor == pinyin->input_buffer->len))
             return FALSE;
 
-        if (G_LIKELY (word == FALSE)) {
+        if (G_LIKELY (type == 0)) {
             pinyin->input_cursor ++;
         }
         else {
             pinyin->input_cursor = pinyin->input_buffer->len;
         }
-
     }
 
     if (G_LIKELY (update)) {
@@ -585,21 +589,37 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
         return TRUE;
     case IBUS_Left:
         if (G_LIKELY (modifiers == 0)) {
-            ibus_pinyin_engine_move_input_cursor (pinyin, TRUE, FALSE, TRUE);
+            // move left single char
+            ibus_pinyin_engine_move_input_cursor (pinyin, TRUE, 0, TRUE);
         }
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
-            ibus_pinyin_engine_move_input_cursor (pinyin, TRUE, TRUE, TRUE);
+            // move left one pinyin
+            ibus_pinyin_engine_move_input_cursor (pinyin, TRUE, 1, TRUE);
         }
         return TRUE;
     case IBUS_Right:
         if (G_LIKELY (modifiers == 0)) {
-            ibus_pinyin_engine_move_input_cursor (pinyin, FALSE, FALSE, TRUE);
+            // move right single char
+            ibus_pinyin_engine_move_input_cursor (pinyin, FALSE, 0, TRUE);
         }
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
-            ibus_pinyin_engine_move_input_cursor (pinyin, FALSE, TRUE, TRUE);
+            // move right to end
+            ibus_pinyin_engine_move_input_cursor (pinyin, FALSE, 1, TRUE);
         }
         return TRUE;
-   case IBUS_Up:
+    case IBUS_Home:
+        if (G_LIKELY (modifiers == 0)) {
+            // move to begine
+            ibus_pinyin_engine_move_input_cursor (pinyin, TRUE, 2, TRUE);
+        }
+        return TRUE;
+    case IBUS_End:
+        if (G_LIKELY (modifiers == 0)) {
+            // move to end
+            ibus_pinyin_engine_move_input_cursor (pinyin, FALSE, 2, TRUE);
+        }
+        return TRUE;
+    case IBUS_Up:
         if (ibus_lookup_table_cursor_up (pinyin->table)) {
             ibus_engine_update_lookup_table ((IBusEngine *)pinyin, pinyin->table, TRUE);
         }
@@ -609,7 +629,7 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
             ibus_engine_update_lookup_table ((IBusEngine *)pinyin, pinyin->table, TRUE);
         }
         return TRUE;
-   case IBUS_Page_Up:
+    case IBUS_Page_Up:
         if (ibus_lookup_table_page_up (pinyin->table)) {
             ibus_engine_update_lookup_table ((IBusEngine *)pinyin, pinyin->table, TRUE);
         }

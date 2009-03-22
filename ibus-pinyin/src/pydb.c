@@ -1,6 +1,5 @@
 /* vim:set et sts=4: */
 #include <string.h>
-#include <locale.h>
 #include <glib.h>
 #include <sqlite3.h>
 #include "pinyin.h"
@@ -111,7 +110,6 @@ py_db_query (PYDB   *db,
              GArray *pinyin,
              gint    m)
 {
-    PYPhrase *phrase;
     PYPhraseArray *result;
     gint len;
     gint i;
@@ -119,7 +117,7 @@ py_db_query (PYDB   *db,
     result = py_phrase_array_new ();
     len = MIN (pinyin->len, MAX_PHRASE_LEN);
 
-    for (i = len; i > 0; i --) {
+    for (i = len; i > 0; i--) {
         if (m < 0) {
             py_db_query_internal (db, pinyin, 0, i, result, -1);
         }
@@ -135,6 +133,7 @@ py_db_query (PYDB   *db,
 #ifdef TEST
 
 #include <sys/time.h>
+#include <locale.h>
 
 void
 py_db_test (PYDB *db)

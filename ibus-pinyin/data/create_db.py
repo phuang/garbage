@@ -21,12 +21,12 @@ def get_sheng_yun(pinyin):
 	if pinyin == None:
 		return None, None
 	if pinyin == "ng":
-		return None, "ng"
+		return "", "ng"
 	for i in xrange(2, 0, -1):
 		t = pinyin[:i]
 		if t in SHENGMU_DICT:
 			return t, pinyin[len(t):]
-	return None, pinyin
+	return "", pinyin
 
 def encode_pinyin(pinyin):
 	if pinyin == None or pinyin == "":
