@@ -46,7 +46,7 @@ static GArray *pinyin_array_reverse (GArray *array);
 input:
     {
         DEBUG ("NULL                => input\n");
-        *array = g_array_new (TRUE, TRUE, sizeof (struct pinyin_t *));
+        *array = g_array_sized_new (TRUE, FALSE, sizeof (struct pinyin_t *), 32);
         *len = 0;
     }
     |   error pywords
@@ -69,7 +69,7 @@ pywords:
         pyword
     {
         DEBUG ("pyword              => pywords");
-        $$.array = g_array_new (TRUE, TRUE, sizeof (struct pinyin_t *));
+        $$.array = g_array_sized_new (TRUE, FALSE, sizeof (struct pinyin_t *), 32);
         g_array_append_val ($$.array, $1);
         $$.len = $1->len;
     }

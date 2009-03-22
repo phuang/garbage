@@ -30,6 +30,7 @@ struct _IBusPinyinEngine {
     guint    input_cursor;
     GArray  *pinyin_array;
     guint    pinyin_len;
+    gint     need_update;
 
     IBusLookupTable *table;
     IBusProperty    *pinyin_mode_prop;
@@ -87,8 +88,8 @@ static void ibus_pinyin_engine_property_hide
                                              const gchar            *prop_name);
 #endif
 
-static void     ibus_pinyin_engine_update_preedit_text
-                                                (IBusPinyinEngine       *pinyin);
+static void     ibus_pinyin_engine_update   (IBusPinyinEngine       *pinyin,
+                                             gboolean               now);
 #if 0
 static void ibus_config_value_changed       (IBusConfig             *config,
                                              const gchar            *section,
@@ -166,6 +167,8 @@ ibus_pinyin_engine_init (IBusPinyinEngine *pinyin)
 
     pinyin->pinyin_array = NULL;
     pinyin->pinyin_len = 0;
+
+    pinyin->need_update = FALSE;
 
     pinyin->pinyin_mode_prop = ibus_property_new ("pinyin_mode_prop",
                                            PROP_TYPE_NORMAL,
@@ -246,7 +249,7 @@ ibus_pinyin_engine_update_pinyin_array (IBusPinyinEngine *pinyin)
         pinyin->pinyin_array = NULL;
         pinyin->pinyin_len = 0;
     }
-    
+
     if (pinyin->input_buffer && pinyin->input_buffer->len) {
         pinyin->pinyin_len = py_parser_parse (
                                     IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->parser,
@@ -265,7 +268,7 @@ static void
 ibus_pinyin_engine_update_auxiliray_text (IBusPinyinEngine *pinyin)
 {
     IBusText *text;
-    
+
     /* clear pinyin array */
 
     if (pinyin->input_buffer && pinyin->input_buffer->len) {
@@ -275,23 +278,19 @@ ibus_pinyin_engine_update_auxiliray_text (IBusPinyinEngine *pinyin)
         gint cursor_pos;
         gint len;
 
-        pinyin->pinyin_len = py_parser_parse (
-                                    IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->parser,
-                                    pinyin->input_buffer->str,
-                                    pinyin->input_cursor,
-                                    &(pinyin->pinyin_array));
+        preedit_text = g_string_new ("");
 
-        p = (struct pinyin_t **) pinyin->pinyin_array->data;
-        if (*p) {
-            preedit_text = g_string_new ((*p)->pinyin);
-        }
-        else {
-            preedit_text = g_string_new ("");
-        }
+        if (pinyin->pinyin_array) {
+            p = (struct pinyin_t **) pinyin->pinyin_array->data;
 
-        while (*(++p) != NULL) {
-            g_string_append_c (preedit_text, '\'');
-            g_string_append (preedit_text, (*p)->pinyin);
+            if (*p) {
+                preedit_text = g_string_append (preedit_text, (*p)->pinyin);
+            }
+
+            while (*(++p) != NULL) {
+                g_string_append_c (preedit_text, '\'');
+                g_string_append (preedit_text, (*p)->pinyin);
+            }
         }
 
         if (pinyin->pinyin_len == pinyin->input_cursor) {
@@ -337,49 +336,68 @@ ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
 {
     PYPhraseArray *phrases;
     gint i;
-    
+
     ibus_lookup_table_clear (pinyin->table);
-    
+
     if (G_UNLIKELY (pinyin->pinyin_array == NULL || pinyin->pinyin_array->len == 0)) {
-        ibus_engine_update_lookup_table ((IBusEngine *)pinyin,
-                                         pinyin->table,
-                                         FALSE);
+        ibus_engine_update_lookup_table_fast ((IBusEngine *)pinyin,
+                                              pinyin->table,
+                                              FALSE);
         return;
     }
-        
+
     phrases = py_db_query (pinyin->db, pinyin->pinyin_array, -1);
 
     if (G_UNLIKELY (phrases == NULL)) {
-        ibus_engine_update_lookup_table ((IBusEngine *)pinyin,
-                                         pinyin->table,
-                                         FALSE);
+        ibus_engine_update_lookup_table_fast ((IBusEngine *)pinyin,
+                                              pinyin->table,
+                                              FALSE);
         return;
     }
-    
+
     for (i = 0; i < py_phrase_array_len (phrases); i++) {
         PYPhrase *p;
         IBusText *text;
 
         p = py_phrase_array_index (phrases, i);
-        
+
         text = ibus_text_new_from_string (p->phrase);
         ibus_lookup_table_append_candidate (pinyin->table, text);
         g_object_unref (text);
     }
-    
-    ibus_engine_update_lookup_table ((IBusEngine *)pinyin,
-                                     pinyin->table,
-                                     py_phrase_array_len (phrases) != 0);
+
+    ibus_engine_update_lookup_table_fast ((IBusEngine *)pinyin,
+                                          pinyin->table,
+                                          py_phrase_array_len (phrases) != 0);
     py_phrase_array_unref (phrases);
 }
 
-static void
-ibus_pinyin_engine_update (IBusPinyinEngine *pinyin)
+static gboolean
+ibus_pinyin_engine_delay_update_cb (IBusPinyinEngine *pinyin)
 {
-    ibus_pinyin_engine_update_pinyin_array (pinyin);
-    ibus_pinyin_engine_update_preedit_text (pinyin);
-    ibus_pinyin_engine_update_auxiliray_text (pinyin);
-    ibus_pinyin_engine_update_lookup_table (pinyin);
+    if (pinyin->need_update > 0) {
+        ibus_pinyin_engine_update (pinyin, TRUE);
+    }
+    return FALSE;
+}
+
+static void
+ibus_pinyin_engine_update (IBusPinyinEngine *pinyin,
+                           gboolean          now)
+{
+    if (now || pinyin->need_update >= 4) {
+        ibus_pinyin_engine_update_pinyin_array (pinyin);
+        ibus_pinyin_engine_update_lookup_table (pinyin);
+        ibus_pinyin_engine_update_auxiliray_text (pinyin);
+        ibus_pinyin_engine_update_preedit_text (pinyin);
+        pinyin->need_update = 0;
+    }
+    else {
+        if (pinyin->need_update == 0) {
+            g_idle_add ((GSourceFunc *)ibus_pinyin_engine_delay_update_cb, pinyin);
+        }
+        pinyin->need_update ++;
+    }
 }
 
 #if 0
@@ -412,7 +430,7 @@ ibus_pinyin_engine_append_char (IBusPinyinEngine *pinyin,
     g_string_insert_c (pinyin->input_buffer, pinyin->input_cursor++, c);
 
     if (update) {
-        ibus_pinyin_engine_update (pinyin);
+        ibus_pinyin_engine_update (pinyin, FALSE);
     }
     return TRUE;
 }
@@ -459,7 +477,7 @@ ibus_pinyin_engine_move_input_cursor (IBusPinyinEngine *pinyin,
     }
 
     if (G_LIKELY (update)) {
-        ibus_pinyin_engine_update (pinyin);
+        ibus_pinyin_engine_update (pinyin, FALSE);
     }
     return TRUE;
 }
@@ -502,7 +520,7 @@ ibus_pinyin_engine_remove_input (IBusPinyinEngine *pinyin,
     }
 
     if (G_LIKELY (update)) {
-        ibus_pinyin_engine_update (pinyin);
+        ibus_pinyin_engine_update (pinyin, FALSE);
     }
     return TRUE;
 }
@@ -515,7 +533,7 @@ ibus_pinyin_engine_reset_input (IBusPinyinEngine *pinyin,
     pinyin->input_cursor = 0;
 
     if (G_LIKELY (update)) {
-        ibus_pinyin_engine_update (pinyin);
+        ibus_pinyin_engine_update (pinyin, FALSE);
     }
 
     return TRUE;

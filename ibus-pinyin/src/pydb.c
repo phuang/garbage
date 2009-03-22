@@ -5,6 +5,7 @@
 #include "pinyin.h"
 #include "pydb.h"
 
+#define DB_CACHE_SIZE "5000"
 
 struct _PYDB {
     sqlite3 *db;
@@ -18,6 +19,10 @@ py_db_new ()
     if (sqlite3_open_v2 ("py.db", &(db->db), SQLITE_OPEN_READONLY, NULL) != SQLITE_OK) {
         g_free (db);
         db = NULL;
+    }
+
+    if (sqlite3_exec (db->db, "PRAGMA cache_size=" DB_CACHE_SIZE, NULL, NULL, NULL) != SQLITE_OK) {
+        return NULL;
     }
 
     return db;
