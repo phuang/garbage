@@ -85,7 +85,6 @@ def output_action(token, text, pinyin, comment=None, flag=None, invflag=None):
     if fyun:
         if sheng + fyun not in pinyin_list and fsheng + fyun not in pinyin_list:
             fyun = ""
-
     print '    yylval.py = pinyin_new ("%s", "%s",' % (text, pinyin)
     print '                            "%s", "%s",' % (sheng, yun)
     print '                            %d, %d,'     % (encode_pinyin(sheng), encode_pinyin(yun))

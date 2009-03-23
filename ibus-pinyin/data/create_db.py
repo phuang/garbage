@@ -22,7 +22,7 @@ def get_sheng_yun(pinyin):
 	if pinyin == None:
 		return None, None
 	if pinyin == "ng":
-		return "", "ng"
+		return "", "en"
 	for i in xrange(2, 0, -1):
 		t = pinyin[:i]
 		if t in SHENGMU_DICT:
