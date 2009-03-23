@@ -13,5 +13,5 @@ for i in xrange(1, 16):
 	con2.execute("create index index_%d_1 on py_phrase_%d(s0, s1, y1)" % (i, i))
 	print "py_phrase_%d done" % i
 
-con2.execute("vacuum")
+# con2.execute("vacuum")
 con2.commit()

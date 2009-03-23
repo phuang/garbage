@@ -154,7 +154,8 @@ ibus_pinyin_engine_class_init (IBusPinyinEngineClass *klass)
     engine_class->cursor_up = ibus_pinyin_engine_cursor_up;
     engine_class->cursor_down = ibus_pinyin_engine_cursor_down;
 
-    klass->parser = py_parser_new (0xfffffffe);
+    // klass->parser = py_parser_new (0xfffffffe);
+    klass->parser = py_parser_new (0);
 }
 
 static void

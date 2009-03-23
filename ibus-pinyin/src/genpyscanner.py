@@ -10,7 +10,29 @@ shengmu_list = SHENGMU_DICT.keys()
 shengmu_list.remove("")
 shengmu_list.sort()
 
-yunmu_list = ["a", "o", "e", "i", "u", "v", "an", "ang", "en", "eng", "ong", "ao", "ue", "ui", "ie", "uan", "uang", "iu", "in", "ing", "ian", "iang", "ou", "ai"]
+yunmu_list = [
+    "a", "an", "ai", "ang", "ao",
+    "o", "ou", "ong",
+    "e", "en", "eng", "ei",
+    "i", "in", "ing", "ie", "iu", "ian", "iang", "iong", "iao",
+    "u", "uo", "ue", "ui", "uai", "uan", "uang",
+    "v"]
+
+def get_sheng_yun(pinyin):
+    if pinyin == None:
+        return None, None
+    if pinyin == "ng":
+        return "", "ng"
+    for i in range(2, 0, -1):
+        s = pinyin[:i]
+        if s in shengmu_list:
+            return s, pinyin[i:]
+    return "", pinyin
+
+yunmu_list = set([])
+for p in pinyin_list:
+    s, y = get_sheng_yun(p)
+    yunmu_list |= set([y])
 
 auto_correct = [("ng", "gn"), ("ng", "mg"), ("iu", "iou"), ("ui", "uei"), ("un", "uen"), ("ue", "ve")]
 fuzzy_shengmu = [("c", "ch"), ("z", "zh"), ("s", "sh"), ("l", "n"), ("f", "h"), ("r", "l"), ("k", "g")]
@@ -26,16 +48,6 @@ for y1, y2 in fuzzy_yunmu:
     fuzzy_yunmu_dict[y1] = y2
     fuzzy_yunmu_dict[y2] = y1
 
-def get_sheng_yun(pinyin):
-    if pinyin == None:
-        return None, None
-    if pinyin == "ng":
-        return "", "ng"
-    for i in range(2, 0, -1):
-        s = pinyin[:i]
-        if s in shengmu_list:
-            return s, pinyin[i:]
-    return "", pinyin
 
 def encode_pinyin(pinyin):
     if pinyin == None or pinyin == "":

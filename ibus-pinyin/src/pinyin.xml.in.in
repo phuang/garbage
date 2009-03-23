@@ -1,25 +1,25 @@
 <?xml version=\"1.0\" encoding=\"utf-8\"?>
-<!-- filename: hangul.xml -->
+<!-- filename: pinyin.xml -->
 <component>
-	<name>org.freedesktop.IBus.Hangul</name>
-	<description>Hangul Component</description>
-	<exec>${libexecdir}/ibus-engine-hangul --ibus</exec>
+	<name>org.freedesktop.IBus.Pin Yin</name>
+	<description>Pin Yin Component</description>
+	<exec>${libexecdir}/ibus-engine-pinyin --ibus</exec>
 	<version>@VERSION@</version>
 	<author>Peng Huang &lt;shawn.p.huang@gmail.com&gt;</author>
 	<license>GPL</license>
 	<homepage>http://code.google.com/p/ibus</homepage>
-	<textdomain>ibus-hangul</textdomain>
+	<textdomain>ibus-pinyin</textdomain>
 
 	<engines>
 		<engine>
-			<name>hangul</name>
+			<name>pinyin</name>
 			<language>ko</language>
 			<license>GPL</license>
 			<author>Peng Huang &lt;shawn.p.huang@gmail.com&gt;</author>
-			<icon>${pkgdatadir}/icons/ibus-hangul.png</icon>
+			<icon>${pkgdatadir}/icons/ibus-pinyin.png</icon>
 			<layout>us</layout>
-			<longname>Hangul</longname>
-			<description>Hangul Input Method</description>
+			<longname>Pin Yin</longname>
+			<description>Pin Yin Input Method</description>
 			<rank>99</rank>
 		</engine>
 	</engines>
