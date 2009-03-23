@@ -394,7 +394,7 @@ ibus_pinyin_engine_update (IBusPinyinEngine *pinyin,
     }
     else {
         if (pinyin->need_update == 0) {
-            g_idle_add ((GSourceFunc *)ibus_pinyin_engine_delay_update_cb, pinyin);
+            g_idle_add ((GSourceFunc) ibus_pinyin_engine_delay_update_cb, pinyin);
         }
         pinyin->need_update ++;
     }

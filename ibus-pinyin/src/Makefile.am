@@ -51,7 +51,6 @@ ibus_engine_c_sources = \
 	pyengine.c \
 	pyphrasearray.c \
 	pydb.c \
-	$(ibus_engine_built_c_sources) \
 	$(NULL)
 ibus_engine_h_sources = \
 	pyscanner.h \
@@ -60,7 +59,6 @@ ibus_engine_h_sources = \
 	pyengine.h \
 	pyphrasearray.h \
 	pydb.h \
-	$(ibus_engine_built_h_sources) \
 	$(NULL)
 ibus_engine_pinyin_SOURCES = \
 	$(ibus_engine_c_sources) \
@@ -76,6 +74,8 @@ ibus_engine_pinyin_LDFLAGS = \
 	$(NULL)
 
 BUILT_SOURCES = \
+	$(ibus_engine_built_c_sources) \
+	$(ibus_engine_built_h_sources) \
 	$(NULL)
 
 component_DATA = \

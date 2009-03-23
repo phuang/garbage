@@ -4,13 +4,14 @@
 #include <glib.h>
 #include "pinyin.h"
 #include "pyparser.h"
-#include "pyscanner.h"
 
 #define DEBUG(args...)
 // #define DEBUG g_debug
 
 static void yyerror (gint *len, GArray **array, void *scanner, char *s);
 static GArray *pinyin_array_reverse (GArray *array);
+
+extern int yylex (void * scanner);
 
 %}
 
