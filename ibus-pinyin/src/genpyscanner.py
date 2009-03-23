@@ -10,6 +10,8 @@ shengmu_list = SHENGMU_DICT.keys()
 shengmu_list.remove("")
 shengmu_list.sort()
 
+yunmu_list = ["a", "o", "e", "i", "u", "v", "an", "ang", "en", "eng", "ong", "ao", "ue", "ui", "ie", "uan", "uang", "iu", "in", "ing", "ian", "iang", "ou", "ai"]
+
 auto_correct = [("ng", "gn"), ("ng", "mg"), ("iu", "iou"), ("ui", "uei"), ("un", "uen"), ("ue", "ve")]
 fuzzy_shengmu = [("c", "ch"), ("z", "zh"), ("s", "sh"), ("l", "n"), ("f", "h"), ("r", "l"), ("k", "g")]
 fuzzy_yunmu = [("an", "ang"), ("en", "eng"), ("in", "ing"), ("uan", "uang")]
@@ -141,9 +143,8 @@ def gen_fuzzy_yunmu_rules():
                     output_action("PINYIN", fp, fp, "parse fuzzy pinyin %s (%s == %s)" % (fp, y1, y2), flag=flag)
 
 def gen_special_rules():
-    gen_special_rule("qinai", ("qin", "ai"))
-    gen_special_rule("qingai", ("qing", "ai"))
-    gen_special_rule("tianan", ("tian", "an"))
+    for p1, p2 in compair_special():
+        gen_special_rule(p1 + p2, (p1, p2))
 
 def gen_special_rule(text, pys):
     print '%s { /* parse special rule for %s => %s */' % (text[::-1], text, "'".join(pys[::-1]))
@@ -161,7 +162,7 @@ def gen_special_rule(text, pys):
                 fyun = ""
         print '    yylval.list[%d] = pinyin_new ("%s", "%s", "%s", "%s", %d, %d, %s, %s, %d, %d, %d);' % \
                                             (i, p, p, sheng, yun, encode_pinyin(sheng), encode_pinyin(yun), \
-                                             fsheng if fsheng else "NULL", '"%s"' % fyun if fyun else "NULL", \
+                                             '"%s"' % fsheng if fsheng else "NULL", '"%s"' % fyun if fyun else "NULL", \
                                              encode_pinyin(fsheng), encode_pinyin(fyun), \
                                             len(p))
         i = i + 1
@@ -186,5 +187,52 @@ def gen_pinyin_lex():
     gen_special_rules()
     print "%%"
 
+def get_all_special():
+    for p in pinyin_list:
+        if p[-1] in ["n", "g", "r"] and p[:-1] in pinyin_list:
+            for yun in yunmu_list:
+                if yun not in pinyin_list:
+                    continue
+                new_pinyin = p[-1] + yun
+                if new_pinyin in pinyin_list:
+                    yield p, yun, p[:-1], new_pinyin
+
+def get_freq_sum_2(db, p1, p2):
+    s1, y1 = get_sheng_yun(p1)
+    s2, y2 = get_sheng_yun(p2)
+
+    sql = "select max(freq), phrase from py_phrase_1 where s0 = %d and y0 = %d and s1 = %d and y1 = %d"
+
+    c = db.execute(sql % (encode_pinyin(s1), encode_pinyin(y1), encode_pinyin(s2), encode_pinyin(y2)))
+    for r in c:
+        return r[0], r[1].encode("utf8") if r[1] else ""
+    return 0, ""
+
+def get_freq_sum_1(db, p1):
+    s1, y1 = get_sheng_yun(p1)
+
+    sql = "select max(freq), phrase from py_phrase_1 where s0 = %d and y0 = %d"
+
+    c = db.execute(sql % (encode_pinyin(s1), encode_pinyin(y1)))
+    for r in c:
+        return r[0] if r[0] else 0, r[1].encode("utf8") if r[1] else ""
+    return 0, ""
+
+
+def compair_special():
+    import sqlite3
+    db = sqlite3.connect("py.db")
+
+    for p1, p2, p3, p4 in get_all_special():
+        a1, c1 = get_freq_sum_2(db, p1, p2)
+        a2, c2 = get_freq_sum_2(db, p3, p4)
+        if a1 == a2:
+            a1, c1 = get_freq_sum_1(db, p1)
+            a2, c2 = get_freq_sum_1(db, p3)
+        if a2 < a1:
+            yield p1, p2
+            # print "%s'%s => %5s       %s'%s => %5s" % (p1, p2, c1, p3, p4, c2)
+
 if __name__ == "__main__":
     gen_pinyin_lex()
+    # compair_special()
