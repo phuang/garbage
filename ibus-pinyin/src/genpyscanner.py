@@ -157,7 +157,8 @@ def gen_fuzzy_yunmu_rules():
 def gen_special_rules():
     for p1, p2 in compair_special():
         gen_special_rule(p1 + p2, (p1, p2))
-    gen_special_rule("tiananmen", ("tian", "an", "men"))
+    # gen_special_rule("tiananmen", ("tian", "an", "men"))
+    # gen_special_rule("zongai", ("zong", "ai"))
 
 def gen_special_rule(text, pys):
     print '%s { /* parse special rule for %s => %s */' % (text[::-1], text, "'".join(pys[::-1]))
@@ -191,16 +192,13 @@ def gen_other_rules():
 
 def get_all_special():
     for p in pinyin_list:
-        s, y = get_sheng_yun(p)
-        if not s:
-            continue
-        if p[-1] in ["n", "g", "r"] and p[:-1] in pinyin_list:
+        if p[-1] in ["n", "g", "r"]:
             for yun in yunmu_list:
-                if yun not in pinyin_list:
-                    continue
+                # if yun not in pinyin_list:
+                #    continue
                 new_pinyin = p[-1] + yun
-                if new_pinyin in pinyin_list:
-                    yield p, yun, p[:-1], new_pinyin
+                # if new_pinyin in pinyin_list:
+                yield p, yun, p[:-1], new_pinyin
 
 def get_freq_sum_2(db, p1, p2):
     s1, y1 = get_sheng_yun(p1)
@@ -210,8 +208,8 @@ def get_freq_sum_2(db, p1, p2):
 
     c = db.execute(sql % (encode_pinyin(s1), encode_pinyin(y1), encode_pinyin(s2), encode_pinyin(y2)))
     for r in c:
-        return r[0], r[1].encode("utf8") if r[1] else ""
-    return 0, ""
+        return r[0]
+    return 0
 
 def get_freq_sum_1(db, p1):
     s1, y1 = get_sheng_yun(p1)
@@ -220,8 +218,8 @@ def get_freq_sum_1(db, p1):
 
     c = db.execute(sql % (encode_pinyin(s1), encode_pinyin(y1)))
     for r in c:
-        return r[0] if r[0] else 0, r[1].encode("utf8") if r[1] else ""
-    return 0, ""
+        return r[0] if r[0] else 0
+    return 0
 
 
 def compair_special():
@@ -229,11 +227,18 @@ def compair_special():
     db = sqlite3.connect("py.db")
 
     for p1, p2, p3, p4 in get_all_special():
-        a1, c1 = get_freq_sum_2(db, p1, p2)
-        a2, c2 = get_freq_sum_2(db, p3, p4)
+        if p1 not in pinyin_list or p2 not in pinyin_list:
+            continue
+
+        if p3 not in pinyin_list or p4 not in pinyin_list:
+            yield p1, p2
+            continue
+
+        a1 = get_freq_sum_2(db, p1, p2)
+        a2 = get_freq_sum_2(db, p3, p4)
         if a1 == a2:
-            a1, c1 = get_freq_sum_1(db, p1)
-            a2, c2 = get_freq_sum_1(db, p3)
+            a1 = get_freq_sum_1(db, p1) + get_freq_sum_1(db, p2)
+            a2 = get_freq_sum_1(db, p3) + get_freq_sum_1(db, p4)
         if a2 < a1:
             yield p1, p2
             # print "%s'%s => %5s       %s'%s => %5s" % (p1, p2, c1, p3, p4, c2)
