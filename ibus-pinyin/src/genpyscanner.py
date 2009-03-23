@@ -140,6 +140,36 @@ def gen_fuzzy_yunmu_rules():
                 if fp != None:
                     output_action("PINYIN", fp, fp, "parse fuzzy pinyin %s (%s == %s)" % (fp, y1, y2), flag=flag)
 
+def gen_special_rules():
+    gen_special_rule("qinai", ("qin", "ai"))
+    gen_special_rule("qingai", ("qing", "ai"))
+    gen_special_rule("tianan", ("tian", "an"))
+
+def gen_special_rule(text, pys):
+    print '%s { /* parse special rule for %s => %s */' % (text[::-1], text, "'".join(pys[::-1]))
+    i = 0
+    for p in pys[::-1]:
+        sheng, yun = get_sheng_yun(p)
+        fsheng = fuzzy_shengmu_dict.get(sheng, "")
+        fyun = fuzzy_yunmu_dict.get(yun, "")
+
+        if fsheng:
+            if fsheng + yun not in pinyin_list and fsheng + fyun not in pinyin_list:
+                fsheng = ""
+        if fyun:
+            if sheng + fyun not in pinyin_list and fsheng + fyun not in pinyin_list:
+                fyun = ""
+        print '    yylval.list[%d] = pinyin_new ("%s", "%s", "%s", "%s", %d, %d, %s, %s, %d, %d, %d);' % \
+                                            (i, p, p, sheng, yun, encode_pinyin(sheng), encode_pinyin(yun), \
+                                             fsheng if fsheng else "NULL", '"%s"' % fyun if fyun else "NULL", \
+                                             encode_pinyin(fsheng), encode_pinyin(fyun), \
+                                            len(p))
+        i = i + 1
+    print '    yylval.list[%d] = NULL;' % i
+    print '    return PINYIN_LIST;'
+    print '}'
+
+
 def gen_other_rules():
     print "' { return '\\\''; }"
     print ". { return SKIP; }"
@@ -153,6 +183,7 @@ def gen_pinyin_lex():
     gen_fuzzy_shengmu_rules()
     gen_fuzzy_yunmu_rules()
     gen_other_rules()
+    gen_special_rules()
     print "%%"
 
 if __name__ == "__main__":

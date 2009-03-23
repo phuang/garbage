@@ -25,6 +25,7 @@ extern int yylex (void * scanner);
         GArray *array;
         gint len;
     } pys;
+    struct pinyin_t *list[16];
     gint skip;
 }
 
@@ -33,6 +34,7 @@ extern int yylex (void * scanner);
 
 %token <py>    PINYIN
 %token <py>    SHENGMU
+%token <list> PINYIN_LIST
 %token SKIP
 
 %parse-param {gint *len}
@@ -74,17 +76,50 @@ pywords:
         g_array_append_val ($$.array, $1);
         $$.len = $1->len;
     }
+    |   pywords pyword
+    {
+        DEBUG ("pywords pyword      => pywords");
+        $$.array = g_array_append_val ($1.array, $2);
+        $$.len = $2->len + $1.len;
+    }
     |   pywords '\'' pyword
     {
         DEBUG ("pywords ' pyword    => pywords");
         $$.array = g_array_append_val ($1.array, $3);
         $$.len = $1.len + 1 + $3->len;
     }
-    |   pywords pyword
+    |   PINYIN_LIST
     {
-        DEBUG ("pywords pyword      => pywords");
-        $$.array = g_array_append_val ($1.array, $2);
-        $$.len = $2->len + $1.len;
+         gint i;
+
+        $$.array = g_array_sized_new (TRUE, FALSE, sizeof (struct pinyin_t *), 32);
+        $$.len = 0;
+
+        for (i = 0; $1[i] != NULL; i++) {
+            g_array_append_val ($$.array, $1[i]);
+            $$.len += PINYIN_LEN ($1[i]);
+        }
+    }
+    |   pywords PINYIN_LIST
+    {
+        gint i;
+        $$ = $1;
+
+        for (i = 0; $2[i] != NULL; i++) {
+            g_array_append_val ($$.array, $2[i]);
+            $$.len += PINYIN_LEN ($2[i]);
+        }
+    }
+    |   pywords '\'' PINYIN_LIST
+    {
+        gint i;
+        $$ = $1;
+        $$.len += 1;
+
+        for (i = 0; $3[i] != NULL; i++) {
+            g_array_append_val ($$.array, $3[i]);
+            $$.len += PINYIN_LEN ($3[i]);
+        }
     }
     ;
 pyword:
