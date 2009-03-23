@@ -157,6 +157,7 @@ def gen_fuzzy_yunmu_rules():
 def gen_special_rules():
     for p1, p2 in compair_special():
         gen_special_rule(p1 + p2, (p1, p2))
+    gen_special_rule("tiananmen", ("tian", "an", "men"))
 
 def gen_special_rule(text, pys):
     print '%s { /* parse special rule for %s => %s */' % (text[::-1], text, "'".join(pys[::-1]))
@@ -188,19 +189,11 @@ def gen_other_rules():
     print ". { return SKIP; }"
 
 
-def gen_pinyin_lex():
-    gen_header()
-    gen_pinyin_rule()
-    gen_shengm_rule()
-    gen_auto_correct_rules()
-    gen_fuzzy_shengmu_rules()
-    gen_fuzzy_yunmu_rules()
-    gen_other_rules()
-    gen_special_rules()
-    print "%%"
-
 def get_all_special():
     for p in pinyin_list:
+        s, y = get_sheng_yun(p)
+        if not s:
+            continue
         if p[-1] in ["n", "g", "r"] and p[:-1] in pinyin_list:
             for yun in yunmu_list:
                 if yun not in pinyin_list:
@@ -245,6 +238,16 @@ def compair_special():
             yield p1, p2
             # print "%s'%s => %5s       %s'%s => %5s" % (p1, p2, c1, p3, p4, c2)
 
+def gen_pinyin_lex():
+    gen_header()
+    gen_pinyin_rule()
+    gen_shengm_rule()
+    gen_auto_correct_rules()
+    gen_fuzzy_shengmu_rules()
+    gen_fuzzy_yunmu_rules()
+    gen_other_rules()
+    gen_special_rules()
+    print "%%"
+
 if __name__ == "__main__":
     gen_pinyin_lex()
-    # compair_special()
