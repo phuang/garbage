@@ -60,26 +60,42 @@ py_parse_pinyin (const gchar  *str,
         if (!py)
             break;
 
-        if (!is_rng) {
-            p += i;
-            g_array_append_val (array, py);
-        }
-        else {
+        if (is_rng) {
             switch (py[0]) {
             case 'a':
             case 'e':
             case 'i':
             case 'o':
             case 'u':
-                if (is_pinyin(py, prev_py_len -1) == NULL) {
+            {
+                gchar new_pinyin[7];
+                const gchar *p1;
+                const gchar *p2;
+                
+                if ((p1 = is_pinyin(prev_py, prev_py_len -1)) == NULL) {
                     g_array_append_val (array, py);
+                    break;
                 }
+                
+                new_pinyin[0] = prev_py[prev_py_len - 1];
+                strcpy(new_pinyin + 1, py);
+                
+                if ((p2 = is_pinyin (new_pinyin, i + 1)) == NULL) {
+                    g_array_append_val (array, py);
+                    break;
+                }
+                
+                g_array_index (array, const gchar *, array->len - 1) = p1;
+                py = p2;
                 break;
-            default
-                g_array_append_val (array, py);
+            }
+            default:
                 break;
             }
         }
+        
+        g_array_append_val (array, py);
+        p += i;
         
         switch (py[i - 1]) {
         case 'r':
