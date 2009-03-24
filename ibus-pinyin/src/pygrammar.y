@@ -35,7 +35,6 @@ extern int yylex (void * scanner);
 %token <py>    PINYIN
 %token <py>    SHENGMU
 %token <list> PINYIN_LIST
-%token SKIP
 
 %parse-param {gint *len}
 %parse-param {GArray **array}
@@ -52,14 +51,12 @@ input:
         *array = g_array_sized_new (TRUE, FALSE, sizeof (struct pinyin_t *), 32);
         *len = 0;
     }
-    |   error pywords
+    |   pywords error
     {
         DEBUG ("error + pywords     => input\n");
         
-        *array = pinyin_array_reverse ($2.array);
-        *len = $2.len;
-        
-        yyerrok;
+        *array = pinyin_array_reverse ($1.array);
+        *len = $1.len;
     }
     |   pywords
     {
@@ -141,16 +138,19 @@ static void
 yyerror (gint *len, GArray **array, void *scanner, char *s)
 {
     DEBUG (s);
+#if 0
     if (*array) {
         py_parser_free_result (*array);
     }
     *array = NULL;
     *len = 0;
+#endif
 }
 
 static GArray *
 pinyin_array_reverse (GArray *array)
 {
+#if 0
     gint i;
     struct pinyin_t *tmp;
 
@@ -159,6 +159,6 @@ pinyin_array_reverse (GArray *array)
         g_array_index (array, struct pinyin_t *, i) = g_array_index (array, struct pinyin_t *, array->len - i - 1);
         g_array_index (array, struct pinyin_t *, array->len - i - 1) = tmp;
     }
-
+#endif
     return array;
 }

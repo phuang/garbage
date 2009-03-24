@@ -43,11 +43,7 @@ py_parser_parse (PYParser    *parser,
     if (len < 0)
         len = strlen (str);
 
-    buf = g_strndup (str, len);
-    g_strreverse (buf);
-
-    b = yy_scan_bytes (buf, len, parser->scanner);
-    g_free (buf);
+    b = yy_scan_bytes (str, len, parser->scanner);
 
     result = NULL;
     retval = 0;

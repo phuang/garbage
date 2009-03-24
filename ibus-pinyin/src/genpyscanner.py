@@ -81,7 +81,7 @@ def gen_header():
 def output_action(token, text, pinyin, comment=None, flag=None, invflag=None):
     if comment == None:
         comment = "parse %s for %s" % (text, pinyin)
-    print "%s {" % text[::-1]
+    print "%s {" % text
     print "    /* %s */" % comment
 
     if flag != None:
@@ -161,9 +161,9 @@ def gen_special_rules():
     # gen_special_rule("zongai", ("zong", "ai"))
 
 def gen_special_rule(text, pys):
-    print '%s { /* parse special rule for %s => %s */' % (text[::-1], text, "'".join(pys[::-1]))
+    print '%s { /* parse special rule for %s => %s */' % (text, text, "'".join(pys))
     i = 0
-    for p in pys[::-1]:
+    for p in pys:
         sheng, yun = get_sheng_yun(p)
         fsheng = fuzzy_shengmu_dict.get(sheng, "")
         fyun = fuzzy_yunmu_dict.get(yun, "")
@@ -186,8 +186,7 @@ def gen_special_rule(text, pys):
 
 
 def gen_other_rules():
-    print "' { return '\\\''; }"
-    print ". { return SKIP; }"
+    print ".|' { return yytext[0]; }"
 
 
 def get_all_special():
@@ -228,10 +227,10 @@ def compair_special():
 
     for p1, p2, p3, p4 in get_all_special():
         if p1 not in pinyin_list or p2 not in pinyin_list:
+            yield p3, p4
             continue
 
         if p3 not in pinyin_list or p4 not in pinyin_list:
-            yield p1, p2
             continue
 
         a1 = get_freq_sum_2(db, p1, p2)
@@ -239,8 +238,8 @@ def compair_special():
         if a1 == a2:
             a1 = get_freq_sum_1(db, p1) + get_freq_sum_1(db, p2)
             a2 = get_freq_sum_1(db, p3) + get_freq_sum_1(db, p4)
-        if a2 < a1:
-            yield p1, p2
+        if a2 > a1:
+            yield p3, p4
             # print "%s'%s => %5s       %s'%s => %5s" % (p1, p2, c1, p3, p4, c2)
 
 def gen_pinyin_lex():
