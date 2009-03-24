@@ -4,9 +4,10 @@
 #include <stdio.h>
 #include "test.h"
 
-static const gchar *
+static const PinYin *
 is_pinyin (const gchar *p,
-           gint         len)
+           gint         len,
+           gint         option)
 {
     gint i;
     gint c;
@@ -25,9 +26,10 @@ is_pinyin (const gchar *p,
     if (pinyin_table[c][len] == NULL)
         return NULL;
 
-    for (i = 0; pinyin_table[c][len][i] != NULL; i++) {
-        if (strncmp (p, pinyin_table[c][len][i], len) == 0) {
-               return pinyin_table[c][len][i];
+    for (i = 0; pinyin_table[c][len][i].text != 0; i++) {
+        if (strncmp (p, pinyin_table[c][len][i].text, len) == 0 &&
+           ((pinyin_table[c][len][i].flags & option) || pinyin_table[c][len][i].flags == 0)) {
+               return &(pinyin_table[c][len][i]);
         }
     }
 
@@ -36,24 +38,26 @@ is_pinyin (const gchar *p,
 
 gint
 py_parse_pinyin (const gchar  *str,
-                 GArray      **result)
+                 GArray      **result,
+                 gint          option)
 {
     const gchar *p;
     GArray *array;
-    const gchar *py;
-    const gchar *prev_py;
+    const PinYin *py;
+    const PinYin *prev_py;
     gint prev_py_len;
     gboolean is_rng;
     gint i;
 
-    array = g_array_new (TRUE, FALSE, sizeof (gchar *));
+    array = g_array_new (TRUE, FALSE, sizeof (const PinYin *));
+    p = str;
 
     is_rng = FALSE;
     prev_py = NULL;
-    
-    for (p = str; *p != 0; ) {
+
+    for (; *p != 0; ) {
         for (i = 6; i > 0; i --) {
-            py = is_pinyin (p, i);
+            py = is_pinyin (p, i, option);
             if (py)
                 break;            
         }
@@ -61,7 +65,7 @@ py_parse_pinyin (const gchar  *str,
             break;
 
         if (is_rng) {
-            switch (py[0]) {
+            switch (py->text[0]) {
             case 'a':
             case 'e':
             case 'i':
@@ -69,23 +73,23 @@ py_parse_pinyin (const gchar  *str,
             case 'u':
             {
                 gchar new_pinyin[7];
-                const gchar *p1;
-                const gchar *p2;
+                const PinYin *p1;
+                const PinYin *p2;
                 
-                if ((p1 = is_pinyin(prev_py, prev_py_len -1)) == NULL) {
+                if ((p1 = is_pinyin(prev_py->text, prev_py_len -1, option)) == NULL) {
                     g_array_append_val (array, py);
                     break;
                 }
                 
-                new_pinyin[0] = prev_py[prev_py_len - 1];
-                strcpy(new_pinyin + 1, py);
+                new_pinyin[0] = prev_py->text[prev_py_len - 1];
+                strcpy(new_pinyin + 1, py->text);
                 
-                if ((p2 = is_pinyin (new_pinyin, i + 1)) == NULL) {
+                if ((p2 = is_pinyin (new_pinyin, i + 1, option)) == NULL) {
                     g_array_append_val (array, py);
                     break;
                 }
                 
-                g_array_index (array, const gchar *, array->len - 1) = p1;
+                g_array_index (array, const PinYin *, array->len - 1) = p1;
                 py = p2;
                 break;
             }
@@ -97,7 +101,7 @@ py_parse_pinyin (const gchar  *str,
         g_array_append_val (array, py);
         p += i;
         
-        switch (py[i - 1]) {
+        switch (py->text[i - 1]) {
         case 'r':
         case 'n':
         case 'g':
@@ -109,6 +113,11 @@ py_parse_pinyin (const gchar  *str,
 
         prev_py = py;
         prev_py_len = i;
+
+        if (*p == '\'') {
+            p++;
+            is_rng = FALSE;
+        }
     }
 
     *result = array;
@@ -119,11 +128,11 @@ py_parse_pinyin (const gchar  *str,
 int main (int argc, char **argv)
 {
     GArray *array;
-    py_parse_pinyin (argv[1], &array);
+    py_parse_pinyin (argv[1], &array, PINYIN_SIMPLE_PINYIN);
 
     gint i;
     for (i = 0; i < array->len; i++) {
-        printf ("%s'", g_array_index (array, gchar *, i));
+        printf ("%s%s'", g_array_index (array, const PinYin *, i)->sheng, g_array_index (array, const PinYin *, i)->yun);
     }
     printf ("\n");
 }
