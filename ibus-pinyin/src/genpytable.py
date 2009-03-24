@@ -198,10 +198,67 @@ def gen_tables():
     print '};'
     print
 
+def get_all_special():
+    for p in pinyin_list:
+        if p[-1] in ["n", "g", "r"]:
+            for yun in yunmu_list:
+                # if yun not in pinyin_list:
+                #    continue
+                new_pinyin = p[-1] + yun
+                # if new_pinyin in pinyin_list:
+                yield p, yun, p[:-1], new_pinyin
+
+def get_freq_sum_2(db, p1, p2):
+    s1, y1 = get_sheng_yun(p1)
+    s2, y2 = get_sheng_yun(p2)
+
+    sql = "select max(freq), phrase from py_phrase_1 where s0 = %d and y0 = %d and s1 = %d and y1 = %d"
+
+    c = db.execute(sql % (encode_pinyin(s1), encode_pinyin(y1), encode_pinyin(s2), encode_pinyin(y2)))
+    for r in c:
+        return r[0]
+    return 0
+
+def get_freq_sum_1(db, p1):
+    s1, y1 = get_sheng_yun(p1)
+
+    sql = "select max(freq), phrase from py_phrase_1 where s0 = %d and y0 = %d"
+
+    c = db.execute(sql % (encode_pinyin(s1), encode_pinyin(y1)))
+    for r in c:
+        return r[0] if r[0] else 0
+    return 0
+
+def compaired_special():
+    import sqlite3
+    db = sqlite3.connect("py.db")
+
+    for p1, p2, p3, p4 in get_all_special():
+        if p1 not in pinyin_list or p2 not in pinyin_list:
+            yield p1, p2, p3, p4
+            continue
+
+        if p3 not in pinyin_list or p4 not in pinyin_list:
+            continue
+
+        a1 = get_freq_sum_2(db, p1, p2)
+        a2 = get_freq_sum_2(db, p3, p4)
+        if a1 == a2:
+            a1 = get_freq_sum_1(db, p1) + get_freq_sum_1(db, p2)
+            a2 = get_freq_sum_1(db, p3) + get_freq_sum_1(db, p4)
+        if a1 < a2:
+            yield p1, p2, p3, p4
+
+def gen_special_table():
+    l = list(compaired_special())
+    l.sort()
+    for r in l:
+        print "//", r
 
 def main():
     gen_header()
     gen_tables()
+    gen_special_table()
 
 
 if __name__ == "__main__":

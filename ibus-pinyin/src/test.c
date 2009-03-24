@@ -45,7 +45,6 @@ py_parse_pinyin (const gchar  *str,
     GArray *array;
     const PinYin *py;
     const PinYin *prev_py;
-    gint prev_py_len;
     gboolean is_rng;
     gint i;
 
@@ -56,12 +55,31 @@ py_parse_pinyin (const gchar  *str,
     prev_py = NULL;
 
     for (; *p != 0; ) {
-        for (i = 6; i > 0; i --) {
-            py = is_pinyin (p, i, option);
-            if (py)
-                break;            
+        if (is_rng && (*p == 'i' || *p == 'u' || *p == 'v')) {
+            const PinYin *new_py;
+            for (i = 6; i > 0; i --) {
+                py = is_pinyin (p - 1, i, option);
+                if (py)
+                    break;            
+            }
+            if (py == NULL)
+                break;
+            new_py = is_pinyin (prev_py->text, prev_py->len - 1, option);
+            if (new_py == NULL)
+                break;
+            g_array_index (array, const PinYin *, array->len - 1) = new_py;
+            p --;
+            prev_py = new_py;
+            is_rng = FALSE;
         }
-        if (!py)
+        else {
+            for (i = 6; i > 0; i --) {
+                py = is_pinyin (p, i, option);
+                if (py)
+                    break;            
+            }
+        }
+        if (py == NULL)
             break;
 
         if (is_rng) {
@@ -76,12 +94,12 @@ py_parse_pinyin (const gchar  *str,
                 const PinYin *p1;
                 const PinYin *p2;
                 
-                if ((p1 = is_pinyin(prev_py->text, prev_py_len -1, option)) == NULL) {
+                if ((p1 = is_pinyin(prev_py->text, prev_py->len -1, option)) == NULL) {
                     g_array_append_val (array, py);
                     break;
                 }
                 
-                new_pinyin[0] = prev_py->text[prev_py_len - 1];
+                new_pinyin[0] = prev_py->text[prev_py->len - 1];
                 strcpy(new_pinyin + 1, py->text);
                 
                 if ((p2 = is_pinyin (new_pinyin, i + 1, option)) == NULL) {
@@ -99,7 +117,7 @@ py_parse_pinyin (const gchar  *str,
         }
         
         g_array_append_val (array, py);
-        p += i;
+        p += py->len;
         
         switch (py->text[i - 1]) {
         case 'r':
@@ -112,7 +130,6 @@ py_parse_pinyin (const gchar  *str,
         }
 
         prev_py = py;
-        prev_py_len = i;
 
         if (*p == '\'') {
             p++;
