@@ -2,7 +2,7 @@
 #ifndef __PINYIN_H_
 #define __PINYIN_H_
 
-#define PINYIN_FULL_PINYIN          (1 << 0)
+#define PINYIN_SIMPLE_PINYIN        (1 << 0)
 #define PINYIN_CORRECT_GN_TO_NG     (1 << 1)
 #define PINYIN_CORRECT_MG_TO_NG     (1 << 2)
 #define PINYIN_CORRECT_IOU_TO_IU    (1 << 3)
