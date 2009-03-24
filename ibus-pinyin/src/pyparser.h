@@ -5,18 +5,12 @@
 #include <glib.h>
 #include "pinyin.h"
 
-struct _PYParser;
-typedef struct _PYParser PYParser;
 
-PYParser    *py_parser_new          (guint          option);
-void         py_parser_destroy      (PYParser       *parser);
-gint         py_parser_parse        (PYParser       *parser,
-                                     const gchar    *str,
+#define py_free_array(a) (g_array_free ((a), TRUE))
+
+gint         py_parse_pinyin        (const gchar    *str,
                                      gint            len,
+                                     gint            option,
                                      GArray         **array);
-void         py_parser_free_result  (GArray         *array);
-void         py_parser_set_option   (PYParser       *parser,
-                                     guint           option);
-guint        py_parser_get_option   (PYParser       *parser);
 
 #endif

@@ -23,18 +23,17 @@
 #define PINYIN_FUZZY_IN_ING         (1 << 16)
 #define PINYIN_FUZZY_UAN_UANG       (1 << 17)
 
-struct pinyin_t {
+typedef struct _PinYin PinYin;
+struct _PinYin {
     const char *text;
-    const char *pinyin;
     const char *sheng;
     const char *yun;
-    gint        sheng_id;
-    gint        yun_id;
-    const char *fsheng;
-    const char *fyun;
-    gint        fsheng_id;
-    gint        fyun_id;
-    gint        len;
+    const int   sheng_id;
+    const int   yun_id;
+    const int   fsheng_id;
+    const int   fyun_id;
+    const int   len;
+    const int   flags;
 };
 
 #ifdef USE_PINYIN_NEW

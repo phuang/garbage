@@ -66,8 +66,8 @@ py_db_query_internal (PYDB          *db,
     g_string_append_printf (sql, " select * from main.py_phrase_%d where ", pinyin_len - 1);
 
     for (i = pinyin_begin; i < pinyin_begin + pinyin_len; i++) {
-        struct pinyin_t *p;
-        p = g_array_index (pinyin, struct pinyin_t *, i);
+        PinYin *p;
+        p = g_array_index (pinyin, PinYin *, i);
 
         if (i > 0)
             g_string_append_printf (sql, " and ");

@@ -40,8 +40,8 @@ struct _IBusPinyinEngine {
 struct _IBusPinyinEngineClass {
     IBusEngineClass parent;
 
-        /* members */
-        PYParser *parser;
+    /* members */
+    gint option;
 };
 
 /* functions prototype */
@@ -154,8 +154,8 @@ ibus_pinyin_engine_class_init (IBusPinyinEngineClass *klass)
     engine_class->cursor_up = ibus_pinyin_engine_cursor_up;
     engine_class->cursor_down = ibus_pinyin_engine_cursor_down;
 
-    // klass->parser = py_parser_new (0xfffffffe);
-    klass->parser = py_parser_new (0);
+    klass->option = 0;
+
 }
 
 static void
@@ -218,7 +218,7 @@ ibus_pinyin_engine_destroy (IBusPinyinEngine *pinyin)
     pinyin->input_cursor = 0;
 
     if (pinyin->pinyin_array) {
-        py_parser_free_result (pinyin->pinyin_array);
+        py_free_array (pinyin->pinyin_array);
         pinyin->pinyin_array = NULL;
     }
 
@@ -246,16 +246,16 @@ static void
 ibus_pinyin_engine_update_pinyin_array (IBusPinyinEngine *pinyin)
 {
     if (pinyin->pinyin_array) {
-        py_parser_free_result (pinyin->pinyin_array);
+        py_free_array (pinyin->pinyin_array);
         pinyin->pinyin_array = NULL;
         pinyin->pinyin_len = 0;
     }
 
     if (pinyin->input_buffer && pinyin->input_buffer->len) {
-        pinyin->pinyin_len = py_parser_parse (
-                                    IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->parser,
+        pinyin->pinyin_len = py_parse_pinyin (
                                     pinyin->input_buffer->str,
                                     pinyin->input_cursor,
+                                    IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->option,
                                     &(pinyin->pinyin_array));
     }
 }
@@ -274,7 +274,7 @@ ibus_pinyin_engine_update_auxiliray_text (IBusPinyinEngine *pinyin)
 
     if (pinyin->input_buffer && pinyin->input_buffer->len) {
 
-        struct pinyin_t **p;
+        PinYin **p;
         GString *preedit_text;
         gint cursor_pos;
         gint len;
@@ -282,15 +282,17 @@ ibus_pinyin_engine_update_auxiliray_text (IBusPinyinEngine *pinyin)
         preedit_text = g_string_new ("");
 
         if (pinyin->pinyin_array) {
-            p = (struct pinyin_t **) pinyin->pinyin_array->data;
+            p = (PinYin **) pinyin->pinyin_array->data;
 
             if (*p) {
-                preedit_text = g_string_append (preedit_text, (*p)->pinyin);
+                preedit_text = g_string_append (preedit_text, (*p)->sheng);
+                preedit_text = g_string_append (preedit_text, (*p)->yun);
             }
 
             while (*(++p) != NULL) {
                 g_string_append_c (preedit_text, '\'');
-                g_string_append (preedit_text, (*p)->pinyin);
+                g_string_append (preedit_text, (*p)->sheng);
+                g_string_append (preedit_text, (*p)->yun);
             }
         }
 
@@ -454,8 +456,8 @@ ibus_pinyin_engine_move_input_cursor (IBusPinyinEngine *pinyin,
                 pinyin->input_cursor = pinyin->pinyin_len;
             }
             else {
-                struct pinyin_t *p;
-                p = g_array_index (pinyin->pinyin_array, struct pinyin_t *, pinyin->pinyin_array->len - 1);
+                PinYin *p;
+                p = g_array_index (pinyin->pinyin_array, PinYin *, pinyin->pinyin_array->len - 1);
                 pinyin->input_cursor -= p->len;
             }
         }
@@ -503,8 +505,8 @@ ibus_pinyin_engine_remove_input (IBusPinyinEngine *pinyin,
                 new_cursor = pinyin->pinyin_len;
             }
             else {
-                struct pinyin_t *p;
-                p = g_array_index (pinyin->pinyin_array, struct pinyin_t *, pinyin->pinyin_array->len - 1);
+                PinYin *p;
+                p = g_array_index (pinyin->pinyin_array, PinYin *, pinyin->pinyin_array->len - 1);
                 new_cursor = pinyin->input_cursor - p->len;
             }
         }

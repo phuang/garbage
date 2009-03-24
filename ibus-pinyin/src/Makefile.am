@@ -18,8 +18,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-@MAINTAINER_MODE_FALSE@skip_genpyscanner=test -f $@ ||
-GENPYSCANNER = genpyscanner.py
+@MAINTAINER_MODE_FALSE@skip_genpytable=test -f $@ ||
+GENPYTABLE = genpytable.py
 
 AM_CFLAGS = \
 	@IBUS_CFLAGS@ \
@@ -43,9 +43,11 @@ AM_LFLAGS = \
 
 libexec_PROGRAMS = ibus-engine-pinyin
 
+ibus_engine_built_h_sources = \
+	pytable.h \
+	$(NULL)
+
 ibus_engine_c_sources = \
-	pygrammar.y \
-	pyscanner.l \
 	main.c \
 	pyparser.c \
 	pyengine.c \
@@ -97,6 +99,7 @@ CLEANFILES = \
 
 check_PROGRAMS = \
 	test-pydb \
+	test-pyparser \
 	$(NULL)
 
 TESTS = \
@@ -114,8 +117,17 @@ test_pydb_CFLAGS = \
 	-DTEST \
 	$(NULL)
 
-pyscanner.l: $(GENPYSCANNER)
-	$(skip_genpyscanner) $(PYTHON) $(srcdir)/$(GENPYSCANNER) > $@
+test_pyparser_SOURCES = \
+	pyparser.c \
+	pytable.h \
+	$(NULL)
+test_pyparser_CFLAGS = \
+	$(AM_CFLAGS) \
+	-DTEST \
+	$(NULL)
+
+pytable.h: $(GENPYTABLE)
+	$(skip_genpytable) $(PYTHON) $(srcdir)/$(GENPYTABLE) > $@
 
 pinyin.xml: pinyin.xml.in
 	( \

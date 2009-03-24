@@ -1,87 +1,178 @@
 /* vim:set et sts=4: */
+#define _GNU_SOURCE
+#include <string.h>
+#include <stdlib.h>
 #include <glib.h>
-#include "pinyin.h"
+#include "pytable.h"
 #include "pyparser.h"
-#include "pyscanner.h"
 
-struct _PYParser {
-    yyscan_t scanner;
-};
-
-
-PYParser *
-py_parser_new (guint option)
+static int
+py_cmp (const void *p1, const void *p2)
 {
-    PYParser *parser;
+    const gchar *str = (const gchar *) p1;
+    const PinYin *py = (PinYin *) p2;
 
-    parser = g_slice_new (PYParser);
-    yylex_init_extra (option, &(parser->scanner));
-
-    return parser;
+    return strcmp (str, py->text);
 }
 
-void
-py_parser_destroy  (PYParser *parser)
+static const PinYin *
+is_pinyin (const gchar *p,
+           gint         len,
+           gint         option)
 {
-    yylex_destroy (parser->scanner);
-    g_slice_free (PYParser, parser);
-}
+    gchar buf[7];
+    const PinYin *result;
 
-extern int yyparse (gint *skip, GArray **array, void *scanner);
+    if (len > 6)
+        return NULL;
+
+    if (len > 0) {
+        strncpy (buf, p, len);
+        result = (const PinYin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR, sizeof (PinYin), py_cmp);
+        return result;
+    }
+    
+    len = strnlen (p, 6);
+    strncpy (buf, p, len);
+    for (; len > 0; len --) {
+        buf[len] = 0;
+        result = (const PinYin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR, sizeof (PinYin), py_cmp);
+        if (result) {
+            return result;
+        }
+    }
+    return NULL;
+}
 
 gint
-py_parser_parse (PYParser    *parser,
-                 const gchar *str,
-                 gint         len,
-                 GArray     **array)
+py_parse_pinyin (const gchar  *str,
+                 gint          len,
+                 gint          option,
+                 GArray      **result)
 {
-    YY_BUFFER_STATE b;
-    GArray *result;
-    gchar *buf;
-    gint retval;
+    const gchar *p;
+    const gchar *end;
+    GArray *array;
+    const PinYin *py;
+    const PinYin *prev_py;
+    gboolean is_rng;
 
     if (len < 0)
         len = strlen (str);
+    
+    array = g_array_new (TRUE, FALSE, sizeof (const PinYin *));
+    p = str;
+    end = str + len;
 
-    b = yy_scan_bytes (str, len, parser->scanner);
+    is_rng = FALSE;
+    prev_py = NULL;
 
-    result = NULL;
-    retval = 0;
-    if (yyparse (&retval, &result, parser->scanner) != 0) {
-        result = NULL;
-        retval = 0;
+
+    for (; p < end; ) {
+
+        if (is_rng && (*p == 'i' || *p == 'u' || *p == 'v')) {
+            const PinYin *new_py;
+            py = is_pinyin (p - 1, -1, option);
+            if (py == NULL)
+                break;
+            new_py = is_pinyin (prev_py->text, prev_py->len - 1, option);
+            if (new_py == NULL)
+                break;
+            g_array_index (array, const PinYin *, array->len - 1) = new_py;
+            p --;
+            prev_py = new_py;
+            is_rng = FALSE;
+        }
+        else {
+            py = is_pinyin (p, -1, option);
+            if (py == NULL)
+                break;
+        }
+
+        if (is_rng) {
+            switch (py->text[0]) {
+            case 'a':
+            case 'e':
+            case 'i':
+            case 'o':
+            case 'u':
+            {
+                gchar new_pinyin[7];
+                const PinYin *p1;
+                const PinYin *p2;
+
+                if ((p1 = is_pinyin(prev_py->text, prev_py->len -1, option)) == NULL) {
+                    g_array_append_val (array, py);
+                    break;
+                }
+
+                new_pinyin[0] = prev_py->text[prev_py->len - 1];
+                strcpy(new_pinyin + 1, py->text);
+
+                if ((p2 = is_pinyin (new_pinyin, py->len + 1, option)) == NULL) {
+                    g_array_append_val (array, py);
+                    break;
+                }
+
+                g_array_index (array, const PinYin *, array->len - 1) = p1;
+                py = p2;
+                p --;
+                break;
+            }
+            default:
+                break;
+            }
+        }
+
+        g_array_append_val (array, py);
+        p += py->len;
+
+        switch (py->text[py->len - 1]) {
+        case 'r':
+        case 'n':
+        case 'g':
+            is_rng = TRUE;
+            break;
+        default:
+            is_rng = FALSE;
+        }
+
+        prev_py = py;
+
+        if (*p == '\'') {
+            p++;
+            is_rng = FALSE;
+        }
     }
-
-    *array = result;
-    yy_delete_buffer (b, parser->scanner);
-
-    return retval;
-}
-
-void
-py_parser_free_result (GArray *result)
-{
-    struct pinyin_t **p;
-
-    p = (struct pinyin_t **) result->data;
-
-    while (*p != NULL) {
-        pinyin_free (*(p++));
+    
+    if (p == str) {
+        g_array_free (array, TRUE);
+        *result = NULL;
+        return 0;
     }
-
-    g_array_free (result, TRUE);
+    *result = array;
+    return p - str;
 }
 
-void
-py_parser_set_option (PYParser *parser,
-                      guint     option)
+
+#ifdef TEST
+#include <glib/gprintf.h>
+int main(int argc, char **argv)
 {
-    yyset_extra (option, parser->scanner);
-}
+    gint len;
+    GArray *array;
+    PinYin **p;
 
-guint
-py_parser_get_option (PYParser  *parser)
-{
-    return yyget_extra (parser->scanner);
-}
+    len = py_parse_pinyin (argv[1], -1, 0, &array);
 
+    if (len) {
+        
+        p = (PinYin **) array->data;
+        while (*p) {
+            g_printf ("%s'", (*p)->text);
+            p ++;
+        }
+    }
+    g_printf ("\n");
+}
+#endif
