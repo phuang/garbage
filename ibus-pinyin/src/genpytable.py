@@ -252,8 +252,12 @@ def compaired_special():
 def gen_special_table():
     l = list(compaired_special())
     l.sort()
+    print 'static const char *special_table[][2] = {'
     for r in l:
-        print "//", r
+        print '    { "%s", "%s" },' % (r[0], r[1])
+    print '};'
+    print
+        
 
 def main():
     gen_header()
