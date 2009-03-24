@@ -188,5 +188,6 @@ int main ()
     g_debug ("time=%lf", v / 1000 / 10);
 
     py_db_free (db);
+    return 0;
 }
 #endif

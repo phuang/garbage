@@ -154,7 +154,7 @@ ibus_pinyin_engine_class_init (IBusPinyinEngineClass *klass)
     engine_class->cursor_up = ibus_pinyin_engine_cursor_up;
     engine_class->cursor_down = ibus_pinyin_engine_cursor_down;
 
-    klass->option = 0;
+    klass->option = 0xffffffff;
 
 }
 
@@ -296,30 +296,28 @@ ibus_pinyin_engine_update_auxiliray_text (IBusPinyinEngine *pinyin)
             }
         }
 
+        len = preedit_text->len;
+        
         if (pinyin->pinyin_len == pinyin->input_cursor) {
             cursor_pos =  preedit_text->len;
             g_string_append (preedit_text, "|");
-            len = preedit_text->len;
 
             g_string_append (preedit_text, pinyin->input_buffer->str + pinyin->pinyin_len);
-            // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x000000ff, len, -1);
         }
         else {
             len = preedit_text->len;
             g_string_append_len (preedit_text,
                                  pinyin->input_buffer->str + pinyin->pinyin_len,
                                  pinyin->input_cursor - pinyin->pinyin_len);
-            // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x000000ff, len, preedit_text->len);
-
             cursor_pos =  preedit_text->len;
             g_string_append (preedit_text, "|");
-            len = preedit_text->len;
 
             g_string_append (preedit_text, pinyin->input_buffer->str + pinyin->input_cursor);
-            // ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x000000ff, len, -1);
         }
 
         text = ibus_text_new_from_string (preedit_text->str);
+        ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, len, cursor_pos);
+        ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, cursor_pos + 1, -1);
         ibus_engine_update_auxiliary_text ((IBusEngine *)pinyin,
                                          text,
                                          TRUE);

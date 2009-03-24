@@ -17,6 +17,7 @@ py_cmp (const void *p1, const void *p2)
 
 static const PinYin *
 is_pinyin (const gchar *p,
+           const gchar *end,
            gint         len,
            gint         option)
 {
@@ -26,18 +27,25 @@ is_pinyin (const gchar *p,
     if (len > 6)
         return NULL;
 
+    if (len > end - p)
+        return NULL;
+
     if (len > 0) {
         strncpy (buf, p, len);
+        buf[len] = 0;
         result = (const PinYin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR, sizeof (PinYin), py_cmp);
+        if (result && result->flags != 0 && (result->flags & option == 0))
+            return NULL;
         return result;
     }
     
     len = strnlen (p, 6);
+    len = MIN (len, end - p);
     strncpy (buf, p, len);
     for (; len > 0; len --) {
         buf[len] = 0;
         result = (const PinYin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR, sizeof (PinYin), py_cmp);
-        if (result) {
+        if (result && ((result->flags == 0) || (result->flags & option))) {
             return result;
         }
     }
@@ -60,7 +68,7 @@ py_parse_pinyin (const gchar  *str,
     if (len < 0)
         len = strlen (str);
     
-    array = g_array_new (TRUE, FALSE, sizeof (const PinYin *));
+    array = g_array_sized_new (TRUE, FALSE, sizeof (const PinYin *), len >> 1);
     p = str;
     end = str + len;
 
@@ -72,10 +80,10 @@ py_parse_pinyin (const gchar  *str,
 
         if (is_rng && (*p == 'i' || *p == 'u' || *p == 'v')) {
             const PinYin *new_py;
-            py = is_pinyin (p - 1, -1, option);
+            py = is_pinyin (p - 1, end, -1, option);
             if (py == NULL)
                 break;
-            new_py = is_pinyin (prev_py->text, prev_py->len - 1, option);
+            new_py = is_pinyin (prev_py->text, end, prev_py->len - 1, option);
             if (new_py == NULL)
                 break;
             g_array_index (array, const PinYin *, array->len - 1) = new_py;
@@ -84,7 +92,7 @@ py_parse_pinyin (const gchar  *str,
             is_rng = FALSE;
         }
         else {
-            py = is_pinyin (p, -1, option);
+            py = is_pinyin (p, end, -1, option);
             if (py == NULL)
                 break;
         }
@@ -101,7 +109,7 @@ py_parse_pinyin (const gchar  *str,
                 const PinYin *p1;
                 const PinYin *p2;
 
-                if ((p1 = is_pinyin(prev_py->text, prev_py->len -1, option)) == NULL) {
+                if ((p1 = is_pinyin(prev_py->text, prev_py->text + prev_py->len - 1, prev_py->len -1, option)) == NULL) {
                     g_array_append_val (array, py);
                     break;
                 }
@@ -109,7 +117,7 @@ py_parse_pinyin (const gchar  *str,
                 new_pinyin[0] = prev_py->text[prev_py->len - 1];
                 strcpy(new_pinyin + 1, py->text);
 
-                if ((p2 = is_pinyin (new_pinyin, py->len + 1, option)) == NULL) {
+                if ((p2 = is_pinyin (new_pinyin, new_pinyin + py->len + 1, py->len + 1, option)) == NULL) {
                     g_array_append_val (array, py);
                     break;
                 }
@@ -150,6 +158,10 @@ py_parse_pinyin (const gchar  *str,
         *result = NULL;
         return 0;
     }
+
+    if (*(p - 1) == '\'')
+        p --;
+
     *result = array;
     return p - str;
 }
@@ -163,7 +175,7 @@ int main(int argc, char **argv)
     GArray *array;
     PinYin **p;
 
-    len = py_parse_pinyin (argv[1], -1, 0, &array);
+    len = py_parse_pinyin ("qinaide", -1, 0, &array);
 
     if (len) {
         
@@ -174,5 +186,7 @@ int main(int argc, char **argv)
         }
     }
     g_printf ("\n");
+
+    return 0;
 }
 #endif
