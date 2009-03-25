@@ -34,7 +34,7 @@ is_pinyin (const gchar *p,
         strncpy (buf, p, len);
         buf[len] = 0;
         result = (const PinYin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR, sizeof (PinYin), py_cmp);
-        if (result && result->flags != 0 && (result->flags & option == 0))
+        if (result && result->flags != 0 && ((result->flags & option) == 0))
             return NULL;
         return result;
     }
@@ -57,25 +57,23 @@ sp_cmp (const void *p1,
         const void *p2)
 {
     const PinYin **pys = (const PinYin **) p1;
-    const gchar **e = (const gchar **) p2;
+    const PinYin **e = (const PinYin **) p2;
 
     gint r;
 
-    r = strcmp (pys[0]->text, e[0]);
+    r = strcmp (pys[0]->text, e[0]->text);
     if ( r == 0)
-        r = strcmp (pys[1]->text, e[1]);
+        r = strcmp (pys[1]->text, e[1]->text);
     return r;
 }
 
-static gboolean
+static const PinYin **
 need_resplit(const PinYin *p1,
              const PinYin *p2)
 {
     const PinYin * pys[] = {p1, p2};
 
-    if (bsearch (pys, special_table, SPECIAL_TABLE_NR, sizeof (special_table[0]), sp_cmp))
-        return TRUE;
-    return FALSE;
+    return (const PinYin **) bsearch (pys, special_table, SPECIAL_TABLE_NR, sizeof (special_table[0]), sp_cmp);
 }
 
 gint
@@ -131,27 +129,11 @@ py_parse_pinyin (const gchar  *str,
             case 'o':
             case 'u':
             {
-                gchar new_pinyin[7];
-                const PinYin *p1;
-                const PinYin *p2;
-
-
-                if ((p1 = is_pinyin(prev_py->text, prev_py->text + prev_py->len - 1, prev_py->len -1, option)) == NULL) {
-                    g_array_append_val (array, py);
-                    break;
-                }
-
-                new_pinyin[0] = prev_py->text[prev_py->len - 1];
-                strcpy(new_pinyin + 1, py->text);
-
-                if ((p2 = is_pinyin (new_pinyin, new_pinyin + py->len + 1, py->len + 1, option)) == NULL) {
-                    g_array_append_val (array, py);
-                    break;
-                }
-
-                if (need_resplit (prev_py, py)) {
-                    g_array_index (array, const PinYin *, array->len - 1) = p1;
-                    py = p2;
+                const PinYin **pp;
+                
+                if ((pp = need_resplit (prev_py, py)) != NULL) {
+                    g_array_index (array, const PinYin *, array->len - 1) = pp[2];
+                    py = pp[3];
                     p --;
                 }
                 break;

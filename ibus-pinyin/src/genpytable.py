@@ -136,8 +136,8 @@ def get_all_special():
     for p in pinyin_list:
         if p[-1] in ["n", "g", "r"]:
             for yun in yunmu_list:
-                # if yun not in pinyin_list:
-                #    continue
+                if yun not in pinyin_list:
+                    continue
                 new_pinyin = p[-1] + yun
                 # if new_pinyin in pinyin_list:
                 yield p, yun, p[:-1], new_pinyin
@@ -195,7 +195,6 @@ def gen_special_table(pinyins):
     print 'static const PinYin *special_table[][4] = {'
     for r in l:
         ids =  map(lambda p: _dict[p], r)
-        print ids
         print '    { &(pinyin_table[%d]), &(pinyin_table[%d]), &(pinyin_table[%d]), &(pinyin_table[%d]) },' % tuple(ids)
     print '};'
     print
