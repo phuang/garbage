@@ -102,45 +102,52 @@ py_parse_pinyin (const gchar  *str,
 
     for (; p < end; ) {
 
-        if (is_rng && (*p == 'i' || *p == 'u' || *p == 'v')) {
-            const PinYin *new_py;
-            py = is_pinyin (p - 1, end, -1, option);
-            if (py == NULL)
+        if (is_rng) {
+            switch (*p) {
+            case 'i':
+            case 'u':
+            case 'v':
+            case 'a':
+            case 'e':
+            case 'o':
+                {
+                    const PinYin **pp;
+                    const PinYin *new_py1;
+                    const PinYin *new_py2;
+                    
+                    py = is_pinyin (p, end, -1, option);
+
+                    if ((new_py1 = is_pinyin (prev_py->text, prev_py->text + prev_py->len, prev_py->len - 1, option)) != NULL) {
+                        new_py2 = is_pinyin (p -1, end, -1, option);
+                        if ((new_py2 != NULL) && (py == NULL || new_py2->len > py->len + 1)) {
+                            g_array_index (array, const PinYin *, array->len - 1) = new_py1;
+                            py = new_py2;
+                            p --;
+                            break;
+                        }
+                    }
+                    
+                    if ( py == NULL) {
+                        break;
+                    }
+                    pp = need_resplit (prev_py, py);
+
+                    if (pp != NULL) {
+                        g_array_index (array, const PinYin *, array->len - 1) = pp[2];
+                        py = pp[3];
+                        p --;
+                        break;
+                    }
+                }
+            default:
+                py = is_pinyin (p, end, -1, option);
                 break;
-            new_py = is_pinyin (prev_py->text, end, prev_py->len - 1, option);
-            if (new_py == NULL)
-                break;
-            g_array_index (array, const PinYin *, array->len - 1) = new_py;
-            p --;
-            prev_py = new_py;
-            is_rng = FALSE;
+            }
         }
         else {
             py = is_pinyin (p, end, -1, option);
             if (py == NULL)
                 break;
-        }
-
-        if (is_rng) {
-            switch (py->text[0]) {
-            case 'a':
-            case 'e':
-            case 'i':
-            case 'o':
-            case 'u':
-            {
-                const PinYin **pp;
-                
-                if ((pp = need_resplit (prev_py, py)) != NULL) {
-                    g_array_index (array, const PinYin *, array->len - 1) = pp[2];
-                    py = pp[3];
-                    p --;
-                }
-                break;
-            }
-            default:
-                break;
-            }
         }
 
         g_array_append_val (array, py);
