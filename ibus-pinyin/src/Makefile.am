@@ -31,16 +31,6 @@ AM_LDFLAGS = \
 	@SQLITE_LIBS@ \
 	$(NULL)
 
-AM_YFLAGS = \
-	-d \
-	--verbose \
-	$(NULL)
-
-AM_LFLAGS = \
-	--outfile=$(LEX_OUTPUT_ROOT).c \
-	--header-file=$(LEX_OUTPUT_ROOT).h \
-	$(NULL)
-
 libexec_PROGRAMS = ibus-engine-pinyin
 
 ibus_engine_built_h_sources = \
@@ -140,5 +130,3 @@ pinyin.xml: pinyin.xml.in
 test: ibus-engine-pinyin
 	$(builddir)/ibus-engine-pinyin
 
-.l.c:
-	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ $(LEX_OUTPUT_ROOT).h $*.h -- $(LEXCOMPILE)
