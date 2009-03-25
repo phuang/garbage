@@ -52,6 +52,32 @@ is_pinyin (const gchar *p,
     return NULL;
 }
 
+static int
+sp_cmp (const void *p1,
+        const void *p2)
+{
+    const PinYin **pys = (const PinYin **) p1;
+    const gchar **e = (const gchar **) p2;
+
+    gint r;
+
+    r = strcmp (pys[0]->text, e[0]);
+    if ( r == 0)
+        r = strcmp (pys[1]->text, e[1]);
+    return r;
+}
+
+static gboolean
+need_resplit(const PinYin *p1,
+             const PinYin *p2)
+{
+    const PinYin * pys[] = {p1, p2};
+
+    if (bsearch (pys, special_table, SPECIAL_TABLE_NR, sizeof (special_table[0]), sp_cmp))
+        return TRUE;
+    return FALSE;
+}
+
 gint
 py_parse_pinyin (const gchar  *str,
                  gint          len,
@@ -109,6 +135,7 @@ py_parse_pinyin (const gchar  *str,
                 const PinYin *p1;
                 const PinYin *p2;
 
+
                 if ((p1 = is_pinyin(prev_py->text, prev_py->text + prev_py->len - 1, prev_py->len -1, option)) == NULL) {
                     g_array_append_val (array, py);
                     break;
@@ -122,9 +149,11 @@ py_parse_pinyin (const gchar  *str,
                     break;
                 }
 
-                g_array_index (array, const PinYin *, array->len - 1) = p1;
-                py = p2;
-                p --;
+                if (need_resplit (prev_py, py)) {
+                    g_array_index (array, const PinYin *, array->len - 1) = p1;
+                    py = p2;
+                    p --;
+                }
                 break;
             }
             default:

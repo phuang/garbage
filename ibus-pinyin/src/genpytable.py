@@ -130,6 +130,8 @@ def gen_tables():
     print
     print '#define PINYIN_TABLE_NR (sizeof (pinyin_table) / sizeof (PinYin))'
 
+    return pinyins
+
 def get_all_special():
     for p in pinyin_list:
         if p[-1] in ["n", "g", "r"]:
@@ -166,6 +168,8 @@ def compaired_special():
     db = sqlite3.connect("py.db")
 
     for p1, p2, p3, p4 in get_all_special():
+        if p3 not in pinyin_list or p4 not in pinyin_list:
+            continue
         if p1 not in pinyin_list or p2 not in pinyin_list:
             yield p1, p2, p3, p4
             continue
@@ -181,20 +185,27 @@ def compaired_special():
         if a1 < a2:
             yield p1, p2, p3, p4
 
-def gen_special_table():
+def gen_special_table(pinyins):
+    _dict = {}
+    for i in xrange(0, len(pinyins)):
+        _dict[pinyins[i][0]] = i
+
     l = list(compaired_special())
     l.sort()
-    print 'static const char *special_table[][2] = {'
+    print 'static const PinYin *special_table[][4] = {'
     for r in l:
-        print '    { "%s", "%s" },' % (r[0], r[1])
+        ids =  map(lambda p: _dict[p], r)
+        print ids
+        print '    { &(pinyin_table[%d]), &(pinyin_table[%d]), &(pinyin_table[%d]), &(pinyin_table[%d]) },' % tuple(ids)
     print '};'
     print
+    print '#define SPECIAL_TABLE_NR (sizeof (special_table) / sizeof (special_table[0]))'
 
 
 def main():
     gen_header()
-    gen_tables()
-    gen_special_table()
+    pinyins = gen_tables()
+    gen_special_table(pinyins)
 
 
 if __name__ == "__main__":
