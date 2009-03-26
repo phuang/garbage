@@ -126,7 +126,7 @@ def gen_tables():
     print 'static const PinYin pinyin_table[] = {'
     i = 0
     for p in pinyins:
-        print '    /* %3d */' % i, '{ %8s, %8s, %8s,'% tuple(map(lambda s: '"%s"' %s , p[:3])), '%6d, %6d, %6d, %6d, %6d,' % p[3:-1], '%30s },' % p[-1]
+        print '    /* %3d */' % i, '{ %s %s %s'% tuple([('"%s",' % s).ljust(9) for s in p[:3]]), '%6d, %6d, %6d, %6d, %6d,' % p[3:-1], '%s },' % str(p[-1]).ljust(24)
         i += 1
     print '};'
     print
@@ -196,8 +196,9 @@ def gen_special_table(pinyins):
     l.sort()
     print 'static const PinYin *special_table[][4] = {'
     for r in l:
-        ids =  map(lambda p: "&pinyin_table[%d]" % _dict[p], r)
-        print '    { %s,\t%s,\t%s,\t%s },' % tuple(ids), "/* %s %s => %s %s */" % r
+        ids =  [("&pinyin_table[%d]," % _dict[py]).ljust(20) for py in r]
+
+        print '    { %s %s %s %s },' % tuple(ids), "/* %s %s => %s %s */" % r
     print '};'
     print
     print '#define SPECIAL_TABLE_NR (sizeof (special_table) / sizeof (special_table[0]))'
