@@ -9,13 +9,28 @@ shengmu_list = SHENGMU_DICT.keys()
 shengmu_list.remove("")
 shengmu_list.sort()
 
-yunmu_list = [
-    "a", "an", "ai", "ang", "ao",
-    "o", "ou", "ong",
-    "e", "en", "eng", "ei",
-    "i", "in", "ing", "ie", "iu", "ian", "iang", "iong", "iao",
-    "u", "uo", "ue", "ui", "uai", "uan", "uang",
-    "v"]
+auto_correct = [
+    ("ng", "gn"),
+    ("ng", "mg"),
+    ("iu", "iou"),
+    ("ui", "uei"),
+    ("un", "uen"),
+    ("ue", "ve")]
+
+fuzzy_shengmu = [
+    ("c", "ch"),
+    ("z", "zh"),
+    ("s", "sh"),
+    ("l", "n"),
+    ("f", "h"),
+    ("r", "l"),
+    ("k", "g")]
+
+fuzzy_yunmu = [
+    ("an", "ang"),
+    ("en", "eng"),
+    ("in", "ing"),
+    ("uan", "uang")]
 
 def get_sheng_yun(pinyin):
     if pinyin == None:
@@ -33,9 +48,6 @@ for p in pinyin_list:
     s, y = get_sheng_yun(p)
     yunmu_list |= set([y])
 
-auto_correct = [("ng", "gn"), ("ng", "mg"), ("iu", "iou"), ("ui", "uei"), ("un", "uen"), ("ue", "ve")]
-fuzzy_shengmu = [("c", "ch"), ("z", "zh"), ("s", "sh"), ("l", "n"), ("f", "h"), ("r", "l"), ("k", "g")]
-fuzzy_yunmu = [("an", "ang"), ("en", "eng"), ("in", "ing"), ("uan", "uang")]
 
 fuzzy_shengmu_dict = {}
 for s1, s2 in fuzzy_shengmu:

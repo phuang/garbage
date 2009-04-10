@@ -20,17 +20,20 @@ int sdl_display_init()
 
 int main()
 {
+	SDL_Rect rect = {100, 100, 400, 400};
 	SDL_Event ev;
 	sdl_display_init ();
 	
-	while (1)
-	while (SDL_PollEvent (&ev)) {
-		switch (ev.type) {
-		case SDL_VIDEOEXPOSE:
-			SDL_UpdateRect (screen, 0, 0, screen->w, screen->h);
-			break;
-		}
+	while (1) {
+		if (SDL_WaitEvent (&ev)) {
+			switch (ev.type) {
+			case SDL_VIDEOEXPOSE:
+				SDL_UpdateRect (screen, 0, 0, screen->w, screen->h);
+				SDL_DisplayYUVOverlay (overlay, &rect);
+				break;
+			}
 	
+		}
 	}
 	return 0;
 }
