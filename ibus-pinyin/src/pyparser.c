@@ -35,7 +35,9 @@ is_pinyin (const gchar *p,
         buf[len] = 0;
         result = (const PinYin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR,
                                             sizeof (PinYin), py_cmp);
-        if (result && result->flags != 0 && ((result->flags & option) == 0))
+        if (result &&
+            result->flags != 0 &&
+            ((result->flags & option) == 0))
             return NULL;
         return result;
     }
