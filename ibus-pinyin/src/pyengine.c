@@ -554,10 +554,6 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
     modifiers =  modifiers & ( IBUS_SHIFT_MASK |
                                IBUS_CONTROL_MASK |
                                IBUS_MOD1_MASK |
-                               IBUS_MOD2_MASK |
-                               IBUS_MOD3_MASK |
-                               IBUS_MOD4_MASK |
-                               IBUS_MOD5_MASK |
                                IBUS_SUPER_MASK |
                                IBUS_HYPER_MASK |
                                IBUS_META_MASK );
