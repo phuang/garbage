@@ -1,0 +1,44 @@
+#!/usr/bin/stap 
+%{
+#include <linux/mm.h>
+%}
+global max_mapnr
+probe begin
+{
+	max_mapnr = get_max_mapnr() >> 6
+	printf("max_mapnr=%d\n", max_mapnr)
+}
+
+
+function get_max_mapnr:long()
+%{
+	THIS->__retvalue = max_mapnr;
+%}
+
+function get_pages_status:long(e:long)
+%{
+	unsigned long long ret = 0L;
+	unsigned long long e;
+	int i;
+	e = THIS->e;
+	e <<= 6;
+	for (i = 0; i < 64; i++) {
+		if (page_count(&(mem_map[e + i])) != 0)
+			ret ++;
+	}
+	THIS->__retvalue = ret;
+
+%}
+
+function print_mem_map()
+{
+	for (i = 0; i < max_mapnr - 1; i++) {
+		printf ("%x:", get_pages_status(i))
+	}
+	printf ("%x\n", get_pages_status(i))
+}
+
+probe timer.ms(500)
+{
+	print_mem_map()
+}
