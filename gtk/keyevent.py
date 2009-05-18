@@ -2,7 +2,7 @@ import gtk
 
 
 def key_press_cb(w, e):
-    print "e.keyval='%c', e.hardware_keycode=0x%x" % (e.keyval, e.hardware_keycode)
+    print "e.keyval=0x%x, e.hardware_keycode=0x%x, %d" % (e.keyval, e.hardware_keycode, e.hardware_keycode)
 
 
 def main():
