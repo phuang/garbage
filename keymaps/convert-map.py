@@ -4,7 +4,6 @@ import sys
 MODIFIERS = ('shift', 'numlock', 'altgr')
 
 def main():
-
     try:
         fname = sys.argv[1]
     except:
@@ -61,12 +60,19 @@ def main():
         output = []
 
         if keymap[i]['']:
-            output.append(keymap[i][''])
-        
+            print 'keycode %3d = %s' % (i, keymap[i][''] or '')
+
         for m in MODIFIERS:
-            if m in keymap[i]:
-                output.append('%s : %s' % (m, keymap[i][m]))
-        print 'keycode %3d =' % i, ', '.join(output)
+            if m in keymap[i] and keymap[i]:
+                print '    %s keycode %d = %s' % (m, i, keymap[i][m])
+
+        # if keymap[i]['']:
+        #     output.append(keymap[i][''])
+        # 
+        # for m in MODIFIERS:
+        #     if m in keymap[i]:
+        #         output.append('%s:%s' % (m, keymap[i][m]))
+        # print 'keycode %3d ' % i, ',\t'.join(output)
 
 if __name__ == "__main__":
     main()
