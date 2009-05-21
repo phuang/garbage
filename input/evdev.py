@@ -1,5 +1,8 @@
 import struct
-f = open("/dev/input/event3")
+
+fmt = 'llhhi'
+f = open('/dev/input/event3')
+size = struct.calcsize(fmt)
 while f:
-    s = f.read(24)
-    print struct.unpack("llhhi", s)
+    s = f.read(size)
+    print struct.unpack(fmt, s)

@@ -1,10 +1,10 @@
 include common
-keycode   2 = keyboard_subtype, shift : exclam, altgr : kana_NU
+keycode   2 = shift : exclam, altgr : kana_NU
 keycode   3 = shift : quotedbl, altgr : kana_FU
 keycode   4 = shift : numbersign, altgr : kana_A
 keycode   5 = shift : dollar, altgr : kana_U
 keycode   6 = shift : percent, altgr : kana_E
-keycode   7 = keyboard_type, shift : ampersand, altgr : kana_O
+keycode   7 = shift : ampersand, altgr : kana_O
 keycode   8 = shift : apostrophe, altgr : kana_YA
 keycode   9 = shift : parenleft, altgr : kana_YU
 keycode  10 = shift : parenright, altgr : kana_YO
@@ -49,7 +49,7 @@ keycode  53 = slash, shift : question, altgr : kana_ME
 keycode  58 = shift : Eisu_toggle
 keycode  84 = shift : Execute
 keycode 112 = Katakana
-keycode 115 = backslash, shift : underscore
-keycode 121 = Henkan_Mode
+keycode 115 = backslash_ja, shift : underscore
+keycode 121 = Henkan_Mode_Ultra
 keycode 123 = Muhenkan
-keycode 125 = shift : bar
+keycode 125 = yen, shift : bar

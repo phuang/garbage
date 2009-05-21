@@ -20,7 +20,5 @@ keycode  40 = dead_grave, altgr : braceleft
 keycode  41 = shift : bar, altgr : backslash
 keycode  43 = less, shift : greater, altgr : braceright
 keycode  50 = altgr : mu
-keycode  51 = comma, shift : apostrophe
-keycode  52 = shift : period
 keycode  53 = eacute, altgr : dead_acute
 keycode  86 = guillemotleft, shift : guillemotright, altgr : degree
