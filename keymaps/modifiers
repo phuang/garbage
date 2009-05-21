@@ -4,4 +4,6 @@ keycode  54 = Shift_R
 keycode  56 = Alt_L
 keycode 157 = Control_R
 keycode 184 = ISO_Level3_Shift
+keycode 219 = Super_L
+keycode 220 = Super_R
 keycode 221 = Menu
