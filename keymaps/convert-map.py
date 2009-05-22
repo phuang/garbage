@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys
 
-MODIFIERS = ('shift', 'numlock', 'altgr')
+MODIFIERS = ('shift', 'numlock', 'altgr', 'shift altgr')
 
 def main():
     try:
@@ -27,7 +27,7 @@ def main():
         if tokens[0] == 'include':
             includes.append(tokens[1])
             continue
-        
+
         keysym, keycode = tokens[:2]
         keycode = int(keycode, 16)
         modifiers = tokens[2:]
@@ -39,28 +39,42 @@ def main():
             keymap[keycode][''] = keysym
             continue
 
-        if len(modifiers) != 1:
+        if len(modifiers) == 2:
+            if modifiers[0] == 'shift' and modifiers[1] == 'altgr':
+                modifiers = ['shift altgr']
+            elif modifiers[1] == 'shift' and modifiers[0] == 'altgr':
+                modifiers = ['shift altgr']
+
+        if 'inhibit' in modifiers:
+            print >> sys.stderr, 'error:', line
             continue
-        
-        if modifiers[0] == "addupper":
+
+        if len(modifiers) != 1:
+            print >> sys.stderr, 'error:', line
+            continue
+
+        if modifiers[0] == 'addupper':
             keymap[keycode][''] = keysym
             keymap[keycode]['shift'] = keysym.upper()
+            continue
+
+        if modifiers[0] == 'localstate':
+            keymap[keycode][''] = keysym
+            keymap[keycode]['shift'] = keysym
             continue
 
         if modifiers[0] in MODIFIERS:
             keymap[keycode][modifiers[0]] = keysym
             continue
-        else:
-            keymap[keycode][''] = keysym
-            continue
-        
+        print >> sys.stderr, 'error:', line
+
     for i in includes:
         print 'include', i
     for i in sorted(keymap.keys()):
         output = []
 
         if keymap[i]['']:
-            print 'keycode %3d = %s' % (i, keymap[i][''] or '')
+            print 'keycode %d = %s' % (i, keymap[i][''] or '')
 
         for m in MODIFIERS:
             if m in keymap[i] and keymap[i]:
@@ -68,7 +82,7 @@ def main():
 
         # if keymap[i]['']:
         #     output.append(keymap[i][''])
-        # 
+        #
         # for m in MODIFIERS:
         #     if m in keymap[i]:
         #         output.append('%s:%s' % (m, keymap[i][m]))
