@@ -54,6 +54,7 @@ static void     ibus_pinyin_engine_destroy      (IBusPinyinEngine       *pinyin)
 static gboolean ibus_pinyin_engine_process_key_event
                                                 (IBusEngine             *engine,
                                                  guint                   keyval,
+                                                 guint                   keycode,
                                                  guint                   modifiers);
 static void     ibus_pinyin_engine_focus_in     (IBusEngine             *engine);
 static void     ibus_pinyin_engine_focus_out    (IBusEngine             *engine);
@@ -543,6 +544,7 @@ ibus_pinyin_engine_reset_input (IBusPinyinEngine *pinyin,
 static gboolean
 ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                                       guint           keyval,
+                                      guint           keycode,
                                       guint           modifiers)
 {
     IBusPinyinEngine *pinyin = (IBusPinyinEngine *) engine;
