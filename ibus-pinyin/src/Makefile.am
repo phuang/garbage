@@ -45,7 +45,6 @@ ibus_engine_c_sources = \
 	pydb.c \
 	$(NULL)
 ibus_engine_h_sources = \
-	pyscanner.h \
 	pinyin.h \
 	pyparser.h \
 	pyengine.h \
@@ -77,8 +76,6 @@ componentdir = @datadir@/ibus/component
 
 EXTRA_DIST = \
 	$(GENPYSCANNER) \
-	pyscanner.l \
-	pygrammar.y \
 	pinyin.xml.in \
 	pydict.py \
 	$(NULL)
