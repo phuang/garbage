@@ -76,6 +76,7 @@ componentdir = @datadir@/ibus/component
 
 EXTRA_DIST = \
 	$(GENPYSCANNER) \
+	$(GENPYTABLE) \
 	pinyin.xml.in \
 	pydict.py \
 	$(NULL)
@@ -84,15 +85,19 @@ CLEANFILES = \
 	pinyin.xml \
 	$(NULL)
 
-check_PROGRAMS = \
-	test-pydb \
-	test-pyparser \
+check_PROGRAMS =
+
+check_PROGRAMS += test-pyparser
+test_pyparser_SOURCES = \
+	pyparser.c \
+	pytable.h \
+	$(NULL)
+test_pyparser_CFLAGS = \
+	$(AM_CFLAGS) \
+	-DTEST \
 	$(NULL)
 
-TESTS = \
-	$(check_PROGRAMS) \
-	$(NULL)
-
+# check_PROGRAMS += test-pydb
 test_pydb_SOURCES = \
 	pydb.c \
 	pydb.h \
@@ -104,13 +109,8 @@ test_pydb_CFLAGS = \
 	-DTEST \
 	$(NULL)
 
-test_pyparser_SOURCES = \
-	pyparser.c \
-	pytable.h \
-	$(NULL)
-test_pyparser_CFLAGS = \
-	$(AM_CFLAGS) \
-	-DTEST \
+TESTS = \
+	$(check_PROGRAMS) \
 	$(NULL)
 
 pytable.h: $(GENPYTABLE)
