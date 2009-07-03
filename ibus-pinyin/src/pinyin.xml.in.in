@@ -1,7 +1,7 @@
 <?xml version=\"1.0\" encoding=\"utf-8\"?>
 <!-- filename: pinyin.xml -->
 <component>
-	<name>org.freedesktop.IBus.Pin Yin</name>
+	<name>org.freedesktop.IBus.PinYin</name>
 	<description>Pin Yin Component</description>
 	<exec>${libexecdir}/ibus-engine-pinyin --ibus</exec>
 	<version>@VERSION@</version>
