@@ -11,7 +11,8 @@ static XkbDescRec xkb;
 int main (int argc, char **argv)
 {
     gtk_init (&argc, &argv);
-    
-    XkbGetNames (GDK_DISPLAY(), XkbAllNamesMask, &xkb);
+    setlocale (LC_ALL, "");
+    fprintf (stderr, "%d\n", XSupportsLocale ());
+
 
 }
