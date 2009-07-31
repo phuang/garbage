@@ -1,7 +1,7 @@
-from taskman.scheduler.models import DeviceType
-from taskman.scheduler.models import Device
-from taskman.scheduler.models import Step
-from taskman.scheduler.models import Product
+from taskman.sched.models import DeviceType
+from taskman.sched.models import Device
+from taskman.sched.models import Step
+from taskman.sched.models import Product
 from django.contrib import admin
 
 class DeviceInline(admin.TabularInline):
