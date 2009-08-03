@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import setup
-import sys
 from datetime import date
-  
+
 from taskman.sched import models
 
 def create_devices():
