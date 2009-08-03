@@ -188,11 +188,11 @@ def create_product():
     for name, number, steps in products:
         product = models.Product(name=name, number=number)
         product.save()
-        for i, (step_name, device_name, duration) in enumerate(steps):
+        for i, (step_name, device_name, work) in enumerate(steps):
             device = None
             if device_name:
                 device = models.DeviceType.objects.filter(name=device_name)[0]
-            step = models.Step(name=step_name, devicetype=device, duration=duration, product=product, order=i)
+            step = models.Step(name=step_name, devicetype=device, work=work, product=product, order=i)
             step.save()
         task = models.Task(name='2009-08', product=product,
                            start_date=date(2009,7,27),

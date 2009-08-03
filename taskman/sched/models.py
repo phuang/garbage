@@ -35,7 +35,7 @@ class Product(models.Model):
     number = models.IntegerField()
 
     steps = property(lambda self: self.step_set.all())
-    duration = property(lambda self: sum(map(lambda s:s.duration, self.steps)))
+    work = property(lambda self: sum(map(lambda s:s.work, self.steps)))
 
     def __unicode__(self):
         return self.name
@@ -47,10 +47,9 @@ class Step(models.Model):
 
     name = models.CharField(max_length=64)
     devicetype = models.ForeignKey(DeviceType, null=True, blank=True)
-    duration = models.FloatField()
+    work = models.FloatField()
     product = models.ForeignKey('Product')
     order = models.IntegerField()
-    finished = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.name
@@ -63,11 +62,11 @@ class Task(models.Model):
     product = models.ForeignKey(Product)
     start_date = models.DateField()
     deliver_date = models.DateField()
-    finished = models.BooleanField(default=False)
+    complete = models.BooleanField(default=False)
 
     steps = property(lambda self: self.product.steps)
     subtasks = property(lambda self: self.subtask_set.all())
-    duration = property(lambda self: self.product.duration)
+    work = property(lambda self: self.product.work)
 
     def __unicode__(self):
         return "%s - %s - deliver date %s" % (self.name, self.product.name, self.deliver_date)
@@ -80,4 +79,4 @@ class SubTask(models.Model):
     task = models.ForeignKey(Task)
     device = models.ForeignKey(Device)
     start_date = models.DateField()
-    # end_date = models.DateField()
+    complete = models.BooleanField(default=False)
