@@ -19,10 +19,12 @@ def get_tasks():
             if name not in d:
                 d[name] = []
             d[name].append(step)
-
+    all = 0
     for name, steps in d.items():
         effort = sum(map(lambda s:s.effort, steps))
+        all += effort
         print u'%s - %0.1f' % (name, effort)
+    print u'All - %0.1f' % all
 
 def main():
     get_tasks()
