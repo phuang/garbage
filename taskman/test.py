@@ -8,9 +8,9 @@ def get_devices():
 
 def get_tasks():
     d = {}
-    tasks = Task.objects.all()
+    tasks = Task.objects.filter(finished=False)
     for task in tasks:
-        print u'%s - %f' % (task, task.effort)
+        print u'%s - %f' % (task, task.duration)
         for step in task.steps:
             if not step.devicetype:
                 name = None
@@ -21,9 +21,9 @@ def get_tasks():
             d[name].append(step)
     all = 0
     for name, steps in d.items():
-        effort = sum(map(lambda s:s.effort, steps))
-        all += effort
-        print u'%s - %0.1f' % (name, effort)
+        duration = sum(map(lambda s:s.duration, steps))
+        all += duration
+        print u'%s - %0.1f' % (name, duration)
     print u'All - %0.1f' % all
 
 def main():
