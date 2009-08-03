@@ -202,6 +202,8 @@ def create_product():
                 device = models.DeviceType.objects.filter(name=device_name)[0]
             step = models.Step(name=step_name, devicetype=device, effort=effort, product=product, order=i)
             step.save()
+        task = models.Task(name='2009-08', product=product)
+        task.save()
 
 def create_task():
     pass
