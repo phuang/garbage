@@ -23,11 +23,10 @@ class Device(models.Model):
         ordering = ['type']
     type = models.ForeignKey(DeviceType)
 
-    def get_name(self):
-        return self.type.name
+    name = property(lambda self: self.type.name)
 
     def __unicode__(self):
-        return "%s - NO#%04d" % (self.type.name, self.id)
+        return "%s - NO#%04d" % (self.name, self.id)
 
 class Product(models.Model):
     class Meta:
@@ -36,6 +35,7 @@ class Product(models.Model):
     number = models.IntegerField()
 
     steps = property(lambda self: self.step_set.all())
+    effort = property(lambda self: sum(map(lambda s:s.effort, self.steps)))
 
     def __unicode__(self):
         return self.name
@@ -54,30 +54,19 @@ class Step(models.Model):
     def __unicode__(self):
         return self.name
 
-
-# class ProductSteps(models.Model):
-#     class Meta:
-#         ordering = ['order']
-#         unique_together = ('product', 'step')
-#
-#     product = models.ForeignKey(Product)
-#     step = models.ForeignKey(Step)
-#     order = models.IntegerField()
-#
-#     def __unicode__(self):
-#         return '%s : %d %s' % (self.product.name, self.order, self.step.name)
-
 class Task(models.Model):
     class Meta:
         ordering = ['name']
 
     name = models.CharField(max_length=64)
     product = models.ForeignKey(Product)
-    # start_date = models.DateField()
+    start_date = models.DateField()
     # end_date = models.DateField()
+    deliver_date = models.DateField()
 
     steps = property(lambda self: self.product.steps)
     subtasks = property(lambda self: self.subtask_set.all())
+    effort = property(lambda self: self.product.effort)
 
     def __unicode__(self):
         return "%s - %s" % (self.name, self.product.name)

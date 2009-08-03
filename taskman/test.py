@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import setup
 from taskman.sched.models import *
 
 def get_devices():
@@ -9,6 +10,7 @@ def get_tasks():
     d = {}
     tasks = Task.objects.all()
     for task in tasks:
+        print u'%s - %f' % (task, task.effort)
         for step in task.steps:
             if not step.devicetype:
                 name = None

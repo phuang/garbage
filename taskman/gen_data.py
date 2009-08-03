@@ -1,15 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import setup
 import sys
-from django.core.management import setup_environ
-
-try:
-    import settings
-    setup_environ(settings)
-except:
-    print >> sys.stderr, "Can not setup django environ" 
-    sys.exit(1)
+from datetime import date
   
 from taskman.sched import models
 
@@ -202,7 +195,9 @@ def create_product():
                 device = models.DeviceType.objects.filter(name=device_name)[0]
             step = models.Step(name=step_name, devicetype=device, effort=effort, product=product, order=i)
             step.save()
-        task = models.Task(name='2009-08', product=product)
+        task = models.Task(name='2009-08', product=product,
+                           start_date=date(2009,7,27),
+                           deliver_date=date(2009,7,31))
         task.save()
 
 def create_task():
