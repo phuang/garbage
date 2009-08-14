@@ -51,6 +51,7 @@ def main():
         if len(ts) == 1:
             print '    "%s" : ("%s", ),  # %04X => %04X' % (s, ts[0], ord(s), ord(ts[0]))
         else:
+            ts = sorted(ts)
             ns = map(lambda x: '%04X' % ord(x), ts)
             ts = map(lambda x: '"%s"' % x, ts)
             print '    "%s" : (%s),  # %04X => %s' % (s, ", ".join(ts), ord(s), " ".join(ns))
@@ -62,7 +63,8 @@ def main():
         if len(ss) == 1:
             print '    "%s" : ("%s", ),  # %04X => %04X' % (t, ss[0], ord(t), ord(ss[0]))
         else:
-            nt = map(lambda x: '%04X' % ord(x), ts)
+            ss = sorted(ss)
+            nt = map(lambda x: '%04X' % ord(x), ss)
             ss = map(lambda x: '"%s"' % x, ss)
             print '    "%s" : (%s),  # %04X => %s' % (t, ", ".join(ss), ord(t), " ".join(nt))
     print "}"
