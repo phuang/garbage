@@ -49,24 +49,24 @@ def main():
     for s in sorted(sdict.iterkeys()):
         ts = sdict[s]
         if len(ts) == 1:
-            print '    "%s" : ("%s", ),  # %04X => %04X' % (s, ts[0], ord(s), ord(ts[0]))
+            print '    u"%s" : (u"%s", ),  # %04X => %04X' % (s, ts[0], ord(s), ord(ts[0]))
         else:
             ts = sorted(ts)
             ns = map(lambda x: '%04X' % ord(x), ts)
-            ts = map(lambda x: '"%s"' % x, ts)
-            print '    "%s" : (%s),  # %04X => %s' % (s, ", ".join(ts), ord(s), " ".join(ns))
+            ts = map(lambda x: 'u"%s"' % x, ts)
+            print '    u"%s" : (%s),  # %04X => %s' % (s, ", ".join(ts), ord(s), " ".join(ns))
     print "}"
 
     print "T_S = {"
     for t in sorted(tdict.iterkeys()):
         ss = tdict[t]
         if len(ss) == 1:
-            print '    "%s" : ("%s", ),  # %04X => %04X' % (t, ss[0], ord(t), ord(ss[0]))
+            print '    u"%s" : (u"%s", ),  # %04X => %04X' % (t, ss[0], ord(t), ord(ss[0]))
         else:
             ss = sorted(ss)
             nt = map(lambda x: '%04X' % ord(x), ss)
-            ss = map(lambda x: '"%s"' % x, ss)
-            print '    "%s" : (%s),  # %04X => %s' % (t, ", ".join(ss), ord(t), " ".join(nt))
+            ss = map(lambda x: 'u"%s"' % x, ss)
+            print '    u"%s" : (%s),  # %04X => %s' % (t, ", ".join(ss), ord(t), " ".join(nt))
     print "}"
 
     # print "S_T = {"
