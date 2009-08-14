@@ -71,6 +71,10 @@ class Task(models.Model):
     def __unicode__(self):
         return "%s - %s - deliver date %s" % (self.name, self.product.name, self.deliver_date)
 
+    def __cmp__(self, task):
+        return cmp(self.start_date, task.start_date)
+
+
 class SubTask(models.Model):
     class Meta:
         ordering = ['start_date']
@@ -80,3 +84,8 @@ class SubTask(models.Model):
     device = models.ForeignKey(Device)
     start_date = models.DateField()
     complete = models.BooleanField(default=False)
+
+    work = property(lambda self: self.step.work)
+
+    def __cmp__(self, task):
+        return cmp(self.start_date, task.start_date)
