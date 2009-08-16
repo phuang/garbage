@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+# Simplfied Chinese to Traditional Chinese
 S_2_T = {
     u"㑇" : (u"㑳", ),  # 3447 => 3473
     u"㖞" : (u"喎", ),  # 359E => 558E
@@ -2525,6 +2526,8 @@ S_2_T = {
     u"龛" : (u"龕", ),  # 9F9B => 9F95
     u"龟" : (u"龜", ),  # 9F9F => 9F9C
 }
+
+# Traditional Chinese to Simplfied Chinese
 T_2_S = {
     u"㑳" : (u"㑇", ),  # 3473 => 3447
     u"㘚" : (u"㘎", ),  # 361A => 360E

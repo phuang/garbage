@@ -45,6 +45,7 @@ def main():
         tdict[t].append(s)
     print "# -*- coding: utf-8 -*-"
     print
+    print "# Simplfied Chinese to Traditional Chinese"
     print "S_2_T = {"
     for s in sorted(sdict.iterkeys()):
         ts = sdict[s]
@@ -57,6 +58,8 @@ def main():
             print '    u"%s" : (%s),  # %04X => %s' % (s, ", ".join(ts), ord(s), " ".join(ns))
     print "}"
 
+    print 
+    print "# Traditional Chinese to Simplfied Chinese"
     print "T_2_S = {"
     for t in sorted(tdict.iterkeys()):
         ss = tdict[t]
