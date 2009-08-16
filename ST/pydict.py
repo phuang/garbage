@@ -1,0 +1,1 @@
+../ibus-pinyin/data/pydict.py
