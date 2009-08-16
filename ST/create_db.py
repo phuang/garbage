@@ -68,7 +68,7 @@ for r in con1.execute("select * from py_phrase order by freq"):
     
     
     column = [phrase, new_freq] + map(encode_pinyin, sheng_yun)
-    if any(map(lambda x: x in ts.T_S, phrase)):
+    if any(map(lambda x: x in ts.T_2_S, phrase)) and len(phrase) > 1:
         print phrase
 
 #     sql = insert_sql % (i, ",".join(["?"] * len(column)))

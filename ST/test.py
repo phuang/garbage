@@ -45,7 +45,7 @@ def main():
         tdict[t].append(s)
     print "# -*- coding: utf-8 -*-"
     print
-    print "S_T = {"
+    print "S_2_T = {"
     for s in sorted(sdict.iterkeys()):
         ts = sdict[s]
         if len(ts) == 1:
@@ -57,7 +57,7 @@ def main():
             print '    u"%s" : (%s),  # %04X => %s' % (s, ", ".join(ts), ord(s), " ".join(ns))
     print "}"
 
-    print "T_S = {"
+    print "T_2_S = {"
     for t in sorted(tdict.iterkeys()):
         ss = tdict[t]
         if len(ss) == 1:
