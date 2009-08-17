@@ -1,9 +1,7 @@
 
 
-NAME = "ST.csv"
-
 def parse_1():
-    f = file(NAME)
+    f = file("sctc.csv")
     for l in f:
         l = unicode(l)
         l = l.strip()
