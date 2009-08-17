@@ -91,12 +91,27 @@ def parse_scim():
             tdict[s] = [t]
     return sdict, tdict
 
+def parse_map(name):
+    f = file(name)
+    data = f.read()
+    data = unicode(data, "utf8")
+    d = {}
+    for i, c in enumerate(data):
+        if i + 0x4e00 != ord(c):
+            d[unichr(i + 0x4e00)] = [c]
+    return d
+
+def parse_maps():
+    d1 = parse_map("mapping/STCodeMapping.dat")
+    d2 = parse_map("mapping/TSCodeMapping.dat")
+    return d1, d2
 
 
 
 def main():
-    d1, d2 = parse_csv()
+    # d1, d2 = parse_csv()
     # d1, d2 = parse_scim()
+    d1, d2 = parse_maps()
     print "# -*- coding: utf-8 -*-"
     print
     print "# Simplfied Chinese to Traditional Chinese"
