@@ -97,7 +97,8 @@ def parse_scim():
 
 
 def main():
-    d1, d2 = parse_scim()
+    d1, d2 = parse_csv()
+    # d1, d2 = parse_scim()
     print "# -*- coding: utf-8 -*-"
     print
     print "# Simplfied Chinese to Traditional Chinese"
