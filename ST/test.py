@@ -30,7 +30,20 @@ def parse():
     if return_values:
         yield return_values
 
-def main():
+def print_dict(name, d):
+    print "%s = {" % name
+    for k in sorted(d.iterkeys()):
+        v = d[k]
+        if len(v) == 1:
+            print '    u"%s" : (u"%s", ),  # %04X => %04X' % (k, v[0], ord(k), ord(v[0]))
+        else:
+            v = sorted(v)
+            vd = map(lambda x: '%04X' % ord(x), v)
+            vs = map(lambda x: 'u"%s"' % x, v)
+            print '    u"%s" : (%s),  # %04X => %s' % (k, ", ".join(vs), ord(k), " ".join(vd))
+    print "}"
+
+def parse_csv():
     s_to_t, t_to_s_n, s_to_t_n = list(parse())
 
     sdict = {}
@@ -43,49 +56,56 @@ def main():
         if t not in tdict:
             tdict[t] = []
         tdict[t].append(s)
+    return sdict, tdict
+
+def parse_scim():
+    sdict = {}
+    tdict = {}
+    f = file("scim_sctc_filter_data.h")
+    for l in f:
+        if "__sc_to_tc_table" in l:
+            break
+    for l in f:
+        l = l.strip()
+        l = l.strip("{},")
+        v = l.split("},{")
+        v = map(lambda x: x.split(","), v)
+        v = map(lambda x: (int(x[0].strip(), 16), int(x[1].strip(), 16)), v)
+        if v == [(0, 0)]:
+            break
+        v = map(lambda x: (unichr(x[0]), unichr(x[1])), v)
+        for s, t in v:
+            sdict[s] = [t]
+    
+    for l in f:
+        if "__tc_to_sc_table" in l:
+            break
+    for l in f:
+        l = l.strip()
+        l = l.strip("{},")
+        v = l.split("},{")
+        v = map(lambda x: x.split(","), v)
+        v = map(lambda x: (int(x[0].strip(), 16), int(x[1].strip(), 16)), v)
+        if v == [(0, 0)]:
+            break
+        v = map(lambda x: (unichr(x[0]), unichr(x[1])), v)
+        for s, t in v:
+            tdict[s] = [t]
+    return sdict, tdict
+
+
+
+
+def main():
+    d1, d2 = parse_scim()
     print "# -*- coding: utf-8 -*-"
     print
     print "# Simplfied Chinese to Traditional Chinese"
-    print "S_2_T = {"
-    for s in sorted(sdict.iterkeys()):
-        ts = sdict[s]
-        if len(ts) == 1:
-            print '    u"%s" : (u"%s", ),  # %04X => %04X' % (s, ts[0], ord(s), ord(ts[0]))
-        else:
-            ts = sorted(ts)
-            ns = map(lambda x: '%04X' % ord(x), ts)
-            ts = map(lambda x: 'u"%s"' % x, ts)
-            print '    u"%s" : (%s),  # %04X => %s' % (s, ", ".join(ts), ord(s), " ".join(ns))
-    print "}"
+    print_dict("S_2_T", d1)
 
     print 
     print "# Traditional Chinese to Simplfied Chinese"
-    print "T_2_S = {"
-    for t in sorted(tdict.iterkeys()):
-        ss = tdict[t]
-        if len(ss) == 1:
-            print '    u"%s" : (u"%s", ),  # %04X => %04X' % (t, ss[0], ord(t), ord(ss[0]))
-        else:
-            ss = sorted(ss)
-            nt = map(lambda x: '%04X' % ord(x), ss)
-            ss = map(lambda x: 'u"%s"' % x, ss)
-            print '    u"%s" : (%s),  # %04X => %s' % (t, ", ".join(ss), ord(t), " ".join(nt))
-    print "}"
-
-    # print "S_T = {"
-    # for s, si, t, ti in s_to_t:
-    #     print '    "%s" : "%s",' % (s, t)
-    # print "}"
-
-    # print "T_S_N = {"
-    # for t, ti, s, si in t_to_s_n:
-    #     print '    "%s" : "%s",' % (t, s)
-    # print "}"
-
-    # print "S_T_N = {"
-    # for s, si, t, ti in s_to_t_n:
-    #     print '    "%s" : "%s",' % (s, t)
-    # print "}"
+    print_dict("T_2_S", d2)
 
 if __name__ == "__main__":
     main()
