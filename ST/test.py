@@ -98,27 +98,32 @@ def parse_map(name):
     d = {}
     for i, c in enumerate(data):
         if i + 0x4e00 != ord(c):
-            d[unichr(i + 0x4e00)] = [c]
-    return d
+            d[unichr(i + 0x4e00)] = c
+    d1 = {}
+    for k, v in d.items():
+        if v not in d1:
+            d1[v] = []
+        d1[v].append(k)
+    return d1
 
 def parse_maps():
     d1 = parse_map("mapping/STCodeMapping.dat")
     d2 = parse_map("mapping/TSCodeMapping.dat")
-    return d1, d2
+    return d2, d1
 
 
 
 def main():
-    # d1, d2 = parse_csv()
+    d1, d2 = parse_csv()
     # d1, d2 = parse_scim()
-    d1, d2 = parse_maps()
+    # d1, d2 = parse_maps()
     print "# -*- coding: utf-8 -*-"
     print
-    print "# Simplfied Chinese to Traditional Chinese"
+    print "# Simpilfied Chinese to Traditional Chinese"
     print_dict("S_2_T", d1)
 
     print 
-    print "# Traditional Chinese to Simplfied Chinese"
+    print "# Traditional Chinese to Simplified Chinese"
     print_dict("T_2_S", d2)
 
 if __name__ == "__main__":
