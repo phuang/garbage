@@ -2,6 +2,7 @@
 #include <string.h>
 #include <glib.h>
 #include <sqlite3.h>
+#include <stdio.h>
 #include <stdarg.h>
 #include "pinyin.h"
 #include "pydb.h"
@@ -53,11 +54,19 @@ _conditions_append_vprintf (GArray      *array,
                             va_list      args)
 {
     gint i;
-    va_list tmp;
-    for (i = begin; i < end; i++) {
-        GString *v = g_array_index (array, GString *, i);
-         va_copy (tmp, args);
-        g_string_append_vprintf (v, fmt, tmp);
+    GString *v;
+
+    if (end - begin == 1) {
+        v = g_array_index (array, GString *, begin);
+        g_string_append_vprintf (v, fmt, args);
+    }
+    else {
+        gchar str[64];
+        vsnprintf (str, sizeof(str), fmt, args);
+        for (i = begin; i < end; i++) {
+            v = g_array_index (array, GString *, i);
+            g_string_append (v, str);
+        }
     }
 }
 
@@ -73,8 +82,6 @@ _conditions_append_printf (GArray      *array,
     _conditions_append_vprintf (array, begin, end, fmt, args);
     va_end (args);
 }
-
-
 
 static void
 _conditions_double (GArray *array)
@@ -135,7 +142,7 @@ py_db_query_internal (PYDB          *db,
                     _conditions_append_printf (array, array->len >> 1, array->len, " s%d = %d ", i, p->fsheng_id);
                 }
                 else {
-                    _conditions_append_printf (array, array->len, array->len, " s%d in ( %d, %d ) ", i, p->sheng_id, p->fsheng_id);
+                    _conditions_append_printf (array, 0, array->len, " s%d in ( %d, %d ) ", i, p->sheng_id, p->fsheng_id);
                 }
             }
         }
