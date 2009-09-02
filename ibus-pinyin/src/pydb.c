@@ -2,6 +2,7 @@
 #include <string.h>
 #include <glib.h>
 #include <sqlite3.h>
+#include <stdarg.h>
 #include "pinyin.h"
 #include "pydb.h"
 
@@ -44,15 +45,61 @@ py_db_free (PYDB *db)
     g_free (db);
 }
 
+static void
+_conditions_append_vprintf (GArray      *array,
+                            gint         begin,
+                            gint         end,
+                            const gchar *fmt,
+                            va_list      args)
+{
+    gint i;
+    va_list tmp;
+    for (i = begin; i < end; i++) {
+        GString *v = g_array_index (array, GString *, i);
+         va_copy (tmp, args);
+        g_string_append_vprintf (v, fmt, tmp);
+    }
+}
+
+static void
+_conditions_append_printf (GArray      *array,
+                           gint         begin,
+                           gint         end,
+                           const gchar *fmt,
+                           ...)
+{
+    va_list args;
+    va_start (args, fmt);
+    _conditions_append_vprintf (array, begin, end, fmt, args);
+    va_end (args);
+}
+
+
+
+static void
+_conditions_double (GArray *array)
+{
+    gint i, len;
+
+    for (i = 0, len = array->len; i < len; i++) {
+        GString *v = g_array_index (array, GString *, i);
+        v = g_string_new (v->str);
+        g_array_append_val (array, v);
+    }
+}
+
+
 gboolean
 py_db_query_internal (PYDB          *db,
                       GArray        *pinyin,
                       gint           pinyin_begin,
                       gint           pinyin_len,
                       PYPhraseArray *result,
-                      gint           m)
+                      gint           m,
+                      guint          option)
 {
-    GString *sql;
+    GString *sql, *v;
+    GArray *array;
     sqlite3_stmt *stmt;
     gint i;
 
@@ -65,19 +112,78 @@ py_db_query_internal (PYDB          *db,
     sql = g_string_new ("");
     g_string_append_printf (sql, " select * from main.py_phrase_%d where ", pinyin_len - 1);
 
-    for (i = pinyin_begin; i < pinyin_begin + pinyin_len; i++) {
+    array = g_array_new (TRUE, TRUE, sizeof (GString *));
+    v = g_string_new ("");
+    g_array_append_val (array, v);
+
+
+    for (i = 0; i < pinyin_len; i++) {
         PinYin *p;
-        p = g_array_index (pinyin, PinYin *, i);
+        p = g_array_index (pinyin, PinYin *, i + pinyin_begin);
 
         if (i > 0)
-            g_string_append_printf (sql, " and ");
+            _conditions_append_printf (array, 0, array->len, " and ");
 
-        if (p->yun_id != 0)
-            g_string_append_printf (sql, " (s%d = %d and y%d = %d) ", i, p->sheng_id, i, p->yun_id);
-        else
-            g_string_append_printf (sql, " (s%d = %d) ", i, p->sheng_id);
+        if (p->yun_id == 0) {
+            if (p->fsheng_id == 0) {
+                _conditions_append_printf (array, 0, array->len, " s%d = %d ", i, p->sheng_id);
+            }
+            else {
+                if (i < 3) {
+                    _conditions_double (array);
+                    _conditions_append_printf (array, 0, array->len  >> 1, " s%d = %d ", i, p->sheng_id);
+                    _conditions_append_printf (array, array->len >> 1, array->len, " s%d = %d ", i, p->fsheng_id);
+                }
+                else {
+                    _conditions_append_printf (array, array->len, array->len, " s%d in ( %d, %d ) ", i, p->sheng_id, p->fsheng_id);
+                }
+            }
+        }
+        else {
+            if (p->fsheng_id == 0) {
+                _conditions_append_printf (array, 0, array->len, " s%d = %d ", i, p->sheng_id);
+            }
+            else {
+                if (i < 3) {
+                    _conditions_double (array);
+                    _conditions_append_printf (array, 0, array->len  >> 1, " s%d = %d ", i, p->sheng_id);
+                    _conditions_append_printf (array, array->len >> 1, array->len, " s%d = %d ", i, p->fsheng_id);
+                }
+                else {
+                    _conditions_append_printf (array, 0, array->len, " s%d in ( %d, %d ) ", i, p->sheng_id, p->fsheng_id);
+                }
+            }
+
+            if (p->fyun_id == 0) {
+                _conditions_append_printf (array, 0, array->len, " and y%d = %d ", i, p->yun_id);
+            }
+            else {
+                if (i < 3) {
+                    _conditions_double (array);
+                    _conditions_append_printf (array, 0, array->len  >> 1, " and y%d = %d ", i, p->yun_id);
+                    _conditions_append_printf (array, array->len >> 1, array->len, " and y%d = %d ", i, p->fyun_id);
+                }
+                else {
+                    _conditions_append_printf (array, 0, array->len, " and y%d in ( %d, %d ) ", i, p->yun_id, p->fyun_id);
+                }
+            }
+        }
     }
+
+    for (i = 0; i < array->len; i++) {
+        GString *v;
+        v = g_array_index (array, GString *, i);
+        if (i > 0)
+            g_string_append (sql, " or ");
+
+        g_string_append_printf (sql, "( %s )", v->str);
+        g_string_free (v, TRUE);
+    }
+    g_array_free (array, TRUE);
+
     g_string_append (sql, " order by freq desc ");
+    if (pinyin_len == pinyin->len)
+        g_debug ("sql = %s", sql->str);
 
     if (m > 0) {
         g_string_append_printf (sql, " limit %d ", m);
@@ -91,7 +197,7 @@ py_db_query_internal (PYDB          *db,
     while (sqlite3_step (stmt) == SQLITE_ROW) {
         PYPhrase *p;
         gint j;
-        
+
         p = py_phrase_new ();
 
         strcpy (p->phrase, (gchar *) sqlite3_column_text (stmt, 0));
@@ -113,7 +219,8 @@ py_db_query_internal (PYDB          *db,
 PYPhraseArray *
 py_db_query (PYDB   *db,
              GArray *pinyin,
-             gint    m)
+             gint    m,
+             guint   option)
 {
     PYPhraseArray *result;
     gint len;
@@ -124,10 +231,10 @@ py_db_query (PYDB   *db,
 
     for (i = len; i > 0; i--) {
         if (m < 0) {
-            py_db_query_internal (db, pinyin, 0, i, result, -1);
+            py_db_query_internal (db, pinyin, 0, i, result, -1, option);
         }
         else {
-            py_db_query_internal (db, pinyin, 0, i, result, m - py_phrase_array_len (result));
+            py_db_query_internal (db, pinyin, 0, i, result, m - py_phrase_array_len (result), option);
             if (py_phrase_array_len(result) >= m)
                 break;
         }

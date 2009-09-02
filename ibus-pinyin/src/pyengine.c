@@ -41,7 +41,7 @@ struct _IBusPinyinEngineClass {
     IBusEngineClass parent;
 
     /* members */
-    gint option;
+    guint option;
 };
 
 /* functions prototype */
@@ -120,9 +120,9 @@ ibus_pinyin_engine_get_type (void)
 
     if (type == 0) {
         type = g_type_register_static (IBUS_TYPE_ENGINE,
-                                               "IBusPinyinEngine",
-                                               &type_info,
-                                               (GTypeFlags) 0);
+                                       "IBusPinyinEngine",
+                                       &type_info,
+                                       (GTypeFlags) 0);
     }
 
     return type;
@@ -348,7 +348,9 @@ ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
         return;
     }
 
-    phrases = py_db_query (pinyin->db, pinyin->pinyin_array, -1);
+    phrases = py_db_query (pinyin->db,
+                           pinyin->pinyin_array, -1,
+                           IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->option);
 
     if (G_UNLIKELY (phrases == NULL)) {
         ibus_engine_update_lookup_table_fast ((IBusEngine *)pinyin,
