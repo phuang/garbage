@@ -1,5 +1,6 @@
 import sqlite3
 from pydict import *
+from id import *
 
 con1 = sqlite3.connect("py.db")
 con2 = sqlite3.connect("py-new.db")
@@ -32,6 +33,7 @@ def get_sheng_yun(pinyin):
 def encode_pinyin(pinyin):
 	if pinyin == None or pinyin == "":
 		return 0
+        return pinyin_id[pinyin]
 	e = 0
 	for c in pinyin:
 		e = (e << 5) + (ord(c) - ord('a') + 1)
