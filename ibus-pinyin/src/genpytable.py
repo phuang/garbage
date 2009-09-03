@@ -231,8 +231,8 @@ def gen_tables():
         yun_id      : %s,
         fsheng_id   : %s,
         fyun_id     : %s,
-        fsheng2_id  : %s,
-        fyun2_id    : %s,
+        fsheng_id_2 : %s,
+        fyun_id_2   : %s,
         len         : %d,
         flags       : %s
     },''' % args

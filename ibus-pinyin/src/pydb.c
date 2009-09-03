@@ -207,7 +207,7 @@ py_db_query_internal (PYDB          *db,
         p = g_array_index (pinyin, PinYin *, i + pinyin_begin);
 
         fs1 = pinyin_option_check_sheng (option, p->sheng_id, p->fsheng_id);
-        fs2 = pinyin_option_check_sheng (option, p->sheng_id, p->fsheng2_id);
+        fs2 = pinyin_option_check_sheng (option, p->sheng_id, p->fsheng_id_2);
 
         if (i > 0)
             _conditions_append_printf (array, 0, array->len, " and ");
@@ -222,14 +222,14 @@ py_db_query_internal (PYDB          *db,
                 else if (fs1 == 0 && fs2) {
                     _conditions_double (array);
                     _conditions_append_printf (array, 0, array->len  >> 1, " s%d = %d ", i, p->sheng_id);
-                    _conditions_append_printf (array, array->len >> 1, array->len, " s%d = %d ", i, p->fsheng2_id);
+                    _conditions_append_printf (array, array->len >> 1, array->len, " s%d = %d ", i, p->fsheng_id_2);
                 }
                 else {
                     gint len = array->len;
                     _conditions_triple (array);
                     _conditions_append_printf (array, 0, len, " s%d = %d ", i, p->sheng_id);
                     _conditions_append_printf (array, len, len << 1, " s%d = %d ", i, p->fsheng_id);
-                    _conditions_append_printf (array, len << 1, array->len, " s%d = %d ", i, p->fsheng2_id);
+                    _conditions_append_printf (array, len << 1, array->len, " s%d = %d ", i, p->fsheng_id_2);
                 }
             }
             else {
@@ -237,10 +237,10 @@ py_db_query_internal (PYDB          *db,
                     _conditions_append_printf (array, 0, array->len, " s%d in ( %d, %d ) ", i, p->sheng_id, p->fsheng_id);
                 }
                 else if (fs1 == 0 && fs2) {
-                    _conditions_append_printf (array, 0, array->len, " s%d in ( %d, %d ) ", i, p->sheng_id, p->fsheng2_id);
+                    _conditions_append_printf (array, 0, array->len, " s%d in ( %d, %d ) ", i, p->sheng_id, p->fsheng_id_2);
                 }
                 else {
-                    _conditions_append_printf (array, 0, array->len, " s%d in ( %d, %d, %d ) ", i, p->sheng_id, p->fsheng_id, p->fsheng2_id);
+                    _conditions_append_printf (array, 0, array->len, " s%d in ( %d, %d, %d ) ", i, p->sheng_id, p->fsheng_id, p->fsheng_id_2);
                 }
             }
         }
