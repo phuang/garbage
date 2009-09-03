@@ -17,6 +17,8 @@ struct _PYDB {
 PYDB *
 py_db_new ()
 {
+    gchar *sql;
+    gchar *errmsg;
     PYDB *db = g_new0 (PYDB, 1);
 
     if (sqlite3_open_v2 ("py.db", &(db->db), SQLITE_OPEN_READONLY, NULL) != SQLITE_OK) {
@@ -27,6 +29,13 @@ py_db_new ()
     if (sqlite3_exec (db->db, "PRAGMA cache_size=" DB_CACHE_SIZE, NULL, NULL, NULL) != SQLITE_OK) {
         return NULL;
     }
+
+    sql = g_strdup_printf ("ATTACH DATABASE \"%s\" AS user_db;", "/home/phuang/.cache/ibus/ibus-pinyin/user.db");
+    if (sqlite3_exec (db->db, sql, NULL, NULL, &errmsg) != SQLITE_OK) {
+        g_debug ("%s", errmsg);
+        return NULL;
+    }
+    g_free (sql);
 
     return db;
 }
