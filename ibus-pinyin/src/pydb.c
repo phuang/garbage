@@ -89,10 +89,27 @@ _conditions_double (GArray *array)
 {
     gint i, len;
 
-    for (i = 0, len = array->len; i < len; i++) {
+    len = array->len;
+    g_array_set_size (array, len << 1);
+
+    for (i = 0; i < len; i++) {
         GString *v = g_array_index (array, GString *, i);
-        v = g_string_new (v->str);
-        g_array_append_val (array, v);
+        g_array_index (array, GString *, i + len) = g_string_new (v->str);
+    }
+}
+
+static void
+_conditions_triple (GArray *array)
+{
+    gint i, len;
+
+    len = array->len;
+    g_array_set_size (array, (len << 1) + len);
+
+    for (i = 0; i < len; i++) {
+        GString *v = g_array_index (array, GString *, i);
+        g_array_index (array, GString *, i + len) = g_string_new (v->str);
+        g_array_index (array, GString *, i + (len << 1)) = g_string_new (v->str);
     }
 }
 
@@ -179,48 +196,59 @@ py_db_query_internal (PYDB          *db,
     sql = g_string_new ("");
     g_string_append_printf (sql, " select * from main.py_phrase_%d where ", pinyin_len - 1);
 
-    array = g_array_new (TRUE, TRUE, sizeof (GString *));
+    array = g_array_new (FALSE, FALSE, sizeof (GString *));
     v = g_string_new ("");
     g_array_append_val (array, v);
 
 
     for (i = 0; i < pinyin_len; i++) {
         PinYin *p;
+        gboolean fs1, fs2;
         p = g_array_index (pinyin, PinYin *, i + pinyin_begin);
+
+        fs1 = pinyin_option_check_sheng (option, p->sheng_id, p->fsheng_id);
+        fs2 = pinyin_option_check_sheng (option, p->sheng_id, p->fsheng2_id);
 
         if (i > 0)
             _conditions_append_printf (array, 0, array->len, " and ");
 
-        if (p->yun_id == 0) {
-            if (pinyin_option_check_sheng (option, p->sheng_id, p->fsheng_id)) {
-                if (i < DB_INDEX_SIZE) {
+        if (fs1 || fs2) {
+            if (i < DB_INDEX_SIZE) {
+                if (fs1 && fs2 == 0) {
                     _conditions_double (array);
                     _conditions_append_printf (array, 0, array->len  >> 1, " s%d = %d ", i, p->sheng_id);
                     _conditions_append_printf (array, array->len >> 1, array->len, " s%d = %d ", i, p->fsheng_id);
                 }
+                else if (fs1 == 0 && fs2) {
+                    _conditions_double (array);
+                    _conditions_append_printf (array, 0, array->len  >> 1, " s%d = %d ", i, p->sheng_id);
+                    _conditions_append_printf (array, array->len >> 1, array->len, " s%d = %d ", i, p->fsheng2_id);
+                }
                 else {
-                    _conditions_append_printf (array, 0, array->len, " s%d in ( %d, %d ) ", i, p->sheng_id, p->fsheng_id);
+                    gint len = array->len;
+                    _conditions_triple (array);
+                    _conditions_append_printf (array, 0, len, " s%d = %d ", i, p->sheng_id);
+                    _conditions_append_printf (array, len, len << 1, " s%d = %d ", i, p->fsheng_id);
+                    _conditions_append_printf (array, len << 1, array->len, " s%d = %d ", i, p->fsheng2_id);
                 }
             }
             else {
-                _conditions_append_printf (array, 0, array->len, " s%d = %d ", i, p->sheng_id);
+                if (fs1 && fs2 == 0) {
+                    _conditions_append_printf (array, 0, array->len, " s%d in ( %d, %d ) ", i, p->sheng_id, p->fsheng_id);
+                }
+                else if (fs1 == 0 && fs2) {
+                    _conditions_append_printf (array, 0, array->len, " s%d in ( %d, %d ) ", i, p->sheng_id, p->fsheng2_id);
+                }
+                else {
+                    _conditions_append_printf (array, 0, array->len, " s%d in ( %d, %d, %d ) ", i, p->sheng_id, p->fsheng_id, p->fsheng2_id);
+                }
             }
         }
         else {
-            if (pinyin_option_check_sheng (option, p->sheng_id, p->fsheng_id)) {
-                if (i < DB_INDEX_SIZE) {
-                    _conditions_double (array);
-                    _conditions_append_printf (array, 0, array->len  >> 1, " s%d = %d ", i, p->sheng_id);
-                    _conditions_append_printf (array, array->len >> 1, array->len, " s%d = %d ", i, p->fsheng_id);
-                }
-                else {
-                    _conditions_append_printf (array, 0, array->len, " s%d in ( %d, %d ) ", i, p->sheng_id, p->fsheng_id);
-                }
-            }
-            else {
-                _conditions_append_printf (array, 0, array->len, " s%d = %d ", i, p->sheng_id);
-            }
+            _conditions_append_printf (array, 0, array->len, " s%d = %d ", i, p->sheng_id);
+        }
 
+        if (p->yun_id != PINYIN_ID_VOID) {
             if (pinyin_option_check_yun (option, p->yun_id, p->fyun_id)) {
                 if (i < DB_INDEX_SIZE) {
                     _conditions_double (array);
@@ -249,8 +277,8 @@ py_db_query_internal (PYDB          *db,
     g_array_free (array, TRUE);
 
     g_string_append (sql, " order by freq desc ");
-    // if (pinyin_len == pinyin->len)
-    //     g_debug ("sql = %s", sql->str);
+    if (pinyin_len == pinyin->len)
+        g_debug ("sql = %s", sql->str);
 
     if (m > 0) {
         g_string_append_printf (sql, " limit %d ", m);

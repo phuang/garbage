@@ -101,6 +101,8 @@ struct _PinYin {
     const char  yun_id;
     const char  fsheng_id;
     const char  fyun_id;
+    const char  fsheng2_id;
+    const char  fyun2_id;
     const int   len;
     const int   flags;
 };

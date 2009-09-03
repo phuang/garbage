@@ -76,13 +76,15 @@ for i, y in enumerate(shengmu_yunmu_list):
 
 fuzzy_shengmu_dict = {}
 for s1, s2 in fuzzy_shengmu:
-    fuzzy_shengmu_dict[s1] = s2
-    fuzzy_shengmu_dict[s2] = s1
+    if s1 not in fuzzy_shengmu_dict:
+        fuzzy_shengmu_dict[s1] = []
+    fuzzy_shengmu_dict[s1].append(s2)
 
 fuzzy_yunmu_dict = {}
 for y1, y2 in fuzzy_yunmu:
-    fuzzy_yunmu_dict[y1] = y2
-    fuzzy_yunmu_dict[y2] = y1
+    if y1 not in fuzzy_yunmu_dict:
+        fuzzy_yunmu_dict[y1] = []
+    fuzzy_yunmu_dict[y1].append(y2)
 
 def encode_pinyin(pinyin):
     if pinyin == None or pinyin == "":
@@ -129,14 +131,44 @@ def get_pinyin():
 
 def get_pinyin_with_fuzzy():
     for text, s, y, l, flags in get_pinyin():
-        fs = fuzzy_shengmu_dict.get(s, "")
-        fy = fuzzy_yunmu_dict.get(y, "")
+        fss = fuzzy_shengmu_dict.get(s, ["", ""])
+        fys = fuzzy_yunmu_dict.get(y, ["", ""])
 
-        if fs and fs + y not in pinyin_list and (fy and fs + fy not in pinyin_list):
-            fs = ""
-        if fy and s + fy not in pinyin_list and (fs and fs + fy not in pinyin_list):
-            fy = ""
-        yield text, s, y, s, y, fs, fy, l, flags
+        try:
+            fs1, fs2 = fss
+        except:
+            fs1, fs2 = fss[0], ""
+
+        try:
+            fy1, fy2 = fys
+        except:
+            fy1, fy2 = fys[0], ""
+
+        if fs1 and \
+            (fs1 + y not in pinyin_list) and \
+            (fy1 and fs1 + fy1 not in pinyin_list) and \
+            (fy2 and fs1 + fy2 not in pinyin_list):
+            fs1 = ""
+
+        if fs2 and \
+            (fs2 + y not in pinyin_list) and \
+            (fy1 and fs2 + fy1 not in pinyin_list) and \
+            (fy2 and fs2 + fy2 not in pinyin_list):
+            fs2 = ""
+
+        if fy1 and \
+            (s + fy1 not in pinyin_list) and \
+            (fs1 and fs1 + fy1 not in pinyin_list) and \
+            (fs2 and fs2 + fy1 not in pinyin_list):
+            fy1 = ""
+
+        if fy2 and \
+            (s + fy2 not in pinyin_list) and \
+            (fs1 and fs1 + fy2 not in pinyin_list) and \
+            (fs2 and fs2 + fy2 not in pinyin_list):
+            fy2 = ""
+
+        yield text, s, y, s, y, fs1, fy1, fs2, fy2, l, flags
 
 
 def gen_header():
@@ -148,7 +180,7 @@ def gen_macros():
     print '#define PINYIN_ID_VOID    (0)'
     for y in shengmu_list:
         print '#define PINYIN_ID_%s    (%d)' % (y.upper(), encode_pinyin(y))
-    
+
     for y in yunmu_list:
         print '#define PINYIN_ID_%s    (%d)' % (y.upper(), encode_pinyin(y))
     print
@@ -190,7 +222,7 @@ def gen_tables():
 
     print 'static const PinYin pinyin_table[] = {'
     for i, p in enumerate(pinyins):
-        args = (i, ) + tuple(['"%s"' % s for s in p[:3]]) + tuple(["PINYIN_ID_%s" % s.upper() if s else "PINYIN_ID_VOID" for s in p[3:7]]) + p[7:-1] + (str(p[-1]), )
+        args = (i, ) + tuple(['"%s"' % s for s in p[:3]]) + tuple(["PINYIN_ID_%s" % s.upper() if s else "PINYIN_ID_VOID" for s in p[3:9]]) + p[9:-1] + (str(p[-1]), )
         print '''    {  /* %d */
         text        : %s,
         sheng       : %s,
@@ -199,6 +231,8 @@ def gen_tables():
         yun_id      : %s,
         fsheng_id   : %s,
         fyun_id     : %s,
+        fsheng2_id  : %s,
+        fyun2_id    : %s,
         len         : %d,
         flags       : %s
     },''' % args
