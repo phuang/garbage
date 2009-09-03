@@ -25,18 +25,31 @@ auto_correct = [
 
 fuzzy_shengmu = [
     ("c", "ch"),
+    ("ch", "c"),
     ("z", "zh"),
+    ("zh", "z"),
     ("s", "sh"),
+    ("sh", "s"),
     ("l", "n"),
+    ("n", "l"),
     ("f", "h"),
+    ("h", "f"),
+    ("l", "r"),
     ("r", "l"),
-    ("k", "g")]
+    ("k", "g"),
+    ("g", "k"),
+    ]
 
 fuzzy_yunmu = [
     ("an", "ang"),
+    ("ang", "an"),
     ("en", "eng"),
+    ("eng", "en"),
     ("in", "ing"),
-    ("uan", "uang")]
+    ("ing", "in"),
+    ("uan", "uang"),
+    ("uang", "uan"),
+    ]
 
 def get_sheng_yun(pinyin):
     if pinyin == None:
@@ -102,16 +115,16 @@ def get_pinyin():
         for y in  yunmu_list:
             if s1 + y not in pinyin_list and s2 + y in pinyin_list:
                 yield s1 + y, s1, y, len(s1) + len(y),  [flag]
-            if s2 + y not in pinyin_list and s1 + y in pinyin_list:
-                yield s2 + y, s2, y, len (s2) + len(y), [flag]
+            # if s2 + y not in pinyin_list and s1 + y in pinyin_list:
+            #     yield s2 + y, s2, y, len (s2) + len(y), [flag]
 
     for y1, y2 in fuzzy_yunmu:
         flag = "PINYIN_FUZZY_%s_%s" % (y1.upper(), y2.upper())
         for s in shengmu_list:
             if s + y1 not in pinyin_list and s + y2 in pinyin_list:
                 yield s + y1, s, y1, len(s) + len(y1), [flag]
-            if s + y2 not in pinyin_list and s + y1 in pinyin_list:
-                yield s + y2, s, y2, len(s) + len(y2), [flag]
+            # if s + y2 not in pinyin_list and s + y1 in pinyin_list:
+            #     yield s + y2, s, y2, len(s) + len(y2), [flag]
 
 
 def get_pinyin_with_fuzzy():
@@ -149,9 +162,8 @@ def gen_option_check(name, fuzzy):
     switch ((id << 16) | fid) {''' % name
     for y1, y2 in fuzzy:
         flag = "PINYIN_FUZZY_%s_%s" % (y1.upper(), y2.upper())
-        args = tuple(["PINYIN_ID_%s" % y.upper() for y in [y1, y2, y1, y2]]) + (flag, )
+        args = tuple(["PINYIN_ID_%s" % y.upper() for y in [y1, y2]]) + (flag, )
         print '''    case (%s << 16) | %s:
-    case %s | (%s << 16):
         return (option & %s);''' % args
 
     print '    default: return FALSE;'

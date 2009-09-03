@@ -101,26 +101,33 @@ pinyin_option_check_sheng (guint option, gint id, gint fid)
 {
     switch ((id << 16) | fid) {
     case (PINYIN_ID_C << 16) | PINYIN_ID_CH:
-    case PINYIN_ID_C | (PINYIN_ID_CH << 16):
         return (option & PINYIN_FUZZY_C_CH);
+    case (PINYIN_ID_CH << 16) | PINYIN_ID_C:
+        return (option & PINYIN_FUZZY_CH_C);
     case (PINYIN_ID_Z << 16) | PINYIN_ID_ZH:
-    case PINYIN_ID_Z | (PINYIN_ID_ZH << 16):
         return (option & PINYIN_FUZZY_Z_ZH);
+    case (PINYIN_ID_ZH << 16) | PINYIN_ID_Z:
+        return (option & PINYIN_FUZZY_ZH_Z);
     case (PINYIN_ID_S << 16) | PINYIN_ID_SH:
-    case PINYIN_ID_S | (PINYIN_ID_SH << 16):
         return (option & PINYIN_FUZZY_S_SH);
+    case (PINYIN_ID_SH << 16) | PINYIN_ID_S:
+        return (option & PINYIN_FUZZY_SH_S);
     case (PINYIN_ID_L << 16) | PINYIN_ID_N:
-    case PINYIN_ID_L | (PINYIN_ID_N << 16):
         return (option & PINYIN_FUZZY_L_N);
+    case (PINYIN_ID_N << 16) | PINYIN_ID_L:
+        return (option & PINYIN_FUZZY_N_L);
     case (PINYIN_ID_F << 16) | PINYIN_ID_H:
-    case PINYIN_ID_F | (PINYIN_ID_H << 16):
         return (option & PINYIN_FUZZY_F_H);
+    case (PINYIN_ID_H << 16) | PINYIN_ID_F:
+        return (option & PINYIN_FUZZY_H_F);
+    case (PINYIN_ID_L << 16) | PINYIN_ID_R:
+        return (option & PINYIN_FUZZY_L_R);
     case (PINYIN_ID_R << 16) | PINYIN_ID_L:
-    case PINYIN_ID_R | (PINYIN_ID_L << 16):
         return (option & PINYIN_FUZZY_R_L);
     case (PINYIN_ID_K << 16) | PINYIN_ID_G:
-    case PINYIN_ID_K | (PINYIN_ID_G << 16):
         return (option & PINYIN_FUZZY_K_G);
+    case (PINYIN_ID_G << 16) | PINYIN_ID_K:
+        return (option & PINYIN_FUZZY_G_K);
     default: return FALSE;
     }
 }
@@ -130,17 +137,21 @@ pinyin_option_check_yun (guint option, gint id, gint fid)
 {
     switch ((id << 16) | fid) {
     case (PINYIN_ID_AN << 16) | PINYIN_ID_ANG:
-    case PINYIN_ID_AN | (PINYIN_ID_ANG << 16):
         return (option & PINYIN_FUZZY_AN_ANG);
+    case (PINYIN_ID_ANG << 16) | PINYIN_ID_AN:
+        return (option & PINYIN_FUZZY_ANG_AN);
     case (PINYIN_ID_EN << 16) | PINYIN_ID_ENG:
-    case PINYIN_ID_EN | (PINYIN_ID_ENG << 16):
         return (option & PINYIN_FUZZY_EN_ENG);
+    case (PINYIN_ID_ENG << 16) | PINYIN_ID_EN:
+        return (option & PINYIN_FUZZY_ENG_EN);
     case (PINYIN_ID_IN << 16) | PINYIN_ID_ING:
-    case PINYIN_ID_IN | (PINYIN_ID_ING << 16):
         return (option & PINYIN_FUZZY_IN_ING);
+    case (PINYIN_ID_ING << 16) | PINYIN_ID_IN:
+        return (option & PINYIN_FUZZY_ING_IN);
     case (PINYIN_ID_UAN << 16) | PINYIN_ID_UANG:
-    case PINYIN_ID_UAN | (PINYIN_ID_UANG << 16):
         return (option & PINYIN_FUZZY_UAN_UANG);
+    case (PINYIN_ID_UANG << 16) | PINYIN_ID_UAN:
+        return (option & PINYIN_FUZZY_UANG_UAN);
     default: return FALSE;
     }
 }
