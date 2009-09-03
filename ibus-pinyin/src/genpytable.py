@@ -117,6 +117,38 @@ def gen_header():
 #include "pinyin.h"
 '''
 
+def gen_option_check_sheng():
+    print '''static gboolean
+pinyin_option_check_sheng(guint option, gint id)
+{
+    if (id == 0)
+        return FALSE;'''
+    for y1, y2 in fuzzy_shengmu:
+        flag = "PINYIN_FUZZY_%s_%s" % (y1.upper(), y2.upper())
+        print '''
+    if (id == %d || id == %d) {
+        return (option & %s);
+    }''' % (encode_pinyin(y1), encode_pinyin(y2), flag)
+
+    print '    return FALSE;'
+    print '}'
+
+def gen_option_check_yun():
+    print '''static gboolean
+pinyin_option_check_yun(guint option, gint id)
+{
+    if (id == 0)
+        return FALSE;'''
+    for y1, y2 in fuzzy_yunmu:
+        flag = "PINYIN_FUZZY_%s_%s" % (y1.upper(), y2.upper())
+        print '''
+    if (id == %d || id == %d) {
+        return (option & %s);
+    }''' % (encode_pinyin(y1), encode_pinyin(y2), flag)
+
+    print '    return FALSE;'
+    print '}'
+
 def union_dups(a):
     n = {}
     for r in a:
@@ -218,6 +250,8 @@ def gen_special_table(pinyins):
 
 def main():
     gen_header()
+    # gen_option_check_sheng()
+    # gen_option_check_yun()
     pinyins = gen_tables()
     gen_special_table(pinyins)
 
