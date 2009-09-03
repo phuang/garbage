@@ -99,27 +99,27 @@ _conditions_double (GArray *array)
 static gboolean
 pinyin_option_check_sheng (guint option, gint id, gint fid)
 {
-    switch ((((guint64)id) << 32) | fid) {
-    case (((guint64)PINYIN_ID_C) << 32) | ((guint64)PINYIN_ID_CH):
-    case ((guint64)PINYIN_ID_C) | (((guint64)PINYIN_ID_CH) << 32):
+    switch ((id << 16) | fid) {
+    case (PINYIN_ID_C << 16) | PINYIN_ID_CH:
+    case PINYIN_ID_C | (PINYIN_ID_CH << 16):
         return (option & PINYIN_FUZZY_C_CH);
-    case (((guint64)PINYIN_ID_Z) << 32) | ((guint64)PINYIN_ID_ZH):
-    case ((guint64)PINYIN_ID_Z) | (((guint64)PINYIN_ID_ZH) << 32):
+    case (PINYIN_ID_Z << 16) | PINYIN_ID_ZH:
+    case PINYIN_ID_Z | (PINYIN_ID_ZH << 16):
         return (option & PINYIN_FUZZY_Z_ZH);
-    case (((guint64)PINYIN_ID_S) << 32) | ((guint64)PINYIN_ID_SH):
-    case ((guint64)PINYIN_ID_S) | (((guint64)PINYIN_ID_SH) << 32):
+    case (PINYIN_ID_S << 16) | PINYIN_ID_SH:
+    case PINYIN_ID_S | (PINYIN_ID_SH << 16):
         return (option & PINYIN_FUZZY_S_SH);
-    case (((guint64)PINYIN_ID_L) << 32) | ((guint64)PINYIN_ID_N):
-    case ((guint64)PINYIN_ID_L) | (((guint64)PINYIN_ID_N) << 32):
+    case (PINYIN_ID_L << 16) | PINYIN_ID_N:
+    case PINYIN_ID_L | (PINYIN_ID_N << 16):
         return (option & PINYIN_FUZZY_L_N);
-    case (((guint64)PINYIN_ID_F) << 32) | ((guint64)PINYIN_ID_H):
-    case ((guint64)PINYIN_ID_F) | (((guint64)PINYIN_ID_H) << 32):
+    case (PINYIN_ID_F << 16) | PINYIN_ID_H:
+    case PINYIN_ID_F | (PINYIN_ID_H << 16):
         return (option & PINYIN_FUZZY_F_H);
-    case (((guint64)PINYIN_ID_R) << 32) | ((guint64)PINYIN_ID_L):
-    case ((guint64)PINYIN_ID_R) | (((guint64)PINYIN_ID_L) << 32):
+    case (PINYIN_ID_R << 16) | PINYIN_ID_L:
+    case PINYIN_ID_R | (PINYIN_ID_L << 16):
         return (option & PINYIN_FUZZY_R_L);
-    case (((guint64)PINYIN_ID_K) << 32) | ((guint64)PINYIN_ID_G):
-    case ((guint64)PINYIN_ID_K) | (((guint64)PINYIN_ID_G) << 32):
+    case (PINYIN_ID_K << 16) | PINYIN_ID_G:
+    case PINYIN_ID_K | (PINYIN_ID_G << 16):
         return (option & PINYIN_FUZZY_K_G);
     default: return FALSE;
     }
@@ -128,18 +128,18 @@ pinyin_option_check_sheng (guint option, gint id, gint fid)
 static gboolean
 pinyin_option_check_yun (guint option, gint id, gint fid)
 {
-    switch ((((guint64)id) << 32) | fid) {
-    case (((guint64)PINYIN_ID_AN) << 32) | ((guint64)PINYIN_ID_ANG):
-    case ((guint64)PINYIN_ID_AN) | (((guint64)PINYIN_ID_ANG) << 32):
+    switch ((id << 16) | fid) {
+    case (PINYIN_ID_AN << 16) | PINYIN_ID_ANG:
+    case PINYIN_ID_AN | (PINYIN_ID_ANG << 16):
         return (option & PINYIN_FUZZY_AN_ANG);
-    case (((guint64)PINYIN_ID_EN) << 32) | ((guint64)PINYIN_ID_ENG):
-    case ((guint64)PINYIN_ID_EN) | (((guint64)PINYIN_ID_ENG) << 32):
+    case (PINYIN_ID_EN << 16) | PINYIN_ID_ENG:
+    case PINYIN_ID_EN | (PINYIN_ID_ENG << 16):
         return (option & PINYIN_FUZZY_EN_ENG);
-    case (((guint64)PINYIN_ID_IN) << 32) | ((guint64)PINYIN_ID_ING):
-    case ((guint64)PINYIN_ID_IN) | (((guint64)PINYIN_ID_ING) << 32):
+    case (PINYIN_ID_IN << 16) | PINYIN_ID_ING:
+    case PINYIN_ID_IN | (PINYIN_ID_ING << 16):
         return (option & PINYIN_FUZZY_IN_ING);
-    case (((guint64)PINYIN_ID_UAN) << 32) | ((guint64)PINYIN_ID_UANG):
-    case ((guint64)PINYIN_ID_UAN) | (((guint64)PINYIN_ID_UANG) << 32):
+    case (PINYIN_ID_UAN << 16) | PINYIN_ID_UANG:
+    case PINYIN_ID_UAN | (PINYIN_ID_UANG << 16):
         return (option & PINYIN_FUZZY_UAN_UANG);
     default: return FALSE;
     }

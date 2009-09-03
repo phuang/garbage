@@ -13,7 +13,7 @@ pinyin_list.sort()
 
 shengmu_list = SHENGMU_DICT.keys()
 shengmu_list.remove("")
-shengmu_list.sort(str_cmp)
+shengmu_list.sort()
 
 auto_correct = [
     ("ng", "gn"),
@@ -54,7 +54,12 @@ for p in pinyin_list:
     s, y = get_sheng_yun(p)
     yunmu_list |= set([y])
 yunmu_list = list(yunmu_list)
-yunmu_list.sort(str_cmp)
+yunmu_list.sort()
+
+shengmu_yunmu_list = shengmu_list + yunmu_list
+id_dict = {}
+for i, y in enumerate(shengmu_yunmu_list):
+    id_dict[y] = i + 1
 
 fuzzy_shengmu_dict = {}
 for s1, s2 in fuzzy_shengmu:
@@ -69,6 +74,8 @@ for y1, y2 in fuzzy_yunmu:
 def encode_pinyin(pinyin):
     if pinyin == None or pinyin == "":
         return 0
+    return id_dict[pinyin]
+
     e = 0
     for c in pinyin:
         e = (e << 5) + (ord(c) - ord('a') + 1)
@@ -139,12 +146,12 @@ def gen_option_check(name, fuzzy):
     print '''static gboolean
 %s (guint option, gint id, gint fid)
 {
-    switch ((((guint64)id) << 32) | fid) {''' % name
+    switch ((id << 16) | fid) {''' % name
     for y1, y2 in fuzzy:
         flag = "PINYIN_FUZZY_%s_%s" % (y1.upper(), y2.upper())
         args = tuple(["PINYIN_ID_%s" % y.upper() for y in [y1, y2, y1, y2]]) + (flag, )
-        print '''    case (((guint64)%s) << 32) | ((guint64)%s):
-    case ((guint64)%s) | (((guint64)%s) << 32):
+        print '''    case (%s << 16) | %s:
+    case %s | (%s << 16):
         return (option & %s);''' % args
 
     print '    default: return FALSE;'
