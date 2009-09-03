@@ -100,50 +100,50 @@ static gboolean
 pinyin_option_check_sheng (guint option, gint id, gint fid)
 {
     switch ((((guint64)id) << 32) | fid) {
-    case (3L << 32) | 104L:
-    case 3L | (104L << 32):
+    case (((guint64)PINYIN_ID_C) << 32) | ((guint64)PINYIN_ID_CH):
+    case ((guint64)PINYIN_ID_C) | (((guint64)PINYIN_ID_CH) << 32):
         return (option & PINYIN_FUZZY_C_CH);
-    case (26L << 32) | 840L:
-    case 26L | (840L << 32):
+    case (((guint64)PINYIN_ID_Z) << 32) | ((guint64)PINYIN_ID_ZH):
+    case ((guint64)PINYIN_ID_Z) | (((guint64)PINYIN_ID_ZH) << 32):
         return (option & PINYIN_FUZZY_Z_ZH);
-    case (19L << 32) | 616L:
-    case 19L | (616L << 32):
+    case (((guint64)PINYIN_ID_S) << 32) | ((guint64)PINYIN_ID_SH):
+    case ((guint64)PINYIN_ID_S) | (((guint64)PINYIN_ID_SH) << 32):
         return (option & PINYIN_FUZZY_S_SH);
-    case (12L << 32) | 14L:
-    case 12L | (14L << 32):
+    case (((guint64)PINYIN_ID_L) << 32) | ((guint64)PINYIN_ID_N):
+    case ((guint64)PINYIN_ID_L) | (((guint64)PINYIN_ID_N) << 32):
         return (option & PINYIN_FUZZY_L_N);
-    case (6L << 32) | 8L:
-    case 6L | (8L << 32):
+    case (((guint64)PINYIN_ID_F) << 32) | ((guint64)PINYIN_ID_H):
+    case ((guint64)PINYIN_ID_F) | (((guint64)PINYIN_ID_H) << 32):
         return (option & PINYIN_FUZZY_F_H);
-    case (18L << 32) | 12L:
-    case 18L | (12L << 32):
+    case (((guint64)PINYIN_ID_R) << 32) | ((guint64)PINYIN_ID_L):
+    case ((guint64)PINYIN_ID_R) | (((guint64)PINYIN_ID_L) << 32):
         return (option & PINYIN_FUZZY_R_L);
-    case (11L << 32) | 7L:
-    case 11L | (7L << 32):
+    case (((guint64)PINYIN_ID_K) << 32) | ((guint64)PINYIN_ID_G):
+    case ((guint64)PINYIN_ID_K) | (((guint64)PINYIN_ID_G) << 32):
         return (option & PINYIN_FUZZY_K_G);
     default: return FALSE;
     }
 }
+
 static gboolean
 pinyin_option_check_yun (guint option, gint id, gint fid)
 {
     switch ((((guint64)id) << 32) | fid) {
-    case (46L << 32) | 1479L:
-    case 46L | (1479L << 32):
+    case (((guint64)PINYIN_ID_AN) << 32) | ((guint64)PINYIN_ID_ANG):
+    case ((guint64)PINYIN_ID_AN) | (((guint64)PINYIN_ID_ANG) << 32):
         return (option & PINYIN_FUZZY_AN_ANG);
-    case (174L << 32) | 5575L:
-    case 174L | (5575L << 32):
+    case (((guint64)PINYIN_ID_EN) << 32) | ((guint64)PINYIN_ID_ENG):
+    case ((guint64)PINYIN_ID_EN) | (((guint64)PINYIN_ID_ENG) << 32):
         return (option & PINYIN_FUZZY_EN_ENG);
-    case (302L << 32) | 9671L:
-    case 302L | (9671L << 32):
+    case (((guint64)PINYIN_ID_IN) << 32) | ((guint64)PINYIN_ID_ING):
+    case ((guint64)PINYIN_ID_IN) | (((guint64)PINYIN_ID_ING) << 32):
         return (option & PINYIN_FUZZY_IN_ING);
-    case (21550L << 32) | 689607L:
-    case 21550L | (689607L << 32):
+    case (((guint64)PINYIN_ID_UAN) << 32) | ((guint64)PINYIN_ID_UANG):
+    case ((guint64)PINYIN_ID_UAN) | (((guint64)PINYIN_ID_UANG) << 32):
         return (option & PINYIN_FUZZY_UAN_UANG);
     default: return FALSE;
     }
 }
-
 
 gboolean
 py_db_query_internal (PYDB          *db,

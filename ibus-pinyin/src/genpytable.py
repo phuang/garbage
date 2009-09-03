@@ -142,9 +142,10 @@ def gen_option_check(name, fuzzy):
     switch ((((guint64)id) << 32) | fid) {''' % name
     for y1, y2 in fuzzy:
         flag = "PINYIN_FUZZY_%s_%s" % (y1.upper(), y2.upper())
-        print '''    case (%dL << 32) | %dL:
-    case %dL | (%dL << 32):
-        return (option & %s);''' % (encode_pinyin(y1), encode_pinyin(y2), encode_pinyin(y1), encode_pinyin(y2), flag)
+        args = tuple(["PINYIN_ID_%s" % y.upper() for y in [y1, y2, y1, y2]]) + (flag, )
+        print '''    case (((guint64)%s) << 32) | ((guint64)%s):
+    case ((guint64)%s) | (((guint64)%s) << 32):
+        return (option & %s);''' % args
 
     print '    default: return FALSE;'
     print '    }'
@@ -261,7 +262,7 @@ def gen_special_table(pinyins):
 
 def main():
     gen_header()
-    gen_macros()
+    # gen_macros()
     pinyins = gen_tables()
     gen_special_table(pinyins)
     # gen_option_check("pinyin_option_check_sheng", fuzzy_shengmu)
