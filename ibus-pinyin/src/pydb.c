@@ -189,8 +189,8 @@ py_db_query_internal (PYDB          *db,
     g_array_free (array, TRUE);
 
     g_string_append (sql, " order by freq desc ");
-    if (pinyin_len == pinyin->len)
-        g_debug ("sql = %s", sql->str);
+    // if (pinyin_len == pinyin->len)
+    //     g_debug ("sql = %s", sql->str);
 
     if (m > 0) {
         g_string_append_printf (sql, " limit %d ", m);
