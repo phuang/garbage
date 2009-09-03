@@ -97,64 +97,53 @@ _conditions_double (GArray *array)
 }
 
 static gboolean
-pinyin_option_check_sheng (guint option, gint id)
+pinyin_option_check_sheng (guint option, gint id, gint fid)
 {
-    if (id == 0)
-        return FALSE;
-
-    if (id == 3 || id == 104) {
+    switch ((((guint64)id) << 32) | fid) {
+    case (3L << 32) | 104L:
+    case 3L | (104L << 32):
         return (option & PINYIN_FUZZY_C_CH);
-    }
-
-    if (id == 26 || id == 840) {
+    case (26L << 32) | 840L:
+    case 26L | (840L << 32):
         return (option & PINYIN_FUZZY_Z_ZH);
-    }
-
-    if (id == 19 || id == 616) {
+    case (19L << 32) | 616L:
+    case 19L | (616L << 32):
         return (option & PINYIN_FUZZY_S_SH);
-    }
-
-    if (id == 12 || id == 14) {
+    case (12L << 32) | 14L:
+    case 12L | (14L << 32):
         return (option & PINYIN_FUZZY_L_N);
-    }
-
-    if (id == 6 || id == 8) {
+    case (6L << 32) | 8L:
+    case 6L | (8L << 32):
         return (option & PINYIN_FUZZY_F_H);
-    }
-
-    if (id == 18 || id == 12) {
+    case (18L << 32) | 12L:
+    case 18L | (12L << 32):
         return (option & PINYIN_FUZZY_R_L);
-    }
-
-    if (id == 11 || id == 7) {
+    case (11L << 32) | 7L:
+    case 11L | (7L << 32):
         return (option & PINYIN_FUZZY_K_G);
+    default: return FALSE;
     }
-    return FALSE;
 }
-
 static gboolean
-pinyin_option_check_yun (guint option, gint id)
+pinyin_option_check_yun (guint option, gint id, gint fid)
 {
-    if (id == 0)
-        return FALSE;
-
-    if (id == 46 || id == 1479) {
+    switch ((((guint64)id) << 32) | fid) {
+    case (46L << 32) | 1479L:
+    case 46L | (1479L << 32):
         return (option & PINYIN_FUZZY_AN_ANG);
-    }
-
-    if (id == 174 || id == 5575) {
+    case (174L << 32) | 5575L:
+    case 174L | (5575L << 32):
         return (option & PINYIN_FUZZY_EN_ENG);
-    }
-
-    if (id == 302 || id == 9671) {
+    case (302L << 32) | 9671L:
+    case 302L | (9671L << 32):
         return (option & PINYIN_FUZZY_IN_ING);
-    }
-
-    if (id == 21550 || id == 689607) {
+    case (21550L << 32) | 689607L:
+    case 21550L | (689607L << 32):
         return (option & PINYIN_FUZZY_UAN_UANG);
+    default: return FALSE;
     }
-    return FALSE;
 }
+
 
 gboolean
 py_db_query_internal (PYDB          *db,
@@ -192,7 +181,7 @@ py_db_query_internal (PYDB          *db,
             _conditions_append_printf (array, 0, array->len, " and ");
 
         if (p->yun_id == 0) {
-            if (pinyin_option_check_sheng (option, p->fsheng_id)) {
+            if (pinyin_option_check_sheng (option, p->sheng_id, p->fsheng_id)) {
                 if (i < DB_INDEX_SIZE) {
                     _conditions_double (array);
                     _conditions_append_printf (array, 0, array->len  >> 1, " s%d = %d ", i, p->sheng_id);
@@ -207,7 +196,7 @@ py_db_query_internal (PYDB          *db,
             }
         }
         else {
-            if (pinyin_option_check_sheng (option, p->fsheng_id)) {
+            if (pinyin_option_check_sheng (option, p->sheng_id, p->fsheng_id)) {
                 if (i < DB_INDEX_SIZE) {
                     _conditions_double (array);
                     _conditions_append_printf (array, 0, array->len  >> 1, " s%d = %d ", i, p->sheng_id);
@@ -221,7 +210,7 @@ py_db_query_internal (PYDB          *db,
                 _conditions_append_printf (array, 0, array->len, " s%d = %d ", i, p->sheng_id);
             }
 
-            if (pinyin_option_check_yun (option, p->fyun_id)) {
+            if (pinyin_option_check_yun (option, p->yun_id, p->fyun_id)) {
                 if (i < DB_INDEX_SIZE) {
                     _conditions_double (array);
                     _conditions_append_printf (array, 0, array->len  >> 1, " and y%d = %d ", i, p->yun_id);

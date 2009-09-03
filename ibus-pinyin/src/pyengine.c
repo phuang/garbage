@@ -185,7 +185,7 @@ ibus_pinyin_engine_init (IBusPinyinEngine *pinyin)
     pinyin->prop_list = ibus_prop_list_new ();
     ibus_prop_list_append (pinyin->prop_list,  pinyin->pinyin_mode_prop);
 
-    pinyin->table = ibus_lookup_table_new (5, 0, TRUE, FALSE);
+    pinyin->table = ibus_lookup_table_new (10, 0, TRUE, FALSE);
 }
 
 static GObject*

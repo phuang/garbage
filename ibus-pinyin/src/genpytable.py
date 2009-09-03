@@ -2,12 +2,18 @@
 
 from pydict import *
 
+def str_cmp(a, b):
+    if len(a) == len(b):
+        return cmp(a, b)
+    else:
+        return len(a) - len(b)
+
 pinyin_list = PINYIN_DICT.keys()
 pinyin_list.sort()
 
 shengmu_list = SHENGMU_DICT.keys()
 shengmu_list.remove("")
-shengmu_list.sort()
+shengmu_list.sort(str_cmp)
 
 auto_correct = [
     ("ng", "gn"),
@@ -47,7 +53,8 @@ yunmu_list = set([])
 for p in pinyin_list:
     s, y = get_sheng_yun(p)
     yunmu_list |= set([y])
-
+yunmu_list = list(yunmu_list)
+yunmu_list.sort(str_cmp)
 
 fuzzy_shengmu_dict = {}
 for s1, s2 in fuzzy_shengmu:
@@ -109,7 +116,7 @@ def get_pinyin_with_fuzzy():
             fs = ""
         if fy and s + fy not in pinyin_list and (fs and fs + fy not in pinyin_list):
             fy = ""
-        yield text, s, y, encode_pinyin(s), encode_pinyin(y), encode_pinyin(fs), encode_pinyin(fy), l, flags
+        yield text, s, y, s, y, fs, fy, l, flags
 
 
 def gen_header():
@@ -117,36 +124,30 @@ def gen_header():
 #include "pinyin.h"
 '''
 
-def gen_option_check_sheng():
+def gen_macros():
+    print '#define PINYIN_ID_VOID    (0)'
+    for y in shengmu_list:
+        print '#define PINYIN_ID_%s    (%d)' % (y.upper(), encode_pinyin(y))
+    
+    for y in yunmu_list:
+        print '#define PINYIN_ID_%s    (%d)' % (y.upper(), encode_pinyin(y))
+    print
+    print
+    print
+
+def gen_option_check(name, fuzzy):
     print '''static gboolean
-pinyin_option_check_sheng(guint option, gint id)
+%s (guint option, gint id, gint fid)
 {
-    if (id == 0)
-        return FALSE;'''
-    for y1, y2 in fuzzy_shengmu:
+    switch ((((guint64)id) << 32) | fid) {''' % name
+    for y1, y2 in fuzzy:
         flag = "PINYIN_FUZZY_%s_%s" % (y1.upper(), y2.upper())
-        print '''
-    if (id == %d || id == %d) {
-        return (option & %s);
-    }''' % (encode_pinyin(y1), encode_pinyin(y2), flag)
+        print '''    case (%dL << 32) | %dL:
+    case %dL | (%dL << 32):
+        return (option & %s);''' % (encode_pinyin(y1), encode_pinyin(y2), encode_pinyin(y1), encode_pinyin(y2), flag)
 
-    print '    return FALSE;'
-    print '}'
-
-def gen_option_check_yun():
-    print '''static gboolean
-pinyin_option_check_yun(guint option, gint id)
-{
-    if (id == 0)
-        return FALSE;'''
-    for y1, y2 in fuzzy_yunmu:
-        flag = "PINYIN_FUZZY_%s_%s" % (y1.upper(), y2.upper())
-        print '''
-    if (id == %d || id == %d) {
-        return (option & %s);
-    }''' % (encode_pinyin(y1), encode_pinyin(y2), flag)
-
-    print '    return FALSE;'
+    print '    default: return FALSE;'
+    print '    }'
     print '}'
 
 def union_dups(a):
@@ -169,15 +170,15 @@ def gen_tables():
 
     print 'static const PinYin pinyin_table[] = {'
     for i, p in enumerate(pinyins):
-        args = (i, ) + tuple(['"%s"' % s for s in p[:3]]) + p[3:-1] + (str(p[-1]), )
+        args = (i, ) + tuple(['"%s"' % s for s in p[:3]]) + tuple(["PINYIN_ID_%s" % s.upper() if s else "PINYIN_ID_VOID" for s in p[3:7]]) + p[7:-1] + (str(p[-1]), )
         print '''    {  /* %d */
         text        : %s,
         sheng       : %s,
         yun         : %s,
-        sheng_id    : %d,
-        yun_id      : %d,
-        fsheng_id   : %d,
-        fyun_id     : %d,
+        sheng_id    : %s,
+        yun_id      : %s,
+        fsheng_id   : %s,
+        fyun_id     : %s,
         len         : %d,
         flags       : %s
     },''' % args
@@ -260,10 +261,11 @@ def gen_special_table(pinyins):
 
 def main():
     gen_header()
-    # gen_option_check_sheng()
-    # gen_option_check_yun()
+    gen_macros()
     pinyins = gen_tables()
     gen_special_table(pinyins)
+    # gen_option_check("pinyin_option_check_sheng", fuzzy_shengmu)
+    # gen_option_check("pinyin_option_check_yun", fuzzy_yunmu)
 
 
 if __name__ == "__main__":
