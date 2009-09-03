@@ -68,7 +68,7 @@ sp_cmp (const void *p1,
     gint r;
 
     r = strcmp (pys[0]->text, e[0]->text);
-    if ( r == 0)
+    if (r == 0)
         r = strcmp (pys[1]->text, e[1]->text);
     return r;
 }

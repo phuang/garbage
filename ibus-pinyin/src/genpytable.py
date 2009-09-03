@@ -170,7 +170,17 @@ def gen_tables():
     print 'static const PinYin pinyin_table[] = {'
     i = 0
     for p in pinyins:
-        print '    /* %3d */' % i, '{ %s %s %s'% tuple([('"%s",' % s).ljust(9) for s in p[:3]]), '%6d, %6d, %6d, %6d, %6d,' % p[3:-1], '%s },' % str(p[-1]).ljust(24)
+        print '    { /* %3d */' % i
+        print '''        text      : %s,
+        sheng     : %s,
+        yun       : %s,''' % tuple([('"%s"' % s) for s in p[:3]])
+        print '''        sheng_id  : %d,
+        yun_id    : %d,
+        fsheng_id : %d,
+        fyun_id   : %d,
+        len       : %d,''' % p[3:-1]
+        print '        flags : %s' % str(p[-1])
+        print '    },'
         i += 1
     print '};'
     print
