@@ -179,7 +179,7 @@ def gen_tables():
         fsheng_id : %d,
         fyun_id   : %d,
         len       : %d,''' % p[3:-1]
-        print '        flags : %s' % str(p[-1])
+        print '        flags     : %s' % str(p[-1])
         print '    },'
         i += 1
     print '};'
