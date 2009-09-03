@@ -8,6 +8,7 @@
 #include "pydb.h"
 
 #define DB_CACHE_SIZE "5000"
+#define DB_INDEX_SIZE (3)
 
 struct _PYDB {
     sqlite3 *db;
@@ -192,7 +193,7 @@ py_db_query_internal (PYDB          *db,
 
         if (p->yun_id == 0) {
             if (pinyin_option_check_sheng (option, p->fsheng_id)) {
-                if (i < 3) {
+                if (i < DB_INDEX_SIZE) {
                     _conditions_double (array);
                     _conditions_append_printf (array, 0, array->len  >> 1, " s%d = %d ", i, p->sheng_id);
                     _conditions_append_printf (array, array->len >> 1, array->len, " s%d = %d ", i, p->fsheng_id);
@@ -207,7 +208,7 @@ py_db_query_internal (PYDB          *db,
         }
         else {
             if (pinyin_option_check_sheng (option, p->fsheng_id)) {
-                if (i < 3) {
+                if (i < DB_INDEX_SIZE) {
                     _conditions_double (array);
                     _conditions_append_printf (array, 0, array->len  >> 1, " s%d = %d ", i, p->sheng_id);
                     _conditions_append_printf (array, array->len >> 1, array->len, " s%d = %d ", i, p->fsheng_id);
@@ -221,7 +222,7 @@ py_db_query_internal (PYDB          *db,
             }
 
             if (pinyin_option_check_yun (option, p->fyun_id)) {
-                if (i < 3) {
+                if (i < DB_INDEX_SIZE) {
                     _conditions_double (array);
                     _conditions_append_printf (array, 0, array->len  >> 1, " and y%d = %d ", i, p->yun_id);
                     _conditions_append_printf (array, array->len >> 1, array->len, " and y%d = %d ", i, p->fyun_id);
