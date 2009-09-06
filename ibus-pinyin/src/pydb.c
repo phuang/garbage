@@ -14,12 +14,14 @@ struct _PYDB {
     sqlite3 *db;
     GString *sql;
     GArray  *conditions;
+    GArray  *strings;
 };
 
 PYDB *
 py_db_new ()
 {
     gchar *sql;
+    gchar *userdb;
     gchar *errmsg;
     PYDB *db = g_new0 (PYDB, 1);
 
@@ -31,7 +33,8 @@ py_db_new ()
         goto _out;
     }
 
-    sql = g_strdup_printf ("ATTACH DATABASE \"%s\" AS userdb;", "/home/phuang/.cache/ibus/ibus-pinyin/user.db");
+    userdb = "/home/phuang/.cache/ibus/ibus-pinyin/user.db";
+    sql = g_strdup_printf ("ATTACH DATABASE \"%s\" AS userdb;", userdb);
     if (sqlite3_exec (db->db, sql, NULL, NULL, &errmsg) != SQLITE_OK) {
         g_debug ("%s", errmsg);
         g_slice_free (PYDB, db);
@@ -50,6 +53,7 @@ py_db_new ()
 
     db->sql = g_string_sized_new (1024);
     db->conditions = g_array_sized_new (FALSE, FALSE, sizeof (GString *), 32);
+    db->strings = g_array_sized_new (FALSE, FALSE, sizeof (GString *), 32);
 _out:
     return db;
 }
@@ -79,18 +83,12 @@ _conditions_append_vprintf (GArray      *array,
 {
     gint i;
     GString *v;
+    gchar str[64];
 
-    if (end - begin == 1) {
-        v = g_array_index (array, GString *, begin);
-        g_string_append_vprintf (v, fmt, args);
-    }
-    else {
-        gchar str[64];
-        vsnprintf (str, sizeof(str), fmt, args);
-        for (i = begin; i < end; i++) {
-            v = g_array_index (array, GString *, i);
-            g_string_append (v, str);
-        }
+    vsnprintf (str, sizeof(str), fmt, args);
+    for (i = begin; i < end; i++) {
+        v = g_array_index (array, GString *, i);
+        g_string_append (v, str);
     }
 }
 
@@ -109,32 +107,54 @@ _conditions_append_printf (GArray      *array,
 
 #define CONDITION_INIT_SIZE (256)
 
+static GString *
+_py_db_get_string (PYDB     *db)
+{
+    GString *s;
+    if (db->strings->len == 0) {
+        s = g_string_sized_new (CONDITION_INIT_SIZE);
+    }
+    else {
+        s = g_array_index (db->strings, GString *, db->strings->len - 1);
+        g_array_set_size (db->strings, db->strings->len - 1);
+    }
+    return s;
+}
+
 static void
-_conditions_double (GArray *array)
+_py_db_put_string (PYDB     *db,
+                   GString  *s)
+{
+    g_string_truncate (s, 0);
+    g_array_append_val (db->strings, s);
+}
+
+static void
+_conditions_double (PYDB *db)
 {
     gint i, len;
 
-    len = array->len;
-    g_array_set_size (array, len << 1);
+    len = db->conditions->len;
+    g_array_set_size (db->conditions, len << 1);
 
     for (i = 0; i < len; i++) {
-        GString *v = g_array_index (array, GString *, i);
-        g_array_index (array, GString *, i + len) = g_string_append (g_string_sized_new (CONDITION_INIT_SIZE), v->str);
+        GString *v = g_array_index (db->conditions, GString *, i);
+        g_array_index (db->conditions, GString *, i + len) = g_string_append (_py_db_get_string (db), v->str);
     }
 }
 
 static void
-_conditions_triple (GArray *array)
+_conditions_triple (PYDB *db)
 {
     gint i, len;
 
-    len = array->len;
-    g_array_set_size (array, (len << 1) + len);
+    len = db->conditions->len;
+    g_array_set_size (db->conditions, (len << 1) + len);
 
     for (i = 0; i < len; i++) {
-        GString *v = g_array_index (array, GString *, i);
-        g_array_index (array, GString *, i + len) = g_string_append (g_string_sized_new (CONDITION_INIT_SIZE), v->str);
-        g_array_index (array, GString *, i + (len << 1)) = g_string_append (g_string_sized_new (CONDITION_INIT_SIZE), v->str);
+        GString *v = g_array_index (db->conditions, GString *, i);
+        g_array_index (db->conditions, GString *, i + len) = g_string_append (_py_db_get_string (db), v->str);
+        g_array_index (db->conditions, GString *, i + (len << 1)) = g_string_append (_py_db_get_string (db), v->str);
     }
 }
 
@@ -218,7 +238,7 @@ py_db_query_internal (PYDB          *db,
 
     /* prepare sql */
     g_array_set_size (db->conditions, 1);
-    g_array_index (db->conditions, GString *, 0) = g_string_sized_new (CONDITION_INIT_SIZE);
+    g_array_index (db->conditions, GString *, 0) = _py_db_get_string (db);
 
 
     for (i = 0; i < pinyin_len; i++) {
@@ -235,7 +255,7 @@ py_db_query_internal (PYDB          *db,
         if (fs1 || fs2) {
             if (i < DB_INDEX_SIZE) {
                 if (fs1 && fs2 == 0) {
-                    _conditions_double (db->conditions);
+                    _conditions_double (db);
                     _conditions_append_printf (db->conditions,
                                                0, db->conditions->len  >> 1,
                                                "s%d=%d", i, p->sheng_id);
@@ -244,7 +264,7 @@ py_db_query_internal (PYDB          *db,
                                                "s%d=%d", i, p->fsheng_id);
                 }
                 else if (fs1 == 0 && fs2) {
-                    _conditions_double (db->conditions);
+                    _conditions_double (db);
                     _conditions_append_printf (db->conditions,
                                                0, db->conditions->len  >> 1,
                                                "s%d=%d", i, p->sheng_id);
@@ -254,7 +274,7 @@ py_db_query_internal (PYDB          *db,
                 }
                 else {
                     gint len = db->conditions->len;
-                    _conditions_triple (db->conditions);
+                    _conditions_triple (db);
                     _conditions_append_printf (db->conditions,
                                                0, len,
                                                "s%d=%d", i, p->sheng_id);
@@ -289,7 +309,7 @@ py_db_query_internal (PYDB          *db,
         if (p->yun_id != PINYIN_ID_VOID) {
             if (pinyin_option_check_yun (option, p->yun_id, p->fyun_id)) {
                 if (i < DB_INDEX_SIZE) {
-                    _conditions_double (db->conditions);
+                    _conditions_double (db);
                     _conditions_append_printf (db->conditions, 0, db->conditions->len  >> 1, " AND y%d=%d", i, p->yun_id);
                     _conditions_append_printf (db->conditions, db->conditions->len >> 1, db->conditions->len, " and y%d=%d", i, p->fyun_id);
                 }
@@ -313,8 +333,10 @@ py_db_query_internal (PYDB          *db,
             g_string_append_printf (db->sql, "    (%s)\n", cond->str);
         else
             g_string_append_printf (db->sql, "    OR (%s)\n", cond->str);
-        g_string_free (cond, TRUE);
+        _py_db_put_string (db, cond);
     }
+
+    g_array_set_size (db->conditions, 0);
 
     if (m > 0)
         g_string_append_printf (db->sql, "  ORDER BY freq DESC LIMIT %d", m);
