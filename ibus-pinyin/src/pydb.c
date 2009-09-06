@@ -28,34 +28,33 @@ py_db_new ()
     sqlite3_initialize ();
 
     if (sqlite3_open_v2 ("py.db", &(db->db), SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) != SQLITE_OK) {
-        g_slice_free (PYDB, db);
-        db = NULL;
-        goto _out;
+        goto _failed;
     }
 
     userdb = "/home/phuang/.cache/ibus/ibus-pinyin/user.db";
     sql = g_strdup_printf ("ATTACH DATABASE \"%s\" AS userdb;", userdb);
     if (sqlite3_exec (db->db, sql, NULL, NULL, &errmsg) != SQLITE_OK) {
         g_debug ("%s", errmsg);
-        g_slice_free (PYDB, db);
-        db = NULL;
-        goto _out;
+        sqlite3_free (errmsg);
+        goto _failed;
     }
     g_free (sql);
 
     if (sqlite3_exec (db->db, "PRAGMA cache_size=" DB_CACHE_SIZE, NULL, NULL, &errmsg) != SQLITE_OK) {
         g_debug ("%s", errmsg);
         sqlite3_free (errmsg);
-        g_slice_free (PYDB, db);
-        db = NULL;
-        goto _out;
+        goto _failed;
     }
 
     db->sql = g_string_sized_new (1024);
     db->conditions = g_array_sized_new (FALSE, FALSE, sizeof (GString *), 32);
     db->strings = g_array_sized_new (FALSE, FALSE, sizeof (GString *), 32);
-_out:
+
     return db;
+
+_failed:
+    py_db_free (db);
+    return NULL;
 }
 
 
@@ -64,20 +63,26 @@ py_db_free (PYDB *db)
 {
     gint i;
 
-    for (i = 0; i < db->strings->len; i++ ) {
-        g_string_free (g_array_index (db->strings, GString *, i), TRUE);
+    if (db->strings) {
+        for (i = 0; i < db->strings->len; i++ ) {
+            g_string_free (g_array_index (db->strings, GString *, i), TRUE);
+        }
+        g_array_free (db->strings, TRUE);
     }
-    g_array_free (db->strings, TRUE);
 
-    for (i = 0; i < db->conditions->len; i++ ) {
-        g_string_free (g_array_index (db->conditions, GString *, i), TRUE);
+    if (db->conditions) {
+        for (i = 0; i < db->conditions->len; i++ ) {
+            g_string_free (g_array_index (db->conditions, GString *, i), TRUE);
+        }
+        g_array_free (db->conditions, TRUE);
     }
-    g_array_free (db->conditions, TRUE);
 
-    g_string_free (db->sql, TRUE);
+    if (db->sql)
+        g_string_free (db->sql, TRUE);
 
-    sqlite3_close (db->db);
-    g_slice_free (PYDB, db);
+    if (db->db)
+        sqlite3_close (db->db);
+    g_free (db);
 }
 
 static void
