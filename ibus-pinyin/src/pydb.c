@@ -21,22 +21,31 @@ py_db_new ()
     gchar *errmsg;
     PYDB *db = g_new0 (PYDB, 1);
 
-    if (sqlite3_open_v2 ("py.db", &(db->db), SQLITE_OPEN_READONLY, NULL) != SQLITE_OK) {
-        g_free (db);
+    sqlite3_initialize ();
+
+    if (sqlite3_open_v2 ("py.db", &(db->db), SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) != SQLITE_OK) {
+        g_slice_free (PYDB, db);
         db = NULL;
+        goto _out;
     }
 
-    if (sqlite3_exec (db->db, "PRAGMA cache_size=" DB_CACHE_SIZE, NULL, NULL, NULL) != SQLITE_OK) {
-        return NULL;
-    }
-
-    sql = g_strdup_printf ("ATTACH DATABASE \"%s\" AS user_db;", "/home/phuang/.cache/ibus/ibus-pinyin/user.db");
+    sql = g_strdup_printf ("ATTACH DATABASE \"%s\" AS userdb;", "/home/phuang/.cache/ibus/ibus-pinyin/user.db");
     if (sqlite3_exec (db->db, sql, NULL, NULL, &errmsg) != SQLITE_OK) {
         g_debug ("%s", errmsg);
-        return NULL;
+        g_slice_free (PYDB, db);
+        db = NULL;
+        goto _out;
     }
     g_free (sql);
 
+    if (sqlite3_exec (db->db, "PRAGMA cache_size=" DB_CACHE_SIZE, NULL, NULL, &errmsg) != SQLITE_OK) {
+        g_debug ("%s", errmsg);
+        g_slice_free (PYDB, db);
+        db = NULL;
+        goto _out;
+    }
+
+_out:
     return db;
 }
 
@@ -277,18 +286,19 @@ py_db_query_internal (PYDB          *db,
     for (i = 0; i < array->len; i++) {
         GString *v;
         v = g_array_index (array, GString *, i);
-        if (i > 0)
-            g_string_append (sql, " or ");
-
-        g_string_append_printf (sql, "( %s )", v->str);
+        if (i == 0)
+            g_string_append_printf (sql, "\n    ( %s )", v->str);
+        else
+            g_string_append_printf (sql, "\n    or ( %s )", v->str);
         g_string_free (v, TRUE);
     }
     g_array_free (array, TRUE);
 
-    g_string_append (sql, " order by freq desc ");
+    g_string_append (sql, "\n    order by freq desc ");
+#if 1
     if (pinyin_len == pinyin->len)
         g_debug ("sql = %s", sql->str);
-
+#endif
     if (m > 0) {
         g_string_append_printf (sql, " limit %d ", m);
     }
