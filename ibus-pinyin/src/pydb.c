@@ -62,16 +62,22 @@ _out:
 void
 py_db_free (PYDB *db)
 {
-#if 0
-    sqlite3_stmt *stmt;
+    gint i;
 
-    while((stmt = sqlite3_next_stmt(db->db, NULL)) != NULL){
-        sqlite3_finalize(stmt);
+    for (i = 0; i < db->strings->len; i++ ) {
+        g_string_free (g_array_index (db->strings, GString *, i), TRUE);
     }
-#endif
-    sqlite3_close (db->db);
+    g_array_free (db->strings, TRUE);
 
-    g_free (db);
+    for (i = 0; i < db->conditions->len; i++ ) {
+        g_string_free (g_array_index (db->conditions, GString *, i), TRUE);
+    }
+    g_array_free (db->conditions, TRUE);
+
+    g_string_free (db->sql, TRUE);
+
+    sqlite3_close (db->db);
+    g_slice_free (PYDB, db);
 }
 
 static void
