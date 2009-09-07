@@ -397,15 +397,17 @@ py_db_query (PYDB           *db,
 
     for (i = len; i > 0; i--) {
         if (m < 0) {
-            py_db_query_internal (db, pinyin, 0, i, result, -1, option);
+            if (!py_db_query_internal (db, pinyin, 0, i, result, -1, option))
+                return FALSE;
         }
         else {
-            py_db_query_internal (db, pinyin, 0, i, result, m - py_phrase_array_len (result), option);
+            if (!py_db_query_internal (db, pinyin, 0, i, result, m - py_phrase_array_len (result), option))
+                return FALSE;
             if (py_phrase_array_len(result) >= m)
                 break;
         }
     }
-    return result;
+    return TRUE;
 }
 
 #ifdef TEST
