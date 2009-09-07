@@ -13,32 +13,18 @@ struct _PYPhrase {
     gint freq;
     gint pinyin_id[MAX_PHRASE_LEN][2];
     gint len;
-    gint ref;
 };
 
-typedef struct _PYPhraseArray PYPhraseArray;
-struct _PYPhraseArray {
-    GPtrArray *array;
-    gint ref;
-};
-
-PYPhrase        *py_phrase_new          ();
-PYPhrase        *py_phrase_ref          (PYPhrase       *phrase);
-void             py_phrase_unref        (PYPhrase       *phrase);
+typedef GArray PYPhraseArray;
 
 PYPhraseArray   *py_phrase_array_new    ();
-PYPhraseArray   *py_phrase_array_ref    (PYPhraseArray  *array);
-void             py_phrase_array_unref  (PYPhraseArray  *array);
+void             py_phrase_array_free    (PYPhraseArray *array);
 PYPhrase        *py_phrase_array_index  (PYPhraseArray  *array,
                                          gint            i);
-PYPhrase        *py_phrase_array_new_phrase
+PYPhrase        *py_phrase_array_append (PYPhraseArray  *array);
+void             py_phrase_array_remove_all
                                         (PYPhraseArray  *array);
-PYPhraseArray   *py_phrase_array_append (PYPhraseArray  *array,
-                                         PYPhrase       *phrase);
-PYPhraseArray   *py_phrase_array_append_array
-                                        (PYPhraseArray  *array1,
-                                         PYPhraseArray  *array2);
 
-#define py_phrase_array_len(a) ((a)->array->len)
+#define py_phrase_array_len(a) ((a)->len)
 
 #endif

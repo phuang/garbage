@@ -367,7 +367,7 @@ py_db_query_internal (PYDB          *db,
         PYPhrase *p;
         gint j;
 
-        p = py_phrase_new ();
+        p = py_phrase_array_append (result);
 
         strcpy (p->phrase, (gchar *) sqlite3_column_text (stmt, 0));
         p->freq = sqlite3_column_int (stmt, 1);
@@ -377,25 +377,22 @@ py_db_query_internal (PYDB          *db,
             p->pinyin_id[j][0] = sqlite3_column_int (stmt, (j << 1) + 2);
             p->pinyin_id[j][1] = sqlite3_column_int (stmt, (j << 1) + 3);
         }
-        py_phrase_array_append (result, p);
-        py_phrase_unref (p);
     }
 
     sqlite3_finalize (stmt);
     return TRUE;
 }
 
-PYPhraseArray *
-py_db_query (PYDB   *db,
-             GArray *pinyin,
-             gint    m,
-             guint   option)
+gboolean
+py_db_query (PYDB           *db,
+             GArray         *pinyin,
+             gint            m,
+             guint           option,
+             PYPhraseArray  *result)
 {
-    PYPhraseArray *result;
     gint len;
     gint i;
 
-    result = py_phrase_array_new ();
     len = MIN (pinyin->len, MAX_PHRASE_LEN);
 
     for (i = len; i > 0; i--) {

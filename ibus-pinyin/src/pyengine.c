@@ -32,6 +32,8 @@ struct _IBusPinyinEngine {
     guint    pinyin_len;
     gint     need_update;
 
+    PYPhraseArray   *phrase_array;
+
     IBusLookupTable *table;
     IBusProperty    *pinyin_mode_prop;
     IBusPropList    *prop_list;
@@ -172,6 +174,8 @@ ibus_pinyin_engine_init (IBusPinyinEngine *pinyin)
 
     pinyin->need_update = FALSE;
 
+    pinyin->phrase_array = py_phrase_array_new ();
+
     pinyin->pinyin_mode_prop = ibus_property_new ("pinyin_mode_prop",
                                            PROP_TYPE_NORMAL,
                                            NULL,
@@ -224,6 +228,11 @@ ibus_pinyin_engine_destroy (IBusPinyinEngine *pinyin)
     }
 
     pinyin->pinyin_len = 0;
+
+    if (pinyin->phrase_array) {
+        py_phrase_array_free (pinyin->phrase_array);
+        pinyin->phrase_array = NULL;
+    }
 
     if (pinyin->prop_list) {
         g_object_unref (pinyin->prop_list);
@@ -336,7 +345,7 @@ ibus_pinyin_engine_update_auxiliray_text (IBusPinyinEngine *pinyin)
 static void
 ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
 {
-    PYPhraseArray *phrases;
+    gboolean retval;
     gint i;
 
     ibus_lookup_table_clear (pinyin->table);
@@ -348,32 +357,32 @@ ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
         return;
     }
 
-    phrases = py_db_query (pinyin->db,
-                           pinyin->pinyin_array, 30,
-                           IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->option);
+    py_phrase_array_remove_all (pinyin->phrase_array);
+    retval = py_db_query (pinyin->db,
+                          pinyin->pinyin_array, 30,
+                          IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->option,
+                          pinyin->phrase_array);
 
-    if (G_UNLIKELY (phrases == NULL)) {
+    if (G_UNLIKELY (retval == FALSE)) {
         ibus_engine_update_lookup_table_fast ((IBusEngine *)pinyin,
                                               pinyin->table,
                                               FALSE);
         return;
     }
 
-    for (i = 0; i < py_phrase_array_len (phrases); i++) {
+    for (i = 0; i < py_phrase_array_len (pinyin->phrase_array); i++) {
         PYPhrase *p;
         IBusText *text;
 
-        p = py_phrase_array_index (phrases, i);
+        p = py_phrase_array_index (pinyin->phrase_array, i);
 
         text = ibus_text_new_from_string (p->phrase);
         ibus_lookup_table_append_candidate (pinyin->table, text);
-        g_object_unref (text);
     }
 
     ibus_engine_update_lookup_table_fast ((IBusEngine *)pinyin,
                                           pinyin->table,
-                                          py_phrase_array_len (phrases) != 0);
-    py_phrase_array_unref (phrases);
+                                          py_phrase_array_len (pinyin->phrase_array) != 0);
 }
 
 static gboolean
