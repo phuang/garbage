@@ -349,7 +349,7 @@ ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
     }
 
     phrases = py_db_query (pinyin->db,
-                           pinyin->pinyin_array, -1,
+                           pinyin->pinyin_array, 30,
                            IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->option);
 
     if (G_UNLIKELY (phrases == NULL)) {
