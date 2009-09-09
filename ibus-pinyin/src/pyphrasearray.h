@@ -18,7 +18,7 @@ struct _PYPhrase {
 typedef GArray PYPhraseArray;
 
 PYPhraseArray   *py_phrase_array_new    ();
-void             py_phrase_array_free    (PYPhraseArray *array);
+void             py_phrase_array_free   (PYPhraseArray *array);
 PYPhrase        *py_phrase_array_index  (PYPhraseArray  *array,
                                          gint            i);
 PYPhrase        *py_phrase_array_append (PYPhraseArray  *array);

@@ -169,7 +169,7 @@ ibus_pinyin_engine_init (IBusPinyinEngine *pinyin)
     pinyin->input_buffer = g_string_new ("");
     pinyin->input_cursor = 0;
 
-    pinyin->pinyin_array = NULL;
+    pinyin->pinyin_array = g_array_sized_new (TRUE, TRUE, sizeof (const PinYin *), 32);
     pinyin->pinyin_len = 0;
 
     pinyin->need_update = FALSE;
@@ -223,7 +223,7 @@ ibus_pinyin_engine_destroy (IBusPinyinEngine *pinyin)
     pinyin->input_cursor = 0;
 
     if (pinyin->pinyin_array) {
-        py_free_array (pinyin->pinyin_array);
+        g_array_free (pinyin->pinyin_array, TRUE);
         pinyin->pinyin_array = NULL;
     }
 
@@ -255,18 +255,15 @@ ibus_pinyin_engine_destroy (IBusPinyinEngine *pinyin)
 static void
 ibus_pinyin_engine_update_pinyin_array (IBusPinyinEngine *pinyin)
 {
-    if (pinyin->pinyin_array) {
-        py_free_array (pinyin->pinyin_array);
-        pinyin->pinyin_array = NULL;
-        pinyin->pinyin_len = 0;
-    }
-
     if (pinyin->input_buffer && pinyin->input_buffer->len) {
         pinyin->pinyin_len = py_parse_pinyin (
                                     pinyin->input_buffer->str,
                                     pinyin->input_cursor,
                                     IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->option,
-                                    &(pinyin->pinyin_array));
+                                    pinyin->pinyin_array);
+    }
+    else {
+        g_array_set_size (pinyin->pinyin_array, 0);
     }
 }
 
@@ -291,7 +288,7 @@ ibus_pinyin_engine_update_auxiliray_text (IBusPinyinEngine *pinyin)
 
         preedit_text = g_string_new ("");
 
-        if (pinyin->pinyin_array) {
+        if (pinyin->pinyin_array->len > 0) {
             p = (PinYin **) pinyin->pinyin_array->data;
 
             if (*p) {
@@ -307,7 +304,7 @@ ibus_pinyin_engine_update_auxiliray_text (IBusPinyinEngine *pinyin)
         }
 
         len = preedit_text->len;
-        
+
         if (pinyin->pinyin_len == pinyin->input_cursor) {
             cursor_pos =  preedit_text->len;
             g_string_append (preedit_text, "|");
@@ -350,7 +347,7 @@ ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
 
     ibus_lookup_table_clear (pinyin->table);
 
-    if (G_UNLIKELY (pinyin->pinyin_array == NULL || pinyin->pinyin_array->len == 0)) {
+    if (G_UNLIKELY (pinyin->pinyin_array->len == 0)) {
         ibus_engine_update_lookup_table_fast ((IBusEngine *)pinyin,
                                               pinyin->table,
                                               FALSE);
@@ -542,7 +539,7 @@ static gboolean
 ibus_pinyin_engine_reset_input (IBusPinyinEngine *pinyin,
                                 gboolean          update)
 {
-    g_string_assign (pinyin->input_buffer, "");
+    g_string_truncate (pinyin->input_buffer, 0);
     pinyin->input_cursor = 0;
 
     if (G_LIKELY (update)) {

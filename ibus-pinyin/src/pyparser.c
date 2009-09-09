@@ -87,19 +87,19 @@ gint
 py_parse_pinyin (const gchar  *str,
                  gint          len,
                  gint          option,
-                 GArray      **result)
+                 GArray       *result)
 {
     const gchar *p;
     const gchar *end;
-    GArray *array;
     const PinYin *py;
     const PinYin *prev_py;
     gboolean is_rng;
 
+    g_array_set_size (result, 0);
+
     if (len < 0)
         len = strlen (str);
 
-    array = g_array_sized_new (TRUE, FALSE, sizeof (const PinYin *), len >> 1);
     p = str;
     end = str + len;
 
@@ -132,7 +132,7 @@ py_parse_pinyin (const gchar  *str,
 
                         if (((new_py2 != NULL) && (new_py2->len > 1 )) &&
                             (py == NULL || new_py2->len > py->len + 1)) {
-                            g_array_index (array, const PinYin *, array->len - 1) = new_py1;
+                            g_array_index (result, const PinYin *, result->len - 1) = new_py1;
                             py = new_py2;
                             p --;
                             break;
@@ -145,7 +145,7 @@ py_parse_pinyin (const gchar  *str,
 
                     pp = need_resplit (prev_py, py);
                     if (pp != NULL) {
-                        g_array_index (array, const PinYin *, array->len - 1) = pp[2];
+                        g_array_index (result, const PinYin *, result->len - 1) = pp[2];
                         py = pp[3];
                         p --;
                         break;
@@ -162,7 +162,7 @@ py_parse_pinyin (const gchar  *str,
 
         if (py == NULL)
             break;
-        g_array_append_val (array, py);
+        g_array_append_val (result, py);
         p += py->len;
 
         switch (py->text[py->len - 1]) {
@@ -184,15 +184,12 @@ py_parse_pinyin (const gchar  *str,
     }
 
     if (p == str) {
-        g_array_free (array, TRUE);
-        *result = NULL;
         return 0;
     }
 
     if (*(p - 1) == '\'')
         p --;
 
-    *result = array;
     return p - str;
 }
 
@@ -211,7 +208,9 @@ int main(int argc, char **argv)
     if (argc > 1)
         str = argv[1];
 
-    len = py_parse_pinyin (str, -1, 0xffffffff, &array);
+    array = g_array_new (TRUE, TRUE, sizeof (PinYin *));
+
+    len = py_parse_pinyin (str, -1, 0xffffffff, array);
 
     if (len) {
         p = (PinYin **) array->data;

@@ -6,11 +6,9 @@
 #include "pinyin.h"
 
 
-#define py_free_array(a) (g_array_free ((a), TRUE))
-
 gint         py_parse_pinyin        (const gchar    *str,
                                      gint            len,
                                      gint            option,
-                                     GArray         **array);
+                                     GArray         *result);
 
 #endif
