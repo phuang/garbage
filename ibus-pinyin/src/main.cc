@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include "pyengine.h"
+#include "array.h"
 
 #define N_(text) text
 
@@ -82,6 +83,8 @@ main (gint argc, gchar **argv)
     GOptionContext *context;
 
     setlocale (LC_ALL, "");
+
+    Array<gint *> array;
 
     context = g_option_context_new ("- ibus pinyin engine component");
 

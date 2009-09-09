@@ -183,7 +183,7 @@ ibus_pinyin_engine_init (IBusPinyinEngine *pinyin)
                                            NULL,
                                            TRUE,
                                            FALSE,
-                                           0,
+                                           (IBusPropState) 0,
                                            NULL);
 
     pinyin->prop_list = ibus_prop_list_new ();

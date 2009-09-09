@@ -31,6 +31,9 @@ AM_LDFLAGS = \
 	@SQLITE_LIBS@ \
 	$(NULL)
 
+AM_CXXFLAGS = $(AM_CFLAGS)
+AM_LDFLAGS = $(AM_LDFLAGS)
+
 libexec_PROGRAMS = ibus-engine-pinyin
 
 ibus_engine_built_h_sources = \
@@ -38,11 +41,11 @@ ibus_engine_built_h_sources = \
 	$(NULL)
 
 ibus_engine_c_sources = \
-	main.c \
-	pyparser.c \
-	pyengine.c \
-	pyphrasearray.c \
-	pydb.c \
+	main.cc \
+	pyparser.cc \
+	pyengine.cc \
+	pyphrasearray.cc \
+	pydb.cc \
 	$(NULL)
 ibus_engine_h_sources = \
 	pinyin.h \
@@ -89,7 +92,7 @@ check_PROGRAMS =
 
 check_PROGRAMS += test-pyparser
 test_pyparser_SOURCES = \
-	pyparser.c \
+	pyparser.cc \
 	pytable.h \
 	$(NULL)
 test_pyparser_CFLAGS = \
@@ -99,9 +102,9 @@ test_pyparser_CFLAGS = \
 
 # check_PROGRAMS += test-pydb
 test_pydb_SOURCES = \
-	pydb.c \
+	pydb.cc \
 	pydb.h \
-	pyphrasearray.c \
+	pyphrasearray.cc \
 	pyphrasearray.h \
 	$(NULL)
 test_pydb_CFLAGS = \
