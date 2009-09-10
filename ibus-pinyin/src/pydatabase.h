@@ -1,6 +1,6 @@
 /* vim:set et sts=4: */
-#ifndef __PY_DB_H__
-#define __PY_DB_H__
+#ifndef __PY_DATABASE_H__
+#define __PY_DATABASE_H__
 
 #include <sqlite3.h>
 #include "pytypes.h"

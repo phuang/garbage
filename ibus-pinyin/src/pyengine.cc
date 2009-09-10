@@ -3,7 +3,7 @@
 #include <ibus.h>
 #include <string.h>
 #include "pyengine.h"
-#include "pydb.h"
+#include "pydatabase.h"
 #include "pyeditor.h"
 
 namespace PY {

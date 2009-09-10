@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "pytypes.h"
-#include "pydb.h"
+#include "pydatabase.h"
 
 using namespace PY;
 
