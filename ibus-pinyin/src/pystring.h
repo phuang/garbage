@@ -22,8 +22,24 @@ public:
         g_string_free (m_string, TRUE);
     }
 
-    gsize length (void) {
+    gsize length (void) const {
         return m_string->len; 
+    }
+
+    gboolean isEmpty (void) const {
+        return m_string->len == 0;
+    }
+
+    String & insert (gint pos, gint ch) {
+        g_string_insert_c (m_string, pos, ch);
+    }
+
+    void truncate (gint len) {
+        g_string_truncate (m_string, len);
+    }
+
+    void erase (gint pos, gint len) {
+        g_string_erase (m_string, pos, len);
     }
 
     String & operator = (const gchar *str) {
@@ -36,14 +52,23 @@ public:
         return *this;
     }
 
+    String & operator += (gint ch) {
+        g_string_append_c (m_string, ch);
+        return *this;
+    }
+
     gchar operator[] (guint i) {
         if (i >= length ())
             return 0;
         return m_string->str[i];
     }
 
-    operator const gchar *() {
+    operator const gchar *() const {
         return m_string->str;
+    }
+
+    operator gboolean () const {
+        return m_string->len != 0;
     }
 
 private:

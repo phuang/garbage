@@ -46,6 +46,7 @@ ibus_engine_c_sources = \
 	pyengine.cc \
 	pyphrasearray.cc \
 	pydb.cc \
+	pyeditor.cc \
 	$(NULL)
 ibus_engine_h_sources = \
 	pinyin.h \

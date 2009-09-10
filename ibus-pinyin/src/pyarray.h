@@ -18,7 +18,7 @@ public:
         return g_array_index (m_array, T, i);
     }
 
-    guint size (void) {
+    guint length (void) {
         return m_array->len;
     }
 
@@ -30,8 +30,22 @@ public:
         setSize (0);
     }
 
-    Array<T> & operator << (const T & i) {
-        g_array_append_val (m_array, i);
+    void append (const T & v) {
+        g_array_append_val (m_array, v);
+    }
+
+    void push (const T & v) {
+        append (v);
+    }
+
+    T & pop (void) {
+        T & v = g_array_index (m_array, T, length () - 1);
+        g_array_set_size (m_array, length () - 1);
+        return v;
+    }
+
+    Array<T> & operator << (const T & v) {
+        append (v);
         return *this;
     }
 

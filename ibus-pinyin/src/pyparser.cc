@@ -19,8 +19,8 @@ py_cmp (const void *p1, const void *p2)
 static const PinYin *
 is_pinyin (const gchar *p,
            const gchar *end,
-           gint         len,
-           gint         option)
+           guint        len,
+           guint        option)
 {
     gchar buf[7];
     const PinYin *result;
@@ -84,25 +84,23 @@ need_resplit(const PinYin *p1,
                                         sizeof (special_table[0]), sp_cmp);
 }
 
-gint
-py_parse_pinyin (const gchar  *str,
-                 gint          len,
-                 gint          option,
-                 GArray       *result)
+guint
+PinYinParser::parse (const String  &pinyin, gint len, PinYinArray &result)
 {
+
     const gchar *p;
     const gchar *end;
     const PinYin *py;
     const PinYin *prev_py;
     gboolean is_rng;
 
-    g_array_set_size (result, 0);
-
+    result.removeAll ();
+    
     if (len < 0)
-        len = strlen (str);
+        len = pinyin.length ();
 
-    p = str;
-    end = str + len;
+    p = pinyin;
+    end = p + len;
 
     is_rng = FALSE;
     prev_py = NULL;
@@ -123,17 +121,17 @@ py_parse_pinyin (const gchar  *str,
                     const PinYin *new_py1;
                     const PinYin *new_py2;
 
-                    py = is_pinyin (p, end, -1, option);
+                    py = is_pinyin (p, end, -1, m_option);
 
                     if ((new_py1 = is_pinyin (prev_py->text,
                                               prev_py->text + prev_py->len,
                                               prev_py->len - 1,
-                                              option)) != NULL) {
-                        new_py2 = is_pinyin (p -1, end, -1, option);
+                                              m_option)) != NULL) {
+                        new_py2 = is_pinyin (p -1, end, -1, m_option);
 
                         if (((new_py2 != NULL) && (new_py2->len > 1 )) &&
                             (py == NULL || new_py2->len > py->len + 1)) {
-                            g_array_index (result, const PinYin *, result->len - 1) = new_py1;
+                            result[result.length () - 1] = new_py1;
                             py = new_py2;
                             p --;
                             break;
@@ -146,24 +144,24 @@ py_parse_pinyin (const gchar  *str,
 
                     pp = need_resplit (prev_py, py);
                     if (pp != NULL) {
-                        g_array_index (result, const PinYin *, result->len - 1) = pp[2];
+                        result[result.length () - 1] = pp[2];
                         py = pp[3];
                         p --;
                         break;
                     }
                 }
             default:
-                py = is_pinyin (p, end, -1, option);
+                py = is_pinyin (p, end, -1, m_option);
                 break;
             }
         }
         else {
-            py = is_pinyin (p, end, -1, option);
+            py = is_pinyin (p, end, -1, m_option);
         }
 
         if (py == NULL)
             break;
-        g_array_append_val (result, py);
+        result << py;
         p += py->len;
 
         switch (py->text[py->len - 1]) {
@@ -184,14 +182,14 @@ py_parse_pinyin (const gchar  *str,
         }
     }
 
-    if (p == str) {
+    if (p == (const gchar *)pinyin) {
         return 0;
     }
 
     if (*(p - 1) == '\'')
         p --;
 
-    return p - str;
+    return p - (const gchar *)pinyin;
 }
 
 };

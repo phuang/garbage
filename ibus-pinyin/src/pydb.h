@@ -2,16 +2,28 @@
 #ifndef __PY_DB_H__
 #define __PY_DB_H__
 
+#include <sqlite3.h>
 #include "pytypes.h"
+#include "pyarray.h"
+#include "pyparser.h"
+#include "pystring.h"
 #include "pyphrasearray.h"
 
-typedef struct _PYDB PYDB;
+namespace PY {
 
-PYDB            *py_db_new      ();
-void             py_db_free     (PYDB           *db);
-gboolean         py_db_query    (PYDB           *db,
-                                 GArray         *pinyin,
-                                 gint            m,
-                                 guint           option,
-                                 PYPhraseArray  *result);
+class Database {
+public:
+    Database ();
+    ~Database ();
+    gboolean query (const PinYinArray &pinyin, guint m, guint option, PhraseArray &result);
+
+private:
+    sqlite3 *m_db;
+    String   m_sql;
+    Array<String *> m_conditions;
+    Array<String *> m_strings;
+};
+
+};
+
 #endif
