@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <locale.h>
 #include "pyengine.h"
-#include "array.h"
+#include "pyarray.h"
+#include "pystring.h"
 
 #define N_(text) text
 
@@ -79,12 +80,18 @@ start_component (void)
 int
 main (gint argc, gchar **argv)
 {
+
+    PY::String str("Hello");
+    str += " World";
+
+    g_debug ("str = %s", (const gchar *) str);
+
     GError *error = NULL;
     GOptionContext *context;
 
     setlocale (LC_ALL, "");
 
-    Array<gint *> array;
+    PY::Array<gint *> array;
 
     context = g_option_context_new ("- ibus pinyin engine component");
 

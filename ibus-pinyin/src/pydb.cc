@@ -21,7 +21,7 @@ PYDB *
 py_db_new ()
 {
     gchar *sql;
-    gchar *userdb;
+    const gchar *userdb;
     gchar *errmsg;
     PYDB *db = g_new0 (PYDB, 1);
 

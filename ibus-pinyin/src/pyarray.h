@@ -1,9 +1,10 @@
-#ifndef __ARRAY_H_
-#define __ARRAY_H_
+#ifndef __PY_ARRAY_H_
+#define __PY_ARRAY_H_
+
+namespace PY {
 
 template<typename T>
 class Array {
-
 public:
     Array (guint init_size = 0) {
         m_array = g_array_sized_new (FALSE, FALSE, sizeof (T), init_size);
@@ -34,8 +35,14 @@ public:
         return *this;
     }
 
+    T & operator[] (guint i) {
+        return get (i);
+    }
+
 private:
     GArray *m_array;
+};
+
 };
 
 #endif
