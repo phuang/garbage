@@ -85,8 +85,6 @@ main (gint argc, gchar **argv)
 
     setlocale (LC_ALL, "");
 
-    PY::Array<gint *> array;
-
     context = g_option_context_new ("- ibus pinyin engine component");
 
     g_option_context_add_main_entries (context, entries, "ibus-pinyin");
