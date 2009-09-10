@@ -24,7 +24,7 @@ public:
     }
 
     gsize length (void) const {
-        return m_string->len; 
+        return m_string->len;
     }
 
     gboolean isEmpty (void) const {
@@ -33,6 +33,11 @@ public:
 
     String & insert (gint pos, gint ch) {
         g_string_insert_c (m_string, pos, ch);
+        return *this;
+    }
+
+    String & append (const gchar *str) {
+        g_string_append (m_string, str);
         return *this;
     }
 
@@ -45,8 +50,8 @@ public:
 
         return *this;
     }
-    
-    String & printf (const gchar *fmt, ...) {
+
+    String & appendPrintf (const gchar *fmt, ...) {
         va_list args;
 
         va_start (args, fmt);
@@ -71,7 +76,19 @@ public:
     }
 
     String & operator += (const gchar *str) {
-        g_string_append (m_string, str);
+        return append (str);
+    }
+
+    String & operator << (const gchar *str) {
+        return append (str);
+    }
+
+    String & operator << (const String &str) {
+        return append ((const gchar *) str);
+    }
+
+    String & operator << (gint d) {
+        g_string_append_printf (m_string, "%d", d);
         return *this;
     }
 

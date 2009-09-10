@@ -18,6 +18,10 @@ public:
         return g_array_index (m_array, T, i);
     }
 
+    const T & get (guint i) const {
+        return g_array_index (m_array, T, i);
+    }
+
     guint length (void) const {
         return m_array->len;
     }
@@ -52,7 +56,7 @@ public:
     T & operator[] (guint i) {
         return get (i);
     }
-    
+
     const T & operator[] (guint i) const {
         return get (i);
     }

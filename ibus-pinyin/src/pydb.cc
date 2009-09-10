@@ -53,10 +53,10 @@ _failed:
 
 Database::~Database (void)
 {
-    for (gint i = 0; i < m_strings.length(); i++) {
+    for (guint i = 0; i < m_strings.length (); i++) {
         delete m_strings[i];
     }
-    
+
     if (m_db) {
         sqlite3_close (m_db);
         m_db = NULL;
@@ -98,12 +98,10 @@ _conditions_append_vprintf (Array<String *> &array,
                             const gchar     *fmt,
                             va_list          args)
 {
-    gint i;
-    GString *v;
     gchar str[64];
-
     g_vsnprintf (str, sizeof(str), fmt, args);
-    for (i = begin; i < end; i++) {
+
+    for (gint i = begin; i < end; i++) {
         *array[i] += str;
     }
 }
@@ -224,7 +222,6 @@ Database::queryInternal (const PinYinArray &pinyin,
                          guint              option,
                          PhraseArray       &result)
 {
-    GString *cond;
     sqlite3_stmt *stmt;
     gint i;
 
@@ -336,41 +333,38 @@ Database::queryInternal (const PinYinArray &pinyin,
                    pinyin_len - 1);
 
     for (i = 0; i < m_conditions.length (); i++) {
-        cond = g_array_index (db->conditions, GString *, i);
         if (i == 0)
-            m_sql.append_printf("    (%s)\n", (const gchar *)(*m_conditions[i]));
+            m_sql << "    (" << (*m_conditions[i]) << ")\n";
         else
-            m_sql.append_printf("    OR (%s)\n", (const gchar *)(*m_conditions[i]));
+            m_sql << "    OR (" << (*m_conditions[i]) << ")\n";
     }
-    m_contitions.setSize (0);
+    m_conditions.setSize (0);
 
     if (m > 0)
-        g_string_append_printf (db->sql, "  ORDER BY freq DESC LIMIT %d", m);
+        m_sql << "  ORDER BY freq DESC LIMIT " << m;
     else
-        g_string_append (db->sql, "  ORDER BY freq DESC");
+        m_sql << "  ORDER BY freq DESC";
 #if 0
     g_debug ("sql =\n%s", db->sql->str);
 #endif
 
     /* query database */
-    if (sqlite3_prepare (db->db, db->sql->str, -1, &stmt, NULL) != SQLITE_OK) {
+    if (sqlite3_prepare (m_db, (const gchar *) m_sql, -1, &stmt, NULL) != SQLITE_OK) {
         g_debug ("parse sql failed!");
         return FALSE;
     }
 
     while (sqlite3_step (stmt) == SQLITE_ROW) {
-        PYPhrase *p;
-        gint j;
+        result.setSize (result.length () + 1);
+        Phrase &p = result[result.length() - 1];
 
-        p = py_phrase_array_append (result);
+        strcpy (p.phrase, (gchar *) sqlite3_column_text (stmt, 0));
+        p.freq = sqlite3_column_int (stmt, 1);
+        p.len = pinyin_len;
 
-        strcpy (p->phrase, (gchar *) sqlite3_column_text (stmt, 0));
-        p->freq = sqlite3_column_int (stmt, 1);
-        p->len = pinyin->len;
-
-        for (j = 0; j < pinyin_len; j++) {
-            p->pinyin_id[j][0] = sqlite3_column_int (stmt, (j << 1) + 2);
-            p->pinyin_id[j][1] = sqlite3_column_int (stmt, (j << 1) + 3);
+        for (int i = 0; i < pinyin_len; i++) {
+            p.pinyin_id[i][0] = sqlite3_column_int (stmt, (i << 1) + 2);
+            p.pinyin_id[i][1] = sqlite3_column_int (stmt, (i << 1) + 3);
         }
     }
 

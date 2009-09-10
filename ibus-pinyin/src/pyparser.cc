@@ -19,7 +19,7 @@ py_cmp (const void *p1, const void *p2)
 static const PinYin *
 is_pinyin (const gchar *p,
            const gchar *end,
-           guint        len,
+           gint         len,
            guint        option)
 {
     gchar buf[7];

@@ -404,8 +404,6 @@ static void ibus_pinyin_engine_property_hide
                                              const gchar            *prop_name);
 #endif
 
-static void     ibus_pinyin_engine_update   (IBusPinYinEngine       *pinyin,
-                                             gboolean               now);
 #if 0
 static void ibus_config_value_changed       (IBusConfig             *config,
                                              const gchar            *section,
