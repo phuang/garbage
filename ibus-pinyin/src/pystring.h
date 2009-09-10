@@ -40,6 +40,11 @@ public:
         g_string_append (m_string, str);
         return *this;
     }
+    
+    String & append (const gchar *str, gint len) {
+        g_string_append_len (m_string, str, len);
+        return *this;
+    }
 
     String & printf (const gchar *fmt, ...) {
         va_list args;
@@ -94,6 +99,11 @@ public:
 
     String & operator << (guint d) {
         g_string_append_printf (m_string, "%u", d);
+        return *this;
+    }
+
+    String & operator << (gchar ch) {
+        g_string_append_c (m_string, ch);
         return *this;
     }
     

@@ -17,7 +17,9 @@ Editor::Editor (void)
 gboolean
 Editor::insert (gint ch)
 {
-    m_text.insert (m_cursor++, ch);
+    m_text.insert (m_cursor, ch);
+    if (m_cursor++ == m_pinyin_len)
+        updatePinYin ();
     return true;
 }
 
@@ -151,6 +153,7 @@ Editor::updatePinYin (void)
 {
     if (m_text.isEmpty ()) {
         m_pinyin.removeAll ();
+        m_pinyin_len = 0;
     }
     else {
         m_pinyin_len = m_parser.parse (m_text,

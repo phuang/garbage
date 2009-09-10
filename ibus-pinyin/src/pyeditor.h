@@ -16,6 +16,7 @@ public:
     guint cursor (void) { return m_cursor; }
     gboolean isEmpty (void) { return m_text.isEmpty (); }
     const PinYinArray & pinyin (void) { return m_pinyin; }
+    guint pinyinLength (void) { return m_pinyin_len; }
 
     gboolean insert (gint ch);
 
