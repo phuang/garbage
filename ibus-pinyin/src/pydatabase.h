@@ -7,9 +7,10 @@
 #include "pyarray.h"
 #include "pyparser.h"
 #include "pystring.h"
-#include "pyphrasearray.h"
 
 namespace PY {
+
+typedef Array<Phrase> PhraseArray;
 
 class Database {
 public:

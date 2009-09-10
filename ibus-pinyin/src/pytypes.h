@@ -109,6 +109,17 @@ struct _PinYin {
     const int   flags;
 };
 
+#define MAX_UTF8_LEN 6
+#define MAX_PHRASE_LEN 16
+
+typedef struct _Phrase Phrase;
+struct _Phrase {
+    gchar phrase[(MAX_PHRASE_LEN + 1) * MAX_UTF8_LEN];
+    gint freq;
+    gint pinyin_id[MAX_PHRASE_LEN][2];
+    gint len;
+};
+
 };
 
 #endif

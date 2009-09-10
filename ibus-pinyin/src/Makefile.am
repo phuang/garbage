@@ -44,7 +44,6 @@ ibus_engine_c_sources = \
 	main.cc \
 	pyparser.cc \
 	pyengine.cc \
-	pyphrasearray.cc \
 	pydatabase.cc \
 	pyeditor.cc \
 	$(NULL)
@@ -52,7 +51,6 @@ ibus_engine_h_sources = \
 	pinyin.h \
 	pyparser.h \
 	pyengine.h \
-	pyphrasearray.h \
 	pydatabase.h \
 	$(NULL)
 ibus_engine_pinyin_SOURCES = \
@@ -105,8 +103,6 @@ test_pyparser_CFLAGS = \
 test_pydatabase_SOURCES = \
 	pydatabase.cc \
 	pydatabase.h \
-	pyphrasearray.cc \
-	pyphrasearray.h \
 	$(NULL)
 test_pydatabase_CFLAGS = \
 	$(AM_CFLAGS) \
