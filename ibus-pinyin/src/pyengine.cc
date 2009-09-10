@@ -89,19 +89,20 @@ gboolean
 PinYinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 {
 
+    // ignore release event
     if (modifiers & IBUS_RELEASE_MASK) {
         return TRUE;
     }
 
-    modifiers =  modifiers & ( IBUS_SHIFT_MASK |
-                               IBUS_CONTROL_MASK |
-                               IBUS_MOD1_MASK |
-                               IBUS_SUPER_MASK |
-                               IBUS_HYPER_MASK |
-                               IBUS_META_MASK );
+    modifiers &= (IBUS_SHIFT_MASK |
+                  IBUS_CONTROL_MASK |
+                  IBUS_MOD1_MASK |
+                  IBUS_SUPER_MASK |
+                  IBUS_HYPER_MASK |
+                  IBUS_META_MASK );
 
     /* process letter at first */
-    if (keyval >= IBUS_a && keyval <= IBUS_z) {
+    if (G_LIKELY (keyval >= IBUS_a && keyval <= IBUS_z)) {
         if (G_LIKELY (modifiers == 0)) {
             if (m_editor.insert (keyval)) {
                 update (FALSE);
@@ -109,85 +110,74 @@ PinYinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
             }
             return FALSE;
         }
-        if (G_LIKELY (!m_editor.isEmpty ())) {
-            return TRUE;
-        }
-        return FALSE;
+        return !m_editor.isEmpty ();
     }
 
     /* process ' */
     if (keyval == IBUS_apostrophe) {
-        if (G_LIKELY (!m_editor.isEmpty ())) {
-            if (G_LIKELY (modifiers == 0)) {
-                m_editor.insert (IBUS_apostrophe);
-            }
-            return TRUE;
-        }
-        return FALSE;
+        if (G_UNLIKELY (m_editor.isEmpty ()))
+            return FALSE;
+        if (G_LIKELY (modifiers == 0))
+            m_editor.insert (IBUS_apostrophe);
+        return TRUE;
     }
 
     if (G_UNLIKELY (m_editor.isEmpty ()))
         return FALSE;
 
+    /* process some cursor control keys */
+    gboolean _update = FALSE;
     switch (keyval) {
     case IBUS_BackSpace:
-        if (G_LIKELY (modifiers == 0)) {
-            if (m_editor.removeCharBefore ())
-                update (FALSE);
-        }
-        else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
-            if (m_editor.removeWordBefore ())
-                update (FALSE);
-        }
-        return TRUE;
+        if (G_LIKELY (modifiers == 0))
+            _update = m_editor.removeCharBefore ();
+        else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK))
+            _update = m_editor.removeWordBefore ();
+        break;
+
     case IBUS_Delete:
-        if (G_LIKELY (modifiers == 0)) {
-            if (m_editor.removeCharAfter ())
-                update (FALSE);
-        }
-        else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
-            if (m_editor.removeWordAfter ())
-                update (FALSE);
-        }
-        return TRUE;
+        if (G_LIKELY (modifiers == 0))
+            _update = m_editor.removeCharAfter ();
+        else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK))
+            _update = m_editor.removeWordAfter ();
+        break;
+
     case IBUS_Left:
         if (G_LIKELY (modifiers == 0)) {
             // move left single char
-            if (m_editor.moveCursorLeft ())
-                update (FALSE);
+            _update = m_editor.moveCursorLeft ();
         }
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
             // move left one pinyin
-            if (m_editor.moveCursorLeftByWord ())
-                update (FALSE);
+            _update = m_editor.moveCursorLeftByWord ();
         }
-        return TRUE;
+        break;
+
     case IBUS_Right:
         if (G_LIKELY (modifiers == 0)) {
             // move right single char
-            if (m_editor.moveCursorRight ())
-                update (FALSE);
+            _update = m_editor.moveCursorRight ();
         }
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
             // move right to end
-            if (m_editor.moveCursorToEnd ())
-                update (FALSE);
+            _update = m_editor.moveCursorToEnd ();
         }
-        return TRUE;
+        break;
+
     case IBUS_Home:
         if (G_LIKELY (modifiers == 0)) {
             // move to begin
-            if (m_editor.moveCursorToBegin ())
-                update (FALSE);
+            _update = m_editor.moveCursorToBegin ();
         }
-        return TRUE;
+        break;
+
     case IBUS_End:
         if (G_LIKELY (modifiers == 0)) {
             // move to end
-            if (m_editor.moveCursorToEnd ())
-                update (FALSE);
+            _update = m_editor.moveCursorToEnd ();
         }
-        return TRUE;
+        break;
+
     case IBUS_Up:
         return TRUE;
     case IBUS_Down:
@@ -202,8 +192,8 @@ PinYinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
     default:
         return TRUE;
     }
-    return TRUE;
-
+    if (G_LIKELY (_update))
+        update (FALSE);
     return TRUE;
 }
 
