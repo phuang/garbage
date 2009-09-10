@@ -216,12 +216,11 @@ PinYinEngine::updatePreeditText (void)
 void
 PinYinEngine::updateAuxiliaryText (void)
 {
-#if 1
-    IBusText *preedit_text;
 
     /* clear pinyin array */
 
     if (m_editor.isEmpty ()) {
+        IBusText *preedit_text;
         preedit_text = ibus_text_new_from_static_string ("");
         ibus_engine_update_auxiliary_text (m_engine, preedit_text, FALSE);
         g_object_unref (preedit_text);
@@ -252,6 +251,7 @@ PinYinEngine::updateAuxiliaryText (void)
         text << '|' << ((const gchar *)m_editor.text ()) + m_editor.cursor ();
     }
 
+    IBusText *preedit_text;
     preedit_text = ibus_text_new_from_static_string (text);
     ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, len, cursor_pos);
     ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, cursor_pos + 1, -1);
@@ -259,52 +259,44 @@ PinYinEngine::updateAuxiliaryText (void)
                                         preedit_text,
                                         TRUE);
     g_object_unref (preedit_text);
-#endif
 }
 
 void
 PinYinEngine::updateLookupTable ()
 {
-#if 0
     gboolean retval;
-    gint i;
 
-    ibus_lookup_table_clear (pinyin->table);
+    ibus_lookup_table_clear (m_lookup_table);
 
-    if (G_UNLIKELY (pinyin->pinyin_array->len == 0)) {
-        ibus_engine_update_lookup_table_fast ((IBusEngine *)pinyin,
-                                              pinyin->table,
+    if (G_UNLIKELY (m_editor.pinyinLength () == 0)) {
+        ibus_engine_update_lookup_table_fast (m_engine,
+                                              m_lookup_table,
                                               FALSE);
         return;
     }
 
-    py_phrase_array_remove_all (pinyin->phrase_array);
-    retval = py_db_query (pinyin->db,
-                          pinyin->pinyin_array, 30,
-                          IBUS_PINYIN_ENGINE_GET_CLASS (pinyin)->option,
-                          pinyin->phrase_array);
+    m_phrases.removeAll ();
+    retval = m_db.query (m_editor.pinyin (),
+                         30,
+                         m_option,
+                         m_phrases);
 
     if (G_UNLIKELY (retval == FALSE)) {
-        ibus_engine_update_lookup_table_fast ((IBusEngine *)pinyin,
-                                              pinyin->table,
+        ibus_engine_update_lookup_table_fast (m_engine,
+                                              m_lookup_table,
                                               FALSE);
         return;
     }
 
-    for (i = 0; i < py_phrase_array_len (pinyin->phrase_array); i++) {
-        PYPhrase *p;
+    for (guint i = 0; i < m_phrases.length (); i++) {
         IBusText *text;
-
-        p = py_phrase_array_index (pinyin->phrase_array, i);
-
-        text = ibus_text_new_from_string (p->phrase);
-        ibus_lookup_table_append_candidate (pinyin->table, text);
+        text = ibus_text_new_from_static_string (m_phrases[i].phrase);
+        ibus_lookup_table_append_candidate (m_lookup_table, text);
     }
 
-    ibus_engine_update_lookup_table_fast ((IBusEngine *)pinyin,
-                                          pinyin->table,
-                                          py_phrase_array_len (pinyin->phrase_array) != 0);
-#endif
+    ibus_engine_update_lookup_table_fast (m_engine,
+                                          m_lookup_table,
+                                          m_phrases.length () != 0);
 }
 
 #if 0

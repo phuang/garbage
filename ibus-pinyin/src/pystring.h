@@ -31,6 +31,15 @@ public:
         return m_string->len == 0;
     }
 
+    String & assign (const gchar *str) {
+        g_string_assign (m_string, str);
+        return *this;
+    }
+
+    String & assign (const String &str) {
+        return assign ((const gchar *) str);
+    }
+
     String & insert (gint pos, gint ch) {
         g_string_insert_c (m_string, pos, ch);
         return *this;
@@ -76,8 +85,11 @@ public:
     }
 
     String & operator = (const gchar *str) {
-        g_string_assign (m_string, str);
-        return *this;
+        return assign (str);
+    }
+
+    String & operator = (const String &str) {
+        return assign (str);
     }
 
     String & operator += (const gchar *str) {

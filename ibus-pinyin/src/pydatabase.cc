@@ -102,7 +102,7 @@ _conditions_append_vprintf (Array<String *> &array,
     g_vsnprintf (str, sizeof(str), fmt, args);
 
     for (gint i = begin; i < end; i++) {
-        *array[i] << str;
+        (*array[i]) << str;
     }
 }
 
@@ -130,7 +130,7 @@ Database::conditionsDouble (void)
 
     for (i = 0; i < len; i++) {
         String *new_str;
-        new_str = string (i + len);
+        new_str = string (len + i);
         *new_str = *m_conditions[i];
         m_conditions << new_str;
     }
@@ -243,7 +243,9 @@ Database::queryInternal (const PinYinArray &pinyin,
         fs2 = pinyin_option_check_sheng (option, p->sheng_id, p->fsheng_id_2);
 
         if (G_LIKELY (i > 0))
-            _conditions_append_printf (m_conditions, 0, m_conditions.length (), " AND ");
+            _conditions_append_printf (m_conditions,
+                                       0, m_conditions.length (),
+                                       " AND ");
 
         if (fs1 || fs2) {
             if (G_LIKELY (i < DB_INDEX_SIZE)) {
@@ -328,7 +330,8 @@ Database::queryInternal (const PinYinArray &pinyin,
         }
     }
 
-    m_sql << "SELECT * FROM main.py_phrase_" << pinyin_len - 1 << "\n"
+    m_sql = "SELECT * FROM main.py_phrase_";
+    m_sql << pinyin_len - 1 << "\n"
              "  WHERE\n";
 
     for (guint i = 0; i < m_conditions.length (); i++) {
@@ -349,8 +352,12 @@ Database::queryInternal (const PinYinArray &pinyin,
 
     /* query database */
     sqlite3_stmt *stmt;
-    if (sqlite3_prepare (m_db, (const gchar *) m_sql, -1, &stmt, NULL) != SQLITE_OK) {
-        g_debug ("parse sql failed!");
+    if (sqlite3_prepare (m_db,
+                         (const gchar *) m_sql,
+                         -1,
+                         &stmt,
+                         NULL) != SQLITE_OK) {
+        g_debug ("parse sql failed!\n %s", (const gchar *)m_sql);
         return FALSE;
     }
 

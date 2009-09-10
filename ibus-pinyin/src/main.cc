@@ -80,12 +80,6 @@ start_component (void)
 int
 main (gint argc, gchar **argv)
 {
-
-    PY::String str("Hello");
-    str += " World";
-
-    g_debug ("str = %s", (const gchar *) str);
-
     GError *error = NULL;
     GOptionContext *context;
 
