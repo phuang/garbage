@@ -211,6 +211,7 @@ PinYinEngine::updatePreeditText (void)
 void
 PinYinEngine::updateAuxiliaryText (void)
 {
+#if 0
     IBusText *text;
 
     /* clear pinyin array */
@@ -272,7 +273,7 @@ PinYinEngine::updateAuxiliaryText (void)
         ibus_engine_update_auxiliary_text ((IBusEngine *)pinyin, text, FALSE);
         g_object_unref (text);
     }
-
+#endif
 }
 
 void
@@ -320,6 +321,7 @@ PinYinEngine::updateLookupTable ()
 #endif
 }
 
+#if 0
 static gboolean
 ibus_pinyin_engine_delay_update_cb (IBusPinYinEngine *pinyin)
 {
@@ -328,6 +330,7 @@ ibus_pinyin_engine_delay_update_cb (IBusPinYinEngine *pinyin)
     }
     return FALSE;
 }
+#endif
 
 
 #define IBUS_PINYIN_ENGINE(obj)             \
@@ -466,8 +469,6 @@ ibus_pinyin_engine_class_init (IBusPinYinEngineClass *klass)
 
     engine_class->cursor_up = ibus_pinyin_engine_cursor_up;
     engine_class->cursor_down = ibus_pinyin_engine_cursor_down;
-
-    klass->option = 0xffffffff;
 
 }
 

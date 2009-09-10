@@ -1,6 +1,7 @@
 #ifndef __PY_STRING_H_
 #define __PY_STRING_H_
 #include <glib.h>
+#include <stdarg.h>
 
 namespace PY {
 
@@ -32,10 +33,32 @@ public:
 
     String & insert (gint pos, gint ch) {
         g_string_insert_c (m_string, pos, ch);
+        return *this;
     }
 
-    void truncate (gint len) {
+    String & printf (const gchar *fmt, ...) {
+        va_list args;
+
+        va_start (args, fmt);
+        g_string_vprintf (m_string, fmt, args);
+        va_end (args);
+
+        return *this;
+    }
+    
+    String & printf (const gchar *fmt, ...) {
+        va_list args;
+
+        va_start (args, fmt);
+        g_string_append_vprintf (m_string, fmt, args);
+        va_end (args);
+
+        return *this;
+    }
+
+    String & truncate (gint len) {
         g_string_truncate (m_string, len);
+        return *this;
     }
 
     void erase (gint pos, gint len) {

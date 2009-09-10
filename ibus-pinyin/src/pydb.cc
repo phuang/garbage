@@ -12,104 +12,107 @@ using namespace PY;
 #define DB_CACHE_SIZE "5000"
 #define DB_INDEX_SIZE (3)
 
-struct _PYDB {
-    sqlite3 *db;
-    GString *sql;
-    GArray  *conditions;
-    GArray  *strings;
-};
-
-PYDB *
-py_db_new ()
+Database::Database (void)
+    : m_db (NULL),
+      m_sql (1024),
+      m_conditions (32),
+      m_strings (32)
 {
     gchar *sql;
     const gchar *userdb;
     gchar *errmsg;
-    PYDB *db = g_new0 (PYDB, 1);
 
     sqlite3_initialize ();
 
-    if (sqlite3_open_v2 ("py.db", &(db->db), SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) != SQLITE_OK) {
+    if (sqlite3_open_v2 ("py.db", &m_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) != SQLITE_OK) {
         goto _failed;
     }
 
     userdb = "/home/phuang/.cache/ibus/ibus-pinyin/user.db";
     sql = g_strdup_printf ("ATTACH DATABASE \"%s\" AS userdb;", userdb);
-    if (sqlite3_exec (db->db, sql, NULL, NULL, &errmsg) != SQLITE_OK) {
+    if (sqlite3_exec (m_db, sql, NULL, NULL, &errmsg) != SQLITE_OK) {
         g_debug ("%s", errmsg);
         sqlite3_free (errmsg);
         goto _failed;
     }
     g_free (sql);
 
-    if (sqlite3_exec (db->db, "PRAGMA cache_size=" DB_CACHE_SIZE, NULL, NULL, &errmsg) != SQLITE_OK) {
+    if (sqlite3_exec (m_db, "PRAGMA cache_size=" DB_CACHE_SIZE, NULL, NULL, &errmsg) != SQLITE_OK) {
         g_debug ("%s", errmsg);
         sqlite3_free (errmsg);
         goto _failed;
     }
-
-    db->sql = g_string_sized_new (1024);
-    db->conditions = g_array_sized_new (FALSE, FALSE, sizeof (GString *), 32);
-    db->strings = g_array_sized_new (FALSE, FALSE, sizeof (GString *), 32);
-
-    return db;
+    return;
 
 _failed:
-    py_db_free (db);
-    return NULL;
+    if (m_db) {
+        sqlite3_close (m_db);
+        m_db = NULL;
+    }
 }
 
-
-void
-py_db_free (PYDB *db)
+Database::~Database (void)
 {
+    for (gint i = 0; i < m_strings.length(); i++) {
+        delete m_strings[i];
+    }
+    
+    if (m_db) {
+        sqlite3_close (m_db);
+        m_db = NULL;
+    }
+}
+
+gboolean
+Database::query (const PinYinArray &pinyin,
+                 guint              m,
+                 guint              option,
+                 PhraseArray       &result)
+{
+    gint len;
     gint i;
 
-    if (db->strings) {
-        for (i = 0; i < db->strings->len; i++ ) {
-            g_string_free (g_array_index (db->strings, GString *, i), TRUE);
+    len = MIN (pinyin.length (), MAX_PHRASE_LEN);
+
+    for (i = len; i > 0; i--) {
+        if (m < 0) {
+            if (!queryInternal (pinyin, 0, i, -1, option, result))
+                return FALSE;
         }
-        g_array_free (db->strings, TRUE);
-    }
-
-    if (db->conditions) {
-        for (i = 0; i < db->conditions->len; i++ ) {
-            g_string_free (g_array_index (db->conditions, GString *, i), TRUE);
+        else {
+            if (!queryInternal (pinyin, 0, i, m - result.length (), option, result))
+                return FALSE;
+            if (result.length () >= m)
+                break;
         }
-        g_array_free (db->conditions, TRUE);
     }
-
-    if (db->sql)
-        g_string_free (db->sql, TRUE);
-
-    if (db->db)
-        sqlite3_close (db->db);
-    g_free (db);
+    return TRUE;
 }
 
+
+
 static void
-_conditions_append_vprintf (GArray      *array,
-                            gint         begin,
-                            gint         end,
-                            const gchar *fmt,
-                            va_list      args)
+_conditions_append_vprintf (Array<String *> &array,
+                            gint             begin,
+                            gint             end,
+                            const gchar     *fmt,
+                            va_list          args)
 {
     gint i;
     GString *v;
     gchar str[64];
 
-    vsnprintf (str, sizeof(str), fmt, args);
+    g_vsnprintf (str, sizeof(str), fmt, args);
     for (i = begin; i < end; i++) {
-        v = g_array_index (array, GString *, i);
-        g_string_append (v, str);
+        *array[i] += str;
     }
 }
 
 static void
-_conditions_append_printf (GArray      *array,
-                           gint         begin,
-                           gint         end,
-                           const gchar *fmt,
+_conditions_append_printf (Array<String *> &array,
+                           gint             begin,
+                           gint             end,
+                           const gchar     *fmt,
                            ...)
 {
     va_list args;
@@ -120,54 +123,36 @@ _conditions_append_printf (GArray      *array,
 
 #define CONDITION_INIT_SIZE (256)
 
-static GString *
-_py_db_get_string (PYDB     *db)
-{
-    GString *s;
-    if (db->strings->len == 0) {
-        s = g_string_sized_new (CONDITION_INIT_SIZE);
-    }
-    else {
-        s = g_array_index (db->strings, GString *, db->strings->len - 1);
-        g_array_set_size (db->strings, db->strings->len - 1);
-    }
-    return s;
-}
-
-static void
-_py_db_put_string (PYDB     *db,
-                   GString  *s)
-{
-    g_string_truncate (s, 0);
-    g_array_append_val (db->strings, s);
-}
-
-static void
-_conditions_double (PYDB *db)
+void
+Database::conditionsDouble (void)
 {
     gint i, len;
 
-    len = db->conditions->len;
-    g_array_set_size (db->conditions, len << 1);
+    len = m_conditions.length ();
 
     for (i = 0; i < len; i++) {
-        GString *v = g_array_index (db->conditions, GString *, i);
-        g_array_index (db->conditions, GString *, i + len) = g_string_append (_py_db_get_string (db), v->str);
+        String *new_str;
+        new_str = string (i + len);
+        *new_str = *m_conditions[i];
+        m_conditions << new_str;
     }
 }
 
-static void
-_conditions_triple (PYDB *db)
+void
+Database::conditionsTriple (void)
 {
     gint i, len;
 
-    len = db->conditions->len;
-    g_array_set_size (db->conditions, (len << 1) + len);
+    len = m_conditions.length ();
 
     for (i = 0; i < len; i++) {
-        GString *v = g_array_index (db->conditions, GString *, i);
-        g_array_index (db->conditions, GString *, i + len) = g_string_append (_py_db_get_string (db), v->str);
-        g_array_index (db->conditions, GString *, i + (len << 1)) = g_string_append (_py_db_get_string (db), v->str);
+        String *new_str;
+        new_str = string ((i << 1) + len);
+        *new_str = *m_conditions[i];
+        m_conditions << new_str;
+        new_str = string ((i << 1) + len + 1);
+        *new_str = *m_conditions[i];
+        m_conditions << new_str;
     }
 }
 
@@ -232,124 +217,132 @@ pinyin_option_check_yun (guint option, gint id, gint fid)
 }
 
 gboolean
-py_db_query_internal (PYDB          *db,
-                      GArray        *pinyin,
-                      gint           pinyin_begin,
-                      gint           pinyin_len,
-                      PYPhraseArray *result,
-                      gint           m,
-                      guint          option)
+Database::queryInternal (const PinYinArray &pinyin,
+                         gint               pinyin_begin,
+                         gint               pinyin_len,
+                         gint               m,
+                         guint              option,
+                         PhraseArray       &result)
 {
     GString *cond;
     sqlite3_stmt *stmt;
     gint i;
 
-    if (pinyin_len > pinyin->len - pinyin_begin)
-        pinyin_len = pinyin->len - pinyin_begin;
+    if (pinyin_len > pinyin.length () - pinyin_begin)
+        pinyin_len = pinyin.length () - pinyin_begin;
     if (pinyin_len > 16)
         return FALSE;
 
     /* prepare sql */
-    g_array_set_size (db->conditions, 1);
-    g_array_index (db->conditions, GString *, 0) = _py_db_get_string (db);
-
+    m_conditions.setSize (1);
+    m_conditions[0] = this->string (0);
 
     for (i = 0; i < pinyin_len; i++) {
-        PinYin *p;
+        const PinYin *p;
         gboolean fs1, fs2;
-        p = g_array_index (pinyin, PinYin *, i + pinyin_begin);
+        p = pinyin[i + pinyin_begin];
 
         fs1 = pinyin_option_check_sheng (option, p->sheng_id, p->fsheng_id);
         fs2 = pinyin_option_check_sheng (option, p->sheng_id, p->fsheng_id_2);
 
         if (i > 0)
-            _conditions_append_printf (db->conditions, 0, db->conditions->len, " AND ");
+            _conditions_append_printf (m_conditions, 0, m_conditions.length (), " AND ");
 
         if (fs1 || fs2) {
             if (i < DB_INDEX_SIZE) {
                 if (fs1 && fs2 == 0) {
-                    _conditions_double (db);
-                    _conditions_append_printf (db->conditions,
-                                               0, db->conditions->len  >> 1,
+                    conditionsDouble ();
+                    _conditions_append_printf (m_conditions,
+                                               0, m_conditions.length ()  >> 1,
                                                "s%d=%d", i, p->sheng_id);
-                    _conditions_append_printf (db->conditions,
-                                               db->conditions->len >> 1, db->conditions->len,
+                    _conditions_append_printf (m_conditions,
+                                               m_conditions.length () >> 1, m_conditions.length (),
                                                "s%d=%d", i, p->fsheng_id);
                 }
                 else if (fs1 == 0 && fs2) {
-                    _conditions_double (db);
-                    _conditions_append_printf (db->conditions,
-                                               0, db->conditions->len  >> 1,
+                    conditionsDouble ();
+                    _conditions_append_printf (m_conditions,
+                                               0, m_conditions.length ()  >> 1,
                                                "s%d=%d", i, p->sheng_id);
-                    _conditions_append_printf (db->conditions,
-                                               db->conditions->len >> 1, db->conditions->len,
+                    _conditions_append_printf (m_conditions,
+                                               m_conditions.length () >> 1, m_conditions.length (),
                                                "s%d=%d", i, p->fsheng_id_2);
                 }
                 else {
-                    gint len = db->conditions->len;
-                    _conditions_triple (db);
-                    _conditions_append_printf (db->conditions,
+                    gint len = m_conditions.length ();
+                    conditionsTriple ();
+                    _conditions_append_printf (m_conditions,
                                                0, len,
                                                "s%d=%d", i, p->sheng_id);
-                    _conditions_append_printf (db->conditions,
+                    _conditions_append_printf (m_conditions,
                                                len, len << 1,
                                                "s%d=%d", i, p->fsheng_id);
-                    _conditions_append_printf (db->conditions,
-                                               len << 1, db->conditions->len,
+                    _conditions_append_printf (m_conditions,
+                                               len << 1, m_conditions.length (),
                                                "s%d=%d", i, p->fsheng_id_2);
                 }
             }
             else {
                 if (fs1 && fs2 == 0) {
-                    _conditions_append_printf (db->conditions, 0, db->conditions->len, "s%d IN (%d, %d)", i, p->sheng_id, p->fsheng_id);
+                    _conditions_append_printf (m_conditions,
+                                               0, m_conditions.length (),
+                                               "s%d IN (%d, %d)", i, p->sheng_id, p->fsheng_id);
                 }
                 else if (fs1 == 0 && fs2) {
-                    _conditions_append_printf (db->conditions,
-                                               0, db->conditions->len,
+                    _conditions_append_printf (m_conditions,
+                                               0, m_conditions.length (),
                                                "s%d IN (%d, %d)", i, p->sheng_id, p->fsheng_id_2);
                 }
                 else {
-                    _conditions_append_printf (db->conditions,
-                                               0, db->conditions->len,
+                    _conditions_append_printf (m_conditions,
+                                               0, m_conditions.length (),
                                                "s%d IN (%d, %d, %d)", i, p->sheng_id, p->fsheng_id, p->fsheng_id_2);
                 }
             }
         }
         else {
-            _conditions_append_printf (db->conditions, 0, db->conditions->len, "s%d=%d", i, p->sheng_id);
+            _conditions_append_printf (m_conditions,
+                                       0, m_conditions.length (),
+                                       "s%d=%d", i, p->sheng_id);
         }
 
         if (p->yun_id != PINYIN_ID_VOID) {
             if (pinyin_option_check_yun (option, p->yun_id, p->fyun_id)) {
                 if (i < DB_INDEX_SIZE) {
-                    _conditions_double (db);
-                    _conditions_append_printf (db->conditions, 0, db->conditions->len  >> 1, " AND y%d=%d", i, p->yun_id);
-                    _conditions_append_printf (db->conditions, db->conditions->len >> 1, db->conditions->len, " and y%d=%d", i, p->fyun_id);
+                    conditionsDouble ();
+                    _conditions_append_printf (m_conditions,
+                                               0, m_conditions.length ()  >> 1,
+                                               " AND y%d=%d", i, p->yun_id);
+                    _conditions_append_printf (m_conditions,
+                                               m_conditions.length () >> 1, m_conditions.length (),
+                                               " and y%d=%d", i, p->fyun_id);
                 }
                 else {
-                    _conditions_append_printf (db->conditions, 0, db->conditions->len, " AND y%d IN (%d, %d)", i, p->yun_id, p->fyun_id);
+                    _conditions_append_printf (m_conditions,
+                                               0, m_conditions.length (),
+                                               " AND y%d IN (%d, %d)", i, p->yun_id, p->fyun_id);
                 }
             }
             else {
-                _conditions_append_printf (db->conditions, 0, db->conditions->len, " AND y%d=%d", i, p->yun_id);
+                _conditions_append_printf (m_conditions,
+                                           0, m_conditions.length (),
+                                           " AND y%d=%d", i, p->yun_id);
             }
         }
     }
 
-    g_string_printf (db->sql,
-        "SELECT * FROM main.py_phrase_%d\n"
-        "  WHERE\n", pinyin_len - 1);
+    m_sql.printf ( "SELECT * FROM main.py_phrase_%d\n"
+                   "  WHERE\n",
+                   pinyin_len - 1);
 
-    for (i = 0; i < db->conditions->len; i++) {
+    for (i = 0; i < m_conditions.length (); i++) {
         cond = g_array_index (db->conditions, GString *, i);
         if (i == 0)
-            g_string_append_printf (db->sql, "    (%s)\n", cond->str);
+            m_sql.append_printf("    (%s)\n", (const gchar *)(*m_conditions[i]));
         else
-            g_string_append_printf (db->sql, "    OR (%s)\n", cond->str);
-        _py_db_put_string (db, cond);
+            m_sql.append_printf("    OR (%s)\n", (const gchar *)(*m_conditions[i]));
     }
-
-    g_array_set_size (db->conditions, 0);
+    m_contitions.setSize (0);
 
     if (m > 0)
         g_string_append_printf (db->sql, "  ORDER BY freq DESC LIMIT %d", m);
@@ -385,86 +378,4 @@ py_db_query_internal (PYDB          *db,
     return TRUE;
 }
 
-gboolean
-py_db_query (PYDB           *db,
-             GArray         *pinyin,
-             gint            m,
-             guint           option,
-             PYPhraseArray  *result)
-{
-    gint len;
-    gint i;
 
-    len = MIN (pinyin->len, MAX_PHRASE_LEN);
-
-    for (i = len; i > 0; i--) {
-        if (m < 0) {
-            if (!py_db_query_internal (db, pinyin, 0, i, result, -1, option))
-                return FALSE;
-        }
-        else {
-            if (!py_db_query_internal (db, pinyin, 0, i, result, m - py_phrase_array_len (result), option))
-                return FALSE;
-            if (py_phrase_array_len(result) >= m)
-                break;
-        }
-    }
-    return TRUE;
-}
-
-#ifdef TEST
-
-#include <sys/time.h>
-#include <locale.h>
-
-void
-py_db_test (PYDB *db)
-{
-    gint retval;
-    sqlite3_stmt *stmt;
-    gchar *sql = "select * from (select phrase, s0, y0, s1, y1, max(freq) / 10000 as freq from py_phrase_1 where s0=24 and y0=468 and s1=1 and y1=20 group by phrase) order by freq desc";
-
-    retval = sqlite3_prepare (db->db, sql, -1, &stmt, NULL);
-
-    if (retval != SQLITE_OK)
-        return;
-
-    while ((retval = sqlite3_step (stmt)) == SQLITE_ROW) {
-        gchar *text;
-        gint64 freq;
-        text = sqlite3_column_text (stmt, 0);
-        freq = sqlite3_column_int64 (stmt, 1);
-    }
-    sqlite3_finalize (stmt);
-}
-
-int main ()
-{
-    struct timeval tv1, tv2;
-
-    setlocale (LC_ALL, "");
-    PYDB *db = py_db_new ();
-    if (db == NULL)
-        return 0;
-    py_db_test (db);
-
-    gettimeofday (&tv1, NULL);
-    py_db_test (db);
-    py_db_test (db);
-    py_db_test (db);
-    py_db_test (db);
-    py_db_test (db);
-    py_db_test (db);
-    py_db_test (db);
-    py_db_test (db);
-    py_db_test (db);
-    py_db_test (db);
-    gettimeofday (&tv2, NULL);
-    gdouble v = tv2.tv_sec - tv1.tv_sec;
-    v = v * 1000000 + tv2.tv_usec - tv1.tv_usec;
-    g_debug ("time=%lf", v / 1000 / 10);
-
-    py_db_free (db);
-    return 0;
-}
-#endif
