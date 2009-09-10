@@ -4,8 +4,10 @@
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include "pinyin.h"
+#include "pytypes.h"
 #include "pydb.h"
+
+using namespace PY;
 
 #define DB_CACHE_SIZE "5000"
 #define DB_INDEX_SIZE (3)

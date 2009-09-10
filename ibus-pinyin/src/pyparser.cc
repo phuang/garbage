@@ -5,11 +5,13 @@
 #include "pytable.h"
 #include "pyparser.h"
 
+namespace PY {
+
 static int
 py_cmp (const void *p1, const void *p2)
 {
     const gchar *str = (const gchar *) p1;
-    const PinYin *py = (PinYin *) p2;
+    const PinYin *py = (const PinYin *) p2;
 
     return strcmp (str, py->text);
 }
@@ -191,6 +193,8 @@ py_parse_pinyin (const gchar  *str,
 
     return p - str;
 }
+
+};
 
 
 #ifdef TEST

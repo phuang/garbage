@@ -2,7 +2,7 @@
 #ifndef __PY_DB_H__
 #define __PY_DB_H__
 
-#include "pinyin.h"
+#include "pytypes.h"
 #include "pyphrasearray.h"
 
 typedef struct _PYDB PYDB;

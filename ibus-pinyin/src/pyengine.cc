@@ -6,22 +6,24 @@
 #include "pyparser.h"
 #include "pydb.h"
 
+using namespace PY;
+
 #define IBUS_PINYIN_ENGINE(obj)             \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), IBUS_TYPE_PINYIN_ENGINE, IBusPinyinEngine))
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), IBUS_TYPE_PINYIN_ENGINE, IBusPinYinEngine))
 #define IBUS_PINYIN_ENGINE_CLASS(klass)     \
-    (G_TYPE_CHECK_CLASS_CAST ((klass), IBUS_TYPE_PINYIN_ENGINE, IBusPinyinEngineClass))
+    (G_TYPE_CHECK_CLASS_CAST ((klass), IBUS_TYPE_PINYIN_ENGINE, IBusPinYinEngineClass))
 #define IBUS_IS_PINYIN_ENGINE(obj)          \
     (G_TYPE_CHECK_INSTANCE_TYPE ((obj), IBUS_TYPE_PINYIN_ENGINE))
 #define IBUS_IS_PINYIN_ENGINE_CLASS(klass)  \
     (G_TYPE_CHECK_CLASS_TYPE ((klass), IBUS_TYPE_PINYIN_ENGINE))
 #define IBUS_PINYIN_ENGINE_GET_CLASS(obj)   \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj), IBUS_TYPE_PINYIN_ENGINE, IBusPinyinEngineClass))
+    (G_TYPE_INSTANCE_GET_CLASS ((obj), IBUS_TYPE_PINYIN_ENGINE, IBusPinYinEngineClass))
 
 
-typedef struct _IBusPinyinEngine IBusPinyinEngine;
-typedef struct _IBusPinyinEngineClass IBusPinyinEngineClass;
+typedef struct _IBusPinYinEngine IBusPinYinEngine;
+typedef struct _IBusPinYinEngineClass IBusPinYinEngineClass;
 
-struct _IBusPinyinEngine {
+struct _IBusPinYinEngine {
     IBusEngine parent;
 
     /* members */
@@ -39,7 +41,7 @@ struct _IBusPinyinEngine {
     IBusPropList    *prop_list;
 };
 
-struct _IBusPinyinEngineClass {
+struct _IBusPinYinEngineClass {
     IBusEngineClass parent;
 
     /* members */
@@ -47,12 +49,12 @@ struct _IBusPinyinEngineClass {
 };
 
 /* functions prototype */
-static void     ibus_pinyin_engine_class_init   (IBusPinyinEngineClass  *klass);
-static void     ibus_pinyin_engine_init         (IBusPinyinEngine       *pinyin);
+static void     ibus_pinyin_engine_class_init   (IBusPinYinEngineClass  *klass);
+static void     ibus_pinyin_engine_init         (IBusPinYinEngine       *pinyin);
 static GObject* ibus_pinyin_engine_constructor  (GType                   type,
                                                  guint                   n_construct_params,
                                                  GObjectConstructParam  *construct_params);
-static void     ibus_pinyin_engine_destroy      (IBusPinyinEngine       *pinyin);
+static void     ibus_pinyin_engine_destroy      (IBusPinYinEngine       *pinyin);
 static gboolean ibus_pinyin_engine_process_key_event
                                                 (IBusEngine             *engine,
                                                  guint                   keyval,
@@ -91,7 +93,7 @@ static void ibus_pinyin_engine_property_hide
                                              const gchar            *prop_name);
 #endif
 
-static void     ibus_pinyin_engine_update   (IBusPinyinEngine       *pinyin,
+static void     ibus_pinyin_engine_update   (IBusPinYinEngine       *pinyin,
                                              gboolean               now);
 #if 0
 static void ibus_config_value_changed       (IBusConfig             *config,
@@ -109,20 +111,20 @@ ibus_pinyin_engine_get_type (void)
     static GType type = 0;
 
     static const GTypeInfo type_info = {
-        sizeof (IBusPinyinEngineClass),
+        sizeof (IBusPinYinEngineClass),
         (GBaseInitFunc) NULL,
         (GBaseFinalizeFunc) NULL,
         (GClassInitFunc) ibus_pinyin_engine_class_init,
         NULL,
         NULL,
-        sizeof (IBusPinyinEngine),
+        sizeof (IBusPinYinEngine),
         0,
         (GInstanceInitFunc) ibus_pinyin_engine_init,
     };
 
     if (type == 0) {
         type = g_type_register_static (IBUS_TYPE_ENGINE,
-                                       "IBusPinyinEngine",
+                                       "IBusPinYinEngine",
                                        &type_info,
                                        (GTypeFlags) 0);
     }
@@ -131,7 +133,7 @@ ibus_pinyin_engine_get_type (void)
 }
 
 static void
-ibus_pinyin_engine_class_init (IBusPinyinEngineClass *klass)
+ibus_pinyin_engine_class_init (IBusPinYinEngineClass *klass)
 {
     GObjectClass *object_class = G_OBJECT_CLASS (klass);
     IBusObjectClass *ibus_object_class = IBUS_OBJECT_CLASS (klass);
@@ -162,7 +164,7 @@ ibus_pinyin_engine_class_init (IBusPinyinEngineClass *klass)
 }
 
 static void
-ibus_pinyin_engine_init (IBusPinyinEngine *pinyin)
+ibus_pinyin_engine_init (IBusPinYinEngine *pinyin)
 {
     pinyin->db = py_db_new ();
 
@@ -197,9 +199,9 @@ ibus_pinyin_engine_constructor (GType                   type,
                                 guint                   n_construct_params,
                                 GObjectConstructParam  *construct_params)
 {
-    IBusPinyinEngine *pinyin;
+    IBusPinYinEngine *pinyin;
 
-    pinyin = (IBusPinyinEngine *) G_OBJECT_CLASS (parent_class)->constructor (type,
+    pinyin = (IBusPinYinEngine *) G_OBJECT_CLASS (parent_class)->constructor (type,
                                                        n_construct_params,
                                                        construct_params);
 
@@ -208,7 +210,7 @@ ibus_pinyin_engine_constructor (GType                   type,
 
 
 static void
-ibus_pinyin_engine_destroy (IBusPinyinEngine *pinyin)
+ibus_pinyin_engine_destroy (IBusPinYinEngine *pinyin)
 {
     if (pinyin->db) {
         py_db_free (pinyin->db);
@@ -253,7 +255,7 @@ ibus_pinyin_engine_destroy (IBusPinyinEngine *pinyin)
 }
 
 static void
-ibus_pinyin_engine_update_pinyin_array (IBusPinyinEngine *pinyin)
+ibus_pinyin_engine_update_pinyin_array (IBusPinYinEngine *pinyin)
 {
     if (pinyin->input_buffer && pinyin->input_buffer->len) {
         pinyin->pinyin_len = py_parse_pinyin (
@@ -268,12 +270,12 @@ ibus_pinyin_engine_update_pinyin_array (IBusPinyinEngine *pinyin)
 }
 
 static void
-ibus_pinyin_engine_update_preedit_text (IBusPinyinEngine *pinyin)
+ibus_pinyin_engine_update_preedit_text (IBusPinYinEngine *pinyin)
 {
 }
 
 static void
-ibus_pinyin_engine_update_auxiliray_text (IBusPinyinEngine *pinyin)
+ibus_pinyin_engine_update_auxiliray_text (IBusPinYinEngine *pinyin)
 {
     IBusText *text;
 
@@ -340,7 +342,7 @@ ibus_pinyin_engine_update_auxiliray_text (IBusPinyinEngine *pinyin)
 }
 
 static void
-ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
+ibus_pinyin_engine_update_lookup_table (IBusPinYinEngine *pinyin)
 {
     gboolean retval;
     gint i;
@@ -383,7 +385,7 @@ ibus_pinyin_engine_update_lookup_table (IBusPinyinEngine *pinyin)
 }
 
 static gboolean
-ibus_pinyin_engine_delay_update_cb (IBusPinyinEngine *pinyin)
+ibus_pinyin_engine_delay_update_cb (IBusPinYinEngine *pinyin)
 {
     if (pinyin->need_update > 0) {
         ibus_pinyin_engine_update (pinyin, TRUE);
@@ -392,7 +394,7 @@ ibus_pinyin_engine_delay_update_cb (IBusPinyinEngine *pinyin)
 }
 
 static void
-ibus_pinyin_engine_update (IBusPinyinEngine *pinyin,
+ibus_pinyin_engine_update (IBusPinYinEngine *pinyin,
                            gboolean          now)
 {
     if (now || pinyin->need_update >= 4) {
@@ -412,28 +414,28 @@ ibus_pinyin_engine_update (IBusPinyinEngine *pinyin,
 
 #if 0
 static void
-ibus_pinyin_engine_commit_current_candidate (IBusPinyinEngine *pinyin)
+ibus_pinyin_engine_commit_current_candidate (IBusPinYinEngine *pinyin)
 {
 }
 
 static void
-ibus_pinyin_engine_open_lookup_table (IBusPinyinEngine *pinyin)
+ibus_pinyin_engine_open_lookup_table (IBusPinYinEngine *pinyin)
 {
 }
 
 static void
-ibus_pinyin_engine_close_lookup_table (IBusPinyinEngine *pinyin)
+ibus_pinyin_engine_close_lookup_table (IBusPinYinEngine *pinyin)
 {
 }
 
 static void
-ibus_pinyin_engine_toggle_lookup_table (IBusPinyinEngine *pinyin)
+ibus_pinyin_engine_toggle_lookup_table (IBusPinYinEngine *pinyin)
 {
 }
 #endif
 
 static gboolean
-ibus_pinyin_engine_append_char (IBusPinyinEngine *pinyin,
+ibus_pinyin_engine_append_char (IBusPinYinEngine *pinyin,
                                 gint              c,
                                 gboolean          update)
 {
@@ -446,7 +448,7 @@ ibus_pinyin_engine_append_char (IBusPinyinEngine *pinyin,
 }
 
 static gboolean
-ibus_pinyin_engine_move_input_cursor (IBusPinyinEngine *pinyin,
+ibus_pinyin_engine_move_input_cursor (IBusPinYinEngine *pinyin,
                                       gboolean          left,
                                       gint              type,
                                       gboolean          update)
@@ -493,7 +495,7 @@ ibus_pinyin_engine_move_input_cursor (IBusPinyinEngine *pinyin,
 }
 
 static gboolean
-ibus_pinyin_engine_remove_input (IBusPinyinEngine *pinyin,
+ibus_pinyin_engine_remove_input (IBusPinYinEngine *pinyin,
                                  gboolean          before,
                                  gboolean          word,
                                  gboolean          update)
@@ -536,7 +538,7 @@ ibus_pinyin_engine_remove_input (IBusPinyinEngine *pinyin,
 }
 
 static gboolean
-ibus_pinyin_engine_reset_input (IBusPinyinEngine *pinyin,
+ibus_pinyin_engine_reset_input (IBusPinYinEngine *pinyin,
                                 gboolean          update)
 {
     g_string_truncate (pinyin->input_buffer, 0);
@@ -555,7 +557,7 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                                       guint           keycode,
                                       guint           modifiers)
 {
-    IBusPinyinEngine *pinyin = (IBusPinyinEngine *) engine;
+    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
 
     if (modifiers & IBUS_RELEASE_MASK) {
         return TRUE;

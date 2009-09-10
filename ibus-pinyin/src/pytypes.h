@@ -1,6 +1,8 @@
 /* vim:set et sts=4: */
-#ifndef __PINYIN_H_
-#define __PINYIN_H_
+#ifndef __PY_TYPE_H_
+#define __PY_TYPE_H_
+
+namespace PY {
 
 #define PINYIN_ID_VOID  (0)
 #define PINYIN_ID_B     (1)
@@ -107,39 +109,6 @@ struct _PinYin {
     const int   flags;
 };
 
-#ifdef USE_PINYIN_NEW
-static struct pinyin_t *
-pinyin_new (const gchar *text,
-            const gchar *pinyin,
-            const gchar *sheng,
-            const gchar *yun,
-            gint         sheng_id,
-            gint         yun_id,
-            const gchar *fsheng,
-            const gchar *fyun,
-            gint         fsheng_id,
-            gint         fyun_id,
-            int          len)
-{
-   struct pinyin_t *py;
-   py = g_slice_new (struct pinyin_t);
-   py->text = text;
-   py->pinyin = pinyin;
-   py->sheng = sheng;
-   py->yun = yun;
-   py->sheng_id = sheng_id;
-   py->yun_id = yun_id;
-   py->len = len;
-   return py;
-}
-#endif
-
-#define pinyin_free(py) g_slice_free (struct pinyin_t, py)
-
-#define PINYIN_TEXT(p)      (((struct pinyin_t *)p)->text)
-#define PINYIN_PINYIN(p)    (((struct pinyin_t *)p)->pinyin)
-#define PINYIN_SHENG(p)     (((struct pinyin_t *)p)->sheng)
-#define PINYIN_YUN(p)       (((struct pinyin_t *)p)->yun)
-#define PINYIN_LEN(p)       (((struct pinyin_t *)p)->len)
+};
 
 #endif
