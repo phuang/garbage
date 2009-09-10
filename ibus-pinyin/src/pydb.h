@@ -22,8 +22,8 @@ public:
 
 private:
     gboolean queryInternal (const PinYinArray &pinyin,
-                            gint               pinyin_begin,
-                            gint               pinyin_len,
+                            guint              pinyin_begin,
+                            guint              pinyin_len,
                             gint               m,
                             guint              option,
                             PhraseArray       &result);

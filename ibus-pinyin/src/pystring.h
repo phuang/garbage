@@ -92,6 +92,11 @@ public:
         return *this;
     }
 
+    String & operator << (guint d) {
+        g_string_append_printf (m_string, "%u", d);
+        return *this;
+    }
+    
     String & operator += (gint ch) {
         g_string_append_c (m_string, ch);
         return *this;

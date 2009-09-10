@@ -102,7 +102,7 @@ _conditions_append_vprintf (Array<String *> &array,
     g_vsnprintf (str, sizeof(str), fmt, args);
 
     for (gint i = begin; i < end; i++) {
-        *array[i] += str;
+        *array[i] << str;
     }
 }
 
@@ -216,25 +216,25 @@ pinyin_option_check_yun (guint option, gint id, gint fid)
 
 gboolean
 Database::queryInternal (const PinYinArray &pinyin,
-                         gint               pinyin_begin,
-                         gint               pinyin_len,
+                         guint              pinyin_begin,
+                         guint              pinyin_len,
                          gint               m,
                          guint              option,
                          PhraseArray       &result)
 {
-    sqlite3_stmt *stmt;
-    gint i;
+    if (G_UNLIKELY (pinyin_begin > pinyin.length ()))
+        pinyin_begin = pinyin.length ();
 
-    if (pinyin_len > pinyin.length () - pinyin_begin)
+    if (G_UNLIKELY (pinyin_len > pinyin.length () - pinyin_begin))
         pinyin_len = pinyin.length () - pinyin_begin;
-    if (pinyin_len > 16)
+    if (G_UNLIKELY (pinyin_len > 16))
         return FALSE;
 
     /* prepare sql */
     m_conditions.setSize (1);
     m_conditions[0] = this->string (0);
 
-    for (i = 0; i < pinyin_len; i++) {
+    for (guint i = 0; i < pinyin_len; i++) {
         const PinYin *p;
         gboolean fs1, fs2;
         p = pinyin[i + pinyin_begin];
@@ -242,11 +242,11 @@ Database::queryInternal (const PinYinArray &pinyin,
         fs1 = pinyin_option_check_sheng (option, p->sheng_id, p->fsheng_id);
         fs2 = pinyin_option_check_sheng (option, p->sheng_id, p->fsheng_id_2);
 
-        if (i > 0)
+        if (G_LIKELY (i > 0))
             _conditions_append_printf (m_conditions, 0, m_conditions.length (), " AND ");
 
         if (fs1 || fs2) {
-            if (i < DB_INDEX_SIZE) {
+            if (G_LIKELY (i < DB_INDEX_SIZE)) {
                 if (fs1 && fs2 == 0) {
                     conditionsDouble ();
                     _conditions_append_printf (m_conditions,
@@ -305,7 +305,7 @@ Database::queryInternal (const PinYinArray &pinyin,
 
         if (p->yun_id != PINYIN_ID_VOID) {
             if (pinyin_option_check_yun (option, p->yun_id, p->fyun_id)) {
-                if (i < DB_INDEX_SIZE) {
+                if (G_LIKELY (i < DB_INDEX_SIZE)) {
                     conditionsDouble ();
                     _conditions_append_printf (m_conditions,
                                                0, m_conditions.length ()  >> 1,
@@ -328,11 +328,10 @@ Database::queryInternal (const PinYinArray &pinyin,
         }
     }
 
-    m_sql.printf ( "SELECT * FROM main.py_phrase_%d\n"
-                   "  WHERE\n",
-                   pinyin_len - 1);
+    m_sql << "SELECT * FROM main.py_phrase_" << pinyin_len - 1 << "\n"
+             "  WHERE\n";
 
-    for (i = 0; i < m_conditions.length (); i++) {
+    for (guint i = 0; i < m_conditions.length (); i++) {
         if (i == 0)
             m_sql << "    (" << (*m_conditions[i]) << ")\n";
         else
@@ -349,6 +348,7 @@ Database::queryInternal (const PinYinArray &pinyin,
 #endif
 
     /* query database */
+    sqlite3_stmt *stmt;
     if (sqlite3_prepare (m_db, (const gchar *) m_sql, -1, &stmt, NULL) != SQLITE_OK) {
         g_debug ("parse sql failed!");
         return FALSE;
@@ -362,7 +362,7 @@ Database::queryInternal (const PinYinArray &pinyin,
         p.freq = sqlite3_column_int (stmt, 1);
         p.len = pinyin_len;
 
-        for (int i = 0; i < pinyin_len; i++) {
+        for (guint i = 0; i < pinyin_len; i++) {
             p.pinyin_id[i][0] = sqlite3_column_int (stmt, (i << 1) + 2);
             p.pinyin_id[i][1] = sqlite3_column_int (stmt, (i << 1) + 3);
         }
