@@ -71,10 +71,12 @@ private:
     static guint m_option;
 };
 
+/* init static members */
 Database PinYinEngine::m_db;
 guint PinYinEngine::m_option = 0xffffffff;
 PinYinParser PinYinEngine::m_parser (PinYinEngine::m_option);
 
+/* constructor */
 PinYinEngine::PinYinEngine (IBusEngine *engine)
     : m_engine (engine),
       m_need_update (0),
@@ -88,6 +90,7 @@ PinYinEngine::PinYinEngine (IBusEngine *engine)
     m_lookup_table = ibus_lookup_table_new (10, 0, TRUE, FALSE);
 }
 
+/* destructor */
 PinYinEngine::~PinYinEngine (void)
 {
     g_object_unref (m_engine);
@@ -95,6 +98,7 @@ PinYinEngine::~PinYinEngine (void)
     // g_object_unref (m_mode_prop);
     // g_object_unref (m_props);
 }
+
 
 gboolean
 PinYinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
@@ -305,18 +309,10 @@ PinYinEngine::updateLookupTable ()
                                           TRUE);
 }
 
-#if 0
-static gboolean
-ibus_pinyin_engine_delay_update_cb (IBusPinYinEngine *pinyin)
-{
-    if (pinyin->need_update > 0) {
-        ibus_pinyin_engine_update (pinyin, TRUE);
-    }
-    return FALSE;
-}
-#endif
 
 
+
+/* code of engine class of GObject */
 #define IBUS_PINYIN_ENGINE(obj)             \
     (G_TYPE_CHECK_INSTANCE_CAST ((obj), IBUS_TYPE_PINYIN_ENGINE, IBusPinYinEngine))
 #define IBUS_PINYIN_ENGINE_CLASS(klass)     \
@@ -487,33 +483,6 @@ ibus_pinyin_engine_destroy (IBusPinYinEngine *pinyin)
     IBUS_OBJECT_CLASS (parent_class)->destroy ((IBusObject *)pinyin);
 }
 
-
-
-
-#if 0
-static void
-ibus_pinyin_engine_commit_current_candidate (IBusPinYinEngine *pinyin)
-{
-}
-
-static void
-ibus_pinyin_engine_open_lookup_table (IBusPinYinEngine *pinyin)
-{
-}
-
-static void
-ibus_pinyin_engine_close_lookup_table (IBusPinYinEngine *pinyin)
-{
-}
-
-static void
-ibus_pinyin_engine_toggle_lookup_table (IBusPinYinEngine *pinyin)
-{
-}
-#endif
-
-
-
 static gboolean
 ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                                       guint           keyval,
@@ -525,88 +494,24 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
     return pinyin->engine->processKeyEvent (keyval, keycode, modifiers);
 }
 
-static void
-ibus_pinyin_engine_focus_in (IBusEngine *engine)
-{
-
-    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
-    pinyin->engine->focusIn ();
-
-    parent_class->focus_in (engine);
-}
-
-static void
-ibus_pinyin_engine_focus_out (IBusEngine *engine)
-{
-    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
-    pinyin->engine->focusOut ();
-
-    parent_class->focus_out (engine);
-}
-
-static void
-ibus_pinyin_engine_reset (IBusEngine *engine)
-{
-    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
-    pinyin->engine->reset ();
-
-    parent_class->reset (engine);
-}
-
-static void
-ibus_pinyin_engine_enable (IBusEngine *engine)
-{
-    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
-    pinyin->engine->enable ();
-
-    parent_class->enable (engine);
-}
-
-static void
-ibus_pinyin_engine_disable (IBusEngine *engine)
-{
-    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
-    pinyin->engine->disable ();
-
-    parent_class->disable (engine);
-}
-
-static void
-ibus_pinyin_engine_page_up (IBusEngine *engine)
-{
-    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
-    pinyin->engine->pageUp ();
-
-    parent_class->page_up (engine);
-}
-
-static void
-ibus_pinyin_engine_page_down (IBusEngine *engine)
-{
-    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
-    pinyin->engine->pageDown ();
-
-    parent_class->page_down (engine);
-}
-
-static void
-ibus_pinyin_engine_cursor_up (IBusEngine *engine)
-{
-    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
-    pinyin->engine->cursorDown ();
-
-    parent_class->cursor_up (engine);
-}
-
-static void
-ibus_pinyin_engine_cursor_down (IBusEngine *engine)
-{
-    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
-    pinyin->engine->cursorUp ();
-
-    parent_class->cursor_down (engine);
-}
-
+#define FUNCTION(name, Name)                                        \
+    static void                                                     \
+    ibus_pinyin_engine_##name (IBusEngine *engine)                  \
+    {                                                               \
+        IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;     \
+        pinyin->engine->Name ();                                    \
+        parent_class->name (engine);                                \
+    }
+FUNCTION(focus_in,    focusIn)
+FUNCTION(focus_out,   focusOut)
+FUNCTION(reset,       reset)
+FUNCTION(enable,      enable)
+FUNCTION(disable,     disable)
+FUNCTION(page_up,     pageUp)
+FUNCTION(page_down,   pageDown)
+FUNCTION(cursor_up,   cursorUp)
+FUNCTION(cursor_down, cursorDown)
+#undef FUNCTION
 #if 0
 static void
 ibus_config_value_changed (IBusConfig   *config,
