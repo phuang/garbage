@@ -49,7 +49,7 @@ public:
 private:
     static gboolean delayUpdateHandler (PinYinEngine *pinyin) {
         if (pinyin->m_need_update > 0)
-            pinyin->update ();
+            pinyin->update (TRUE);
         return FALSE;
     }
 private:

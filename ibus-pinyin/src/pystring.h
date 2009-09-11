@@ -49,7 +49,7 @@ public:
         g_string_append (m_string, str);
         return *this;
     }
-    
+
     String & append (const gchar *str, gint len) {
         g_string_append_len (m_string, str, len);
         return *this;
@@ -80,8 +80,9 @@ public:
         return *this;
     }
 
-    void erase (gint pos, gint len) {
+    String & erase (gint pos, gint len) {
         g_string_erase (m_string, pos, len);
+        return *this;
     }
 
     String & operator = (const gchar *str) {
@@ -118,7 +119,7 @@ public:
         g_string_append_c (m_string, ch);
         return *this;
     }
-    
+
     String & operator += (gint ch) {
         g_string_append_c (m_string, ch);
         return *this;

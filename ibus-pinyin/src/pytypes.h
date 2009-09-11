@@ -115,9 +115,9 @@ struct _PinYin {
 typedef struct _Phrase Phrase;
 struct _Phrase {
     gchar phrase[(MAX_PHRASE_LEN + 1) * MAX_UTF8_LEN];
-    gint freq;
-    gint pinyin_id[MAX_PHRASE_LEN][2];
-    gint len;
+    gint  freq;
+    gint  pinyin_id[MAX_PHRASE_LEN][2];
+    gint  len;
 };
 
 };

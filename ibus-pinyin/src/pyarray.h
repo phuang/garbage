@@ -26,20 +26,24 @@ public:
         return m_array->len;
     }
 
-    void setSize (guint size) {
+    Array<T> & setSize (guint size) {
         g_array_set_size (m_array, size);
+        return *this;
     }
 
-    void removeAll () {
+    Array<T> & removeAll () {
         setSize (0);
+        return *this;
     }
 
-    void append (const T & v) {
+    Array<T> & append (const T & v) {
         g_array_append_val (m_array, v);
+        return *this;
     }
 
-    void push (const T & v) {
+    Array<T> & push (const T & v) {
         append (v);
+        return *this;
     }
 
     T & pop (void) {
@@ -49,8 +53,7 @@ public:
     }
 
     Array<T> & operator << (const T & v) {
-        append (v);
-        return *this;
+        return append (v);
     }
 
     T & operator[] (guint i) {
