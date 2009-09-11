@@ -21,13 +21,12 @@ public:
                     guint              option,
                     PhraseArray       &result);
 
-private:
-    gboolean queryInternal (const PinYinArray &pinyin,
-                            guint              pinyin_begin,
-                            guint              pinyin_len,
-                            gint               m,
-                            guint              option,
-                            PhraseArray       &result);
+    gboolean query (const PinYinArray &pinyin,
+                    guint              pinyin_begin,
+                    guint              pinyin_len,
+                    gint               m,
+                    guint              option,
+                    PhraseArray       &result);
 
     String *string (guint i) {
         guint j;

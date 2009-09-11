@@ -35,10 +35,6 @@ public:
     void cursorUp () {}
     void cursorDown () {}
 
-    void updatePreeditText ();
-    void updateAuxiliaryText ();
-    void updateLookupTable ();
-
     void update (gboolean now = TRUE) {
         if (now || m_need_update >= 4) {
             updateLookupTable ();
@@ -54,6 +50,11 @@ public:
     }
 
 private:
+    void updatePreeditText ();
+    void updateAuxiliaryText ();
+    void updateLookupTable ();
+    void updatePhrases ();
+
     static gboolean delayUpdateHandler (PinYinEngine *pinyin) {
         if (pinyin->m_need_update > 0)
             pinyin->update (TRUE);

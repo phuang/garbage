@@ -14,7 +14,7 @@ typedef Array<const PinYin *> PinYinArray;
 class PinYinParser {
 
 public:
-    PinYinParser (void) {};
+    PinYinParser (void) {}
     ~PinYinParser (void) {}
 
     guint parse (const String  &pinyin, gint len, guint option, PinYinArray &result);

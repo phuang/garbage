@@ -76,11 +76,11 @@ Database::query (const PinYinArray &pinyin,
 
     for (i = len; i > 0; i--) {
         if (m < 0) {
-            if (!queryInternal (pinyin, 0, i, -1, option, result))
+            if (!query (pinyin, 0, i, -1, option, result))
                 return FALSE;
         }
         else {
-            if (!queryInternal (pinyin, 0, i, m - result.length (), option, result))
+            if (!query (pinyin, 0, i, m - result.length (), option, result))
                 return FALSE;
             if (result.length () >= m)
                 break;
@@ -215,12 +215,12 @@ pinyin_option_check_yun (guint option, gint id, gint fid)
 }
 
 gboolean
-Database::queryInternal (const PinYinArray &pinyin,
-                         guint              pinyin_begin,
-                         guint              pinyin_len,
-                         gint               m,
-                         guint              option,
-                         PhraseArray       &result)
+Database::query (const PinYinArray &pinyin,
+                 guint              pinyin_begin,
+                 guint              pinyin_len,
+                 gint               m,
+                 guint              option,
+                 PhraseArray       &result)
 {
     if (G_UNLIKELY (pinyin_begin > pinyin.length ()))
         pinyin_begin = pinyin.length ();

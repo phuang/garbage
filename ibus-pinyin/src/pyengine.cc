@@ -8,7 +8,7 @@ namespace PY {
 
 /* init static members */
 Database PinYinEngine::m_db;
-guint PinYinEngine::m_option = 0xffffffff;
+guint PinYinEngine::m_option = 0x0;
 
 /* constructor */
 PinYinEngine::PinYinEngine (IBusEngine *engine)
@@ -145,18 +145,51 @@ PinYinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 void
 PinYinEngine::updatePreeditText (void)
 {
-    /* TODO */
+    if (m_editor.pinyinLength () == 0) {
+        ibus_engine_hide_preedit_text (m_engine);
+        return;
+    }
+
+    if (G_UNLIKELY (m_phrases.length () == 0))
+        updatePhrases ();
+
+    guint len;
+    len = m_phrases[0].len;
+    String text (m_phrases[0].phrase);
+
+    PhraseArray phrases;
+
+    while (len < m_editor.pinyin ().length ()) {
+        gboolean retval;
+        gint i = MIN (m_editor.pinyin ().length () - len, MAX_PHRASE_LEN);
+        phrases.removeAll ();
+        while (i > 0) {
+            retval = m_db.query (m_editor.pinyin (),
+                                 len,
+                                 i,
+                                 1,
+                                 m_option,
+                                 phrases);
+            if (retval && phrases.length () > 0)
+                break;
+            i--;
+        }
+        g_assert (i != 0);
+        text << phrases[0].phrase;
+        len += i;
+    }
+
+    Pointer<IBusText> preedit_text = ibus_text_new_from_static_string ((const gchar *) text);
+    ibus_engine_update_preedit_text (m_engine, preedit_text, 0, TRUE);
 }
 
 void
 PinYinEngine::updateAuxiliaryText (void)
 {
 
-    Pointer<IBusText> preedit_text;
     /* clear pinyin array */
     if (m_editor.isEmpty ()) {
-        preedit_text = ibus_text_new_from_static_string ("");
-        ibus_engine_update_auxiliary_text (m_engine, preedit_text, FALSE);
+        ibus_engine_hide_auxiliary_text (m_engine);
         return;
     }
 
@@ -183,43 +216,23 @@ PinYinEngine::updateAuxiliaryText (void)
         text << '|' << ((const gchar *)m_editor.text ()) + m_editor.cursor ();
     }
 
-    preedit_text = ibus_text_new_from_static_string (text);
-    ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, len, cursor_pos);
-    ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, cursor_pos + 1, -1);
+    Pointer<IBusText> aux_text = ibus_text_new_from_static_string (text);
+    ibus_text_append_attribute (aux_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, len, cursor_pos);
+    ibus_text_append_attribute (aux_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, cursor_pos + 1, -1);
     ibus_engine_update_auxiliary_text (m_engine,
-                                        preedit_text,
-                                        TRUE);
+                                       aux_text,
+                                       TRUE);
 }
 
 void
 PinYinEngine::updateLookupTable ()
 {
-    gboolean retval;
+
+    updatePhrases ();
 
     ibus_lookup_table_clear (m_lookup_table);
 
-    if (G_UNLIKELY (m_editor.pinyinLength () == 0)) {
-        /*
-        ibus_engine_update_lookup_table_fast (m_engine,
-                                              m_lookup_table,
-                                              FALSE);
-        */
-        ibus_engine_hide_lookup_table (m_engine);
-        return;
-    }
-
-    m_phrases.removeAll ();
-    retval = m_db.query (m_editor.pinyin (),
-                         30,
-                         m_option,
-                         m_phrases);
-
-    if (G_UNLIKELY (retval == FALSE || m_phrases.length () == 0)) {
-        /*
-        ibus_engine_update_lookup_table_fast (m_engine,
-                                              m_lookup_table,
-                                              FALSE);
-        */
+    if (G_UNLIKELY (m_phrases.length () == 0)) {
         ibus_engine_hide_lookup_table (m_engine);
         return;
     }
@@ -236,6 +249,19 @@ PinYinEngine::updateLookupTable ()
 }
 
 
+void
+PinYinEngine::updatePhrases ()
+{
+    gboolean retval;
+    
+    m_phrases.removeAll ();
+    if (G_UNLIKELY (m_editor.pinyinLength () != 0)) {
+        retval = m_db.query (m_editor.pinyin (),
+                             30,
+                             m_option,
+                             m_phrases);
+    }
+}
 
 
 /* code of engine class of GObject */

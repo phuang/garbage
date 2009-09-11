@@ -2,7 +2,7 @@
 
 namespace PY {
 
-guint Editor::m_option = 0xffffffff;
+guint Editor::m_option = 0x0;
 PinYinParser Editor::m_parser;
 
 Editor::Editor (void)
@@ -18,8 +18,11 @@ Editor::Editor (void)
 gboolean
 Editor::insert (gint ch)
 {
-    m_text.insert (m_cursor, ch);
-    if (G_LIKELY (m_cursor++ == m_pinyin_len))
+    m_text.insert (m_cursor++, ch);
+    if (G_UNLIKELY ((m_option & PINYIN_SIMPLE_PINYIN) == 0))
+        updatePinYin ();
+    else if (G_LIKELY ((m_cursor - 1 == m_pinyin_len) ||
+                  (m_cursor - 2 == m_pinyin_len && m_text[m_pinyin_len] == '\'')))
         updatePinYin ();
     return true;
 }
@@ -152,7 +155,7 @@ Editor::moveCursorToEnd (void)
 void
 Editor::updatePinYin (void)
 {
-    if (m_text.isEmpty ()) {
+    if (G_UNLIKELY (m_text.isEmpty ())) {
         m_pinyin.removeAll ();
         m_pinyin_len = 0;
     }

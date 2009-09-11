@@ -25,22 +25,24 @@ is_pinyin (const gchar *p,
     gchar buf[7];
     const PinYin *result;
 
-    if (len > 6)
+    if (G_UNLIKELY (len > 6))
         return NULL;
 
-    if (len > end - p)
+    if (G_UNLIKELY (len > end - p))
         return NULL;
 
-    if (len > 0) {
+    if (G_LIKELY (len > 0)) {
         strncpy (buf, p, len);
         buf[len] = 0;
         result = (const PinYin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR,
                                             sizeof (PinYin), py_cmp);
-        if (result &&
-            result->flags != 0 &&
-            ((result->flags & option) == 0))
+        if (G_UNLIKELY (result == NULL))
             return NULL;
-        return result;
+        if (G_LIKELY (result->flags == 0))
+            return result;
+        if(G_LIKELY (result->flags & option))
+            return result;
+        return NULL;
     }
 
     len = strnlen (p, 6);
@@ -51,7 +53,7 @@ is_pinyin (const gchar *p,
         buf[len] = 0;
         result = (const PinYin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR,
                                             sizeof (PinYin), py_cmp);
-        if (result && ((result->flags == 0) || (result->flags & option))) {
+        if (G_UNLIKELY (result && ((result->flags == 0) || (result->flags & option)))) {
             return result;
         }
     }
@@ -108,7 +110,7 @@ PinYinParser::parse (const String  &pinyin, gint len, guint option, PinYinArray 
 
     for (; p < end; ) {
 
-        if (is_rng) {
+        if (G_UNLIKELY (is_rng)) {
             switch (*p) {
             case 'i':
             case 'u':
@@ -182,11 +184,11 @@ PinYinParser::parse (const String  &pinyin, gint len, guint option, PinYinArray 
         }
     }
 
-    if (p == (const gchar *)pinyin) {
+    if (G_UNLIKELY (p == (const gchar *)pinyin)) {
         return 0;
     }
 
-    if (*(p - 1) == '\'')
+    if (G_UNLIKELY (*(p - 1) == '\''))
         p --;
 
     return p - (const gchar *)pinyin;
