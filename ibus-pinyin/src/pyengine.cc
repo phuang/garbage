@@ -3,72 +3,8 @@
 #include <ibus.h>
 #include <string.h>
 #include "pyengine.h"
-#include "pydatabase.h"
-#include "pyeditor.h"
 
 namespace PY {
-
-class PinYinEngine {
-public:
-    PinYinEngine (IBusEngine *engine);
-    ~PinYinEngine (void);
-
-    gboolean processKeyEvent (guint keyval, guint keycode, guint modifiers);
-    void focusIn () {}
-    void focusOut () {}
-
-    void reset (gboolean need_update = TRUE) {
-        m_editor.reset ();
-        update (need_update);
-    }
-
-    void enable () {}
-    void disable () {}
-    void pageUp () {}
-    void pageDown () {}
-    void cursorUp () {}
-    void cursorDown () {}
-
-    void updatePreeditText ();
-    void updateAuxiliaryText ();
-    void updateLookupTable ();
-
-    void update (gboolean now = TRUE) {
-        if (now || m_need_update >= 4) {
-            updateLookupTable ();
-            updateAuxiliaryText ();
-            updatePreeditText ();
-            m_need_update = 0;
-        } else {
-            if (m_need_update == 0) {
-                g_idle_add ((GSourceFunc) delayUpdateHandler, this);
-            }
-            m_need_update ++;
-        }
-    }
-private:
-    static gboolean delayUpdateHandler (PinYinEngine *pinyin) {
-        if (pinyin->m_need_update > 0)
-            pinyin->update (TRUE);
-        return FALSE;
-    }
-private:
-    IBusEngine *m_engine;
-    Editor m_editor;
-
-    gint m_need_update;
-
-    PhraseArray m_phrases;
-
-    IBusLookupTable *m_lookup_table;
-    IBusProperty    *m_mode_prop;
-    IBusPropList    *m_props;
-
-private:
-    // static members
-    static Database m_db;
-    static guint m_option;
-};
 
 /* init static members */
 Database PinYinEngine::m_db;
@@ -340,9 +276,6 @@ struct _IBusPinYinEngineClass {
 /* functions prototype */
 static void     ibus_pinyin_engine_class_init   (IBusPinYinEngineClass  *klass);
 static void     ibus_pinyin_engine_init         (IBusPinYinEngine       *pinyin);
-static GObject* ibus_pinyin_engine_constructor  (GType                   type,
-                                                 guint                   n_construct_params,
-                                                 GObjectConstructParam  *construct_params);
 static void     ibus_pinyin_engine_destroy      (IBusPinYinEngine       *pinyin);
 static gboolean ibus_pinyin_engine_process_key_event
                                                 (IBusEngine             *engine,
@@ -428,7 +361,6 @@ ibus_pinyin_engine_class_init (IBusPinYinEngineClass *klass)
 
     parent_class = (IBusEngineClass *) g_type_class_peek_parent (klass);
 
-    object_class->constructor = ibus_pinyin_engine_constructor;
     ibus_object_class->destroy = (IBusObjectDestroyFunc) ibus_pinyin_engine_destroy;
 
     engine_class->process_key_event = ibus_pinyin_engine_process_key_event;
@@ -455,21 +387,6 @@ ibus_pinyin_engine_init (IBusPinYinEngine *pinyin)
     pinyin->engine = new PinYinEngine (IBUS_ENGINE (pinyin));
 }
 
-static GObject*
-ibus_pinyin_engine_constructor (GType                   type,
-                                guint                   n_construct_params,
-                                GObjectConstructParam  *construct_params)
-{
-    IBusPinYinEngine *pinyin;
-
-    pinyin = (IBusPinYinEngine *) G_OBJECT_CLASS (parent_class)->constructor (type,
-                                                       n_construct_params,
-                                                       construct_params);
-
-    return (GObject *)pinyin;
-}
-
-
 static void
 ibus_pinyin_engine_destroy (IBusPinYinEngine *pinyin)
 {
@@ -477,7 +394,6 @@ ibus_pinyin_engine_destroy (IBusPinYinEngine *pinyin)
         delete pinyin->engine;
         pinyin->engine = NULL;
     }
-
     IBUS_OBJECT_CLASS (parent_class)->destroy ((IBusObject *)pinyin);
 }
 
@@ -488,7 +404,6 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                                       guint           modifiers)
 {
     IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
-
     return pinyin->engine->processKeyEvent (keyval, keycode, modifiers);
 }
 
@@ -510,6 +425,8 @@ FUNCTION(page_down,   pageDown)
 FUNCTION(cursor_up,   cursorUp)
 FUNCTION(cursor_down, cursorDown)
 #undef FUNCTION
+
+
 #if 0
 static void
 ibus_config_value_changed (IBusConfig   *config,
