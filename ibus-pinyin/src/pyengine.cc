@@ -15,12 +15,13 @@ PinYinEngine::PinYinEngine (IBusEngine *engine)
     : m_engine (engine),
       m_need_update (0),
       m_phrases (32),
+      m_commit_phrases (8),
+      m_commit_phrases_len (0),
       m_lookup_table (NULL),
       m_mode_prop (NULL),
       m_props (NULL)
 
 {
-    g_object_ref (m_engine);
     m_lookup_table = ibus_lookup_table_new (10, 0, TRUE, FALSE);
 }
 
@@ -69,6 +70,16 @@ PinYinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 
     if (G_UNLIKELY (m_editor.isEmpty ()))
         return FALSE;
+
+    if (keyval >= IBUS_1 && keyval <= IBUS_0) {
+        guint i;
+        if (G_UNLIKELY (keyval == IBUS_0))
+            i = 10;
+        else
+            i = keyval - IBUS_1;
+        selectPhrase (i);
+        return TRUE;
+    }
 
     /* process some cursor control keys */
     gboolean _update = FALSE;
@@ -145,7 +156,7 @@ PinYinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 void
 PinYinEngine::updatePreeditText (void)
 {
-    if (m_editor.pinyinLength () == 0) {
+    if (G_UNLIKELY (m_editor.pinyinLength () == 0)) {
         ibus_engine_hide_preedit_text (m_engine);
         return;
     }
@@ -188,7 +199,7 @@ PinYinEngine::updateAuxiliaryText (void)
 {
 
     /* clear pinyin array */
-    if (m_editor.isEmpty ()) {
+    if (G_UNLIKELY (m_editor.isEmpty ())) {
         ibus_engine_hide_auxiliary_text (m_engine);
         return;
     }
@@ -206,7 +217,7 @@ PinYinEngine::updateAuxiliaryText (void)
     }
 
     len = text.length ();
-    if (m_editor.pinyinLength () == m_editor.cursor ()) {
+    if (G_UNLIKELY (m_editor.pinyinLength () == m_editor.cursor ())) {
         cursor_pos =  text.length ();
         text << '|' << ((const gchar *)m_editor.text ()) + m_editor.pinyinLength ();
     }
@@ -253,7 +264,7 @@ void
 PinYinEngine::updatePhrases ()
 {
     gboolean retval;
-    
+
     m_phrases.removeAll ();
     if (G_UNLIKELY (m_editor.pinyinLength () != 0)) {
         retval = m_db.query (m_editor.pinyin (),
@@ -262,6 +273,14 @@ PinYinEngine::updatePhrases ()
                              m_phrases);
     }
 }
+
+gboolean
+PinYinEngine::selectPhrase (guint i)
+{
+
+    return TRUE;
+}
+
 
 
 /* code of engine class of GObject */

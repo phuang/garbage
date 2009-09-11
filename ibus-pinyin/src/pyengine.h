@@ -50,6 +50,7 @@ public:
     }
 
 private:
+    gboolean selectPhrase (guint i);
     void updatePreeditText ();
     void updateAuxiliaryText ();
     void updateLookupTable ();
@@ -68,6 +69,8 @@ private:
     gint m_need_update;
 
     PhraseArray m_phrases;
+    PhraseArray m_commit_phrases;
+    guint       m_commit_phrases_len;
 
     Pointer<IBusLookupTable> m_lookup_table;
     Pointer<IBusProperty>    m_mode_prop;

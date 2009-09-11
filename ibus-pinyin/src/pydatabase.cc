@@ -331,21 +331,20 @@ Database::query (const PinYinArray &pinyin,
     }
 
     m_sql = "SELECT * FROM main.py_phrase_";
-    m_sql << pinyin_len - 1 << "\n"
-             "  WHERE\n";
+    m_sql << pinyin_len - 1 << "\n WHERE\n";
 
     for (guint i = 0; i < m_conditions.length (); i++) {
         if (i == 0)
-            m_sql << "    (" << (*m_conditions[i]) << ")\n";
+            m_sql << "  (" << (*m_conditions[i]) << ")\n";
         else
-            m_sql << "    OR (" << (*m_conditions[i]) << ")\n";
+            m_sql << "  OR (" << (*m_conditions[i]) << ")\n";
     }
     m_conditions.setSize (0);
 
     if (m > 0)
-        m_sql << "  ORDER BY freq DESC LIMIT " << m;
+        m_sql << " ORDER BY freq DESC LIMIT " << m;
     else
-        m_sql << "  ORDER BY freq DESC";
+        m_sql << " ORDER BY freq DESC";
 #if 0
     g_debug ("sql =\n%s", db->sql->str);
 #endif
@@ -378,5 +377,4 @@ Database::query (const PinYinArray &pinyin,
     sqlite3_finalize (stmt);
     return TRUE;
 }
-
 
