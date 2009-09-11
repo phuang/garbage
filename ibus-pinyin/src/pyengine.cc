@@ -14,18 +14,26 @@ public:
     ~PinYinEngine (void);
 
     gboolean processKeyEvent (guint keyval, guint keycode, guint modifiers);
+    void focusIn () {}
+    void focusOut () {}
 
     void reset (gboolean need_update = TRUE) {
         m_editor.reset ();
         update (need_update);
     }
 
+    void enable () {}
+    void disable () {}
+    void pageUp () {}
+    void pageDown () {}
+    void cursorUp () {}
+    void cursorDown () {}
+
     void updatePreeditText ();
     void updateAuxiliaryText ();
     void updateLookupTable ();
 
     void update (gboolean now = TRUE) {
-        now = TRUE;
         if (now || m_need_update >= 4) {
             updateLookupTable ();
             updateAuxiliaryText ();
@@ -33,12 +41,17 @@ public:
             m_need_update = 0;
         } else {
             if (m_need_update == 0) {
-                // g_idle_add ((GSourceFunc) ibus_pinyin_engine_delay_update_cb, pinyin);
+                g_idle_add ((GSourceFunc) delayUpdateHandler, this);
             }
             m_need_update ++;
         }
     }
-
+private:
+    static gboolean delayUpdateHandler (PinYinEngine *pinyin) {
+        if (pinyin->m_need_update > 0)
+            pinyin->update ();
+        return FALSE;
+    }
 private:
     IBusEngine *m_engine;
     Editor m_editor;
@@ -515,54 +528,82 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
 static void
 ibus_pinyin_engine_focus_in (IBusEngine *engine)
 {
+
+    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
+    pinyin->engine->focusIn ();
+
     parent_class->focus_in (engine);
 }
 
 static void
 ibus_pinyin_engine_focus_out (IBusEngine *engine)
 {
+    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
+    pinyin->engine->focusOut ();
+
     parent_class->focus_out (engine);
 }
 
 static void
 ibus_pinyin_engine_reset (IBusEngine *engine)
 {
+    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
+    pinyin->engine->reset ();
+
     parent_class->reset (engine);
 }
 
 static void
 ibus_pinyin_engine_enable (IBusEngine *engine)
 {
+    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
+    pinyin->engine->enable ();
+
     parent_class->enable (engine);
 }
 
 static void
 ibus_pinyin_engine_disable (IBusEngine *engine)
 {
+    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
+    pinyin->engine->disable ();
+
     parent_class->disable (engine);
 }
 
 static void
 ibus_pinyin_engine_page_up (IBusEngine *engine)
 {
+    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
+    pinyin->engine->pageUp ();
+
     parent_class->page_up (engine);
 }
 
 static void
 ibus_pinyin_engine_page_down (IBusEngine *engine)
 {
+    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
+    pinyin->engine->pageDown ();
+
     parent_class->page_down (engine);
 }
 
 static void
 ibus_pinyin_engine_cursor_up (IBusEngine *engine)
 {
+    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
+    pinyin->engine->cursorDown ();
+
     parent_class->cursor_up (engine);
 }
 
 static void
 ibus_pinyin_engine_cursor_down (IBusEngine *engine)
 {
+    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
+    pinyin->engine->cursorUp ();
+
     parent_class->cursor_down (engine);
 }
 
