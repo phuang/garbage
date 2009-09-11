@@ -18,7 +18,7 @@ gboolean
 Editor::insert (gint ch)
 {
     m_text.insert (m_cursor, ch);
-    if (m_cursor++ == m_pinyin_len)
+    if (G_LIKELY (m_cursor++ == m_pinyin_len))
         updatePinYin ();
     return true;
 }
@@ -56,7 +56,7 @@ Editor::removeWordBefore (void)
     
     guint cursor;
 
-    if (m_cursor > m_pinyin_len) {
+    if (G_UNLIKELY (m_cursor > m_pinyin_len)) {
         cursor = m_pinyin_len;
     }
     else {

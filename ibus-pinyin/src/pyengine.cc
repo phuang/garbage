@@ -14,7 +14,6 @@ public:
     ~PinYinEngine (void);
 
     gboolean processKeyEvent (guint keyval, guint keycode, guint modifiers);
-    gboolean moveInputCursor (gboolean left, gint type, gboolean need_update = TRUE);
     
     void reset (gboolean need_update = TRUE) {
         m_editor.reset ();
@@ -44,7 +43,6 @@ private:
     IBusEngine *m_engine;
     Editor m_editor;
     
-    PinYinArray m_pinyin_array;
     gint m_need_update;
     
     PhraseArray m_phrases;
