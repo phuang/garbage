@@ -14,7 +14,7 @@ public:
     ~PinYinEngine (void);
 
     gboolean processKeyEvent (guint keyval, guint keycode, guint modifiers);
-    
+
     void reset (gboolean need_update = TRUE) {
         m_editor.reset ();
         update (need_update);
@@ -42,11 +42,11 @@ public:
 private:
     IBusEngine *m_engine;
     Editor m_editor;
-    
+
     gint m_need_update;
-    
+
     PhraseArray m_phrases;
-    
+
     IBusLookupTable *m_lookup_table;
     IBusProperty    *m_mode_prop;
     IBusPropList    *m_props;
@@ -214,16 +214,15 @@ PinYinEngine::updateAuxiliaryText (void)
         g_object_unref (preedit_text);
         return;
     }
- 
+
     String text(128);
     guint cursor_pos;
     guint len;
 
     for (guint i = 0; i < m_editor.pinyin().length (); ++i) {
-        const PinYin *p = m_editor.pinyin()[i];
-       
         if (G_LIKELY (i != 0))
             text << '\'';
+        const PinYin *p = m_editor.pinyin()[i];
         text << p->sheng;
         text << p->yun;
     }
@@ -257,9 +256,12 @@ PinYinEngine::updateLookupTable ()
     ibus_lookup_table_clear (m_lookup_table);
 
     if (G_UNLIKELY (m_editor.pinyinLength () == 0)) {
+        /*
         ibus_engine_update_lookup_table_fast (m_engine,
                                               m_lookup_table,
                                               FALSE);
+        */
+        ibus_engine_hide_lookup_table (m_engine);
         return;
     }
 
@@ -269,10 +271,13 @@ PinYinEngine::updateLookupTable ()
                          m_option,
                          m_phrases);
 
-    if (G_UNLIKELY (retval == FALSE)) {
+    if (G_UNLIKELY (retval == FALSE || m_phrases.length () == 0)) {
+        /*
         ibus_engine_update_lookup_table_fast (m_engine,
                                               m_lookup_table,
                                               FALSE);
+        */
+        ibus_engine_hide_lookup_table (m_engine);
         return;
     }
 
@@ -284,7 +289,7 @@ PinYinEngine::updateLookupTable ()
 
     ibus_engine_update_lookup_table_fast (m_engine,
                                           m_lookup_table,
-                                          m_phrases.length () != 0);
+                                          TRUE);
 }
 
 #if 0
