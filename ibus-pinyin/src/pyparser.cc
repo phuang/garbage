@@ -85,7 +85,7 @@ need_resplit(const PinYin *p1,
 }
 
 guint
-PinYinParser::parse (const String  &pinyin, gint len, PinYinArray &result)
+PinYinParser::parse (const String  &pinyin, gint len, guint option, PinYinArray &result)
 {
 
     const gchar *p;
@@ -121,13 +121,13 @@ PinYinParser::parse (const String  &pinyin, gint len, PinYinArray &result)
                     const PinYin *new_py1;
                     const PinYin *new_py2;
 
-                    py = is_pinyin (p, end, -1, m_option);
+                    py = is_pinyin (p, end, -1, option);
 
                     if ((new_py1 = is_pinyin (prev_py->text,
                                               prev_py->text + prev_py->len,
                                               prev_py->len - 1,
-                                              m_option)) != NULL) {
-                        new_py2 = is_pinyin (p -1, end, -1, m_option);
+                                              option)) != NULL) {
+                        new_py2 = is_pinyin (p -1, end, -1, option);
 
                         if (((new_py2 != NULL) && (new_py2->len > 1 )) &&
                             (py == NULL || new_py2->len > py->len + 1)) {
@@ -151,12 +151,12 @@ PinYinParser::parse (const String  &pinyin, gint len, PinYinArray &result)
                     }
                 }
             default:
-                py = is_pinyin (p, end, -1, m_option);
+                py = is_pinyin (p, end, -1, option);
                 break;
             }
         }
         else {
-            py = is_pinyin (p, end, -1, m_option);
+            py = is_pinyin (p, end, -1, option);
         }
 
         if (py == NULL)

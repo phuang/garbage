@@ -67,14 +67,12 @@ private:
 private:
     // static members
     static Database m_db;
-    static PinYinParser m_parser;
     static guint m_option;
 };
 
 /* init static members */
 Database PinYinEngine::m_db;
 guint PinYinEngine::m_option = 0xffffffff;
-PinYinParser PinYinEngine::m_parser (PinYinEngine::m_option);
 
 /* constructor */
 PinYinEngine::PinYinEngine (IBusEngine *engine)

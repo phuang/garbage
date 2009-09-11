@@ -11,7 +11,6 @@ class Editor {
 
 public:
     Editor (void);
-    
     const String & text (void) { return m_text; }
     guint cursor (void) { return m_cursor; }
     gboolean isEmpty (void) { return m_text.isEmpty (); }
@@ -19,6 +18,9 @@ public:
     guint pinyinLength (void) { return m_pinyin_len; }
 
     gboolean insert (gint ch);
+
+    static void setOption (guint option) { m_option = option; }
+    static guint option (void) { return m_option; }
 
     gboolean removeCharBefore (void);
     gboolean removeCharAfter (void);
@@ -59,6 +61,9 @@ private:
     gboolean    m_invalidate;
     PinYinArray m_pinyin;
     guint       m_pinyin_len;
+
+private:
+    static guint m_option;
 
 private:
     static PinYinParser m_parser; 

@@ -2,7 +2,8 @@
 
 namespace PY {
 
-PinYinParser Editor::m_parser (0xffffffff);
+guint Editor::m_option = 0xffffffff;
+PinYinParser Editor::m_parser;
 
 Editor::Editor (void)
     : m_text (64),
@@ -158,6 +159,7 @@ Editor::updatePinYin (void)
     else {
         m_pinyin_len = m_parser.parse (m_text,
                                        m_cursor,
+                                       m_option,
                                        m_pinyin);
     }
 }
