@@ -4,13 +4,14 @@
 #include <stdlib.h>
 #include <locale.h>
 #include "pyengine.h"
-#include "pyarray.h"
-#include "pystring.h"
+#include "pypointer.h"
+
+using namespace PY;
 
 #define N_(text) text
 
-static IBusBus *bus = NULL;
-static IBusFactory *factory = NULL;
+static Pointer<IBusBus> bus = NULL;
+static Pointer<IBusFactory> factory = NULL;
 
 /* options */
 static gboolean ibus = FALSE;
@@ -36,7 +37,7 @@ ibus_disconnected_cb (IBusBus  *bus,
 static void
 start_component (void)
 {
-    IBusComponent *component;
+    Pointer<IBusComponent> component;
 
     ibus_init ();
 
@@ -71,8 +72,6 @@ start_component (void)
     else {
         ibus_bus_register_component (bus, component);
     }
-
-    g_object_unref (component);
 
     ibus_main ();
 }

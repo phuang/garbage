@@ -157,7 +157,6 @@ PinYinEngine::updateAuxiliaryText (void)
     if (m_editor.isEmpty ()) {
         preedit_text = ibus_text_new_from_static_string ("");
         ibus_engine_update_auxiliary_text (m_engine, preedit_text, FALSE);
-        g_object_unref (preedit_text);
         return;
     }
 
@@ -190,7 +189,6 @@ PinYinEngine::updateAuxiliaryText (void)
     ibus_engine_update_auxiliary_text (m_engine,
                                         preedit_text,
                                         TRUE);
-    g_object_unref (preedit_text);
 }
 
 void

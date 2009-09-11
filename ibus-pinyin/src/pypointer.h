@@ -12,6 +12,10 @@ public:
         set (p);
     }
 
+    ~Pointer (void) {
+        set (NULL);
+    }
+
     void set (T * p) {
         if (m_p) {
             g_object_unref (m_p);
@@ -19,7 +23,7 @@ public:
 
         m_p = p;
         if (p) {
-            g_object_ref (p);
+            g_object_ref_sink (p);
         }
     }
     
@@ -39,6 +43,10 @@ public:
     
     operator const T * (void) const {
         return m_p;
+    }
+
+    operator gboolean (void) const {
+        return m_p != NULL;
     }
 
 private:
