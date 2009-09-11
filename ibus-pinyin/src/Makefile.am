@@ -19,7 +19,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 @MAINTAINER_MODE_FALSE@skip_genpytable=test -f $@ ||
-GENPYTABLE = genpytable.py
+GENPYTABLE = scripts/genpytable.py
 
 AM_CFLAGS = \
 	@IBUS_CFLAGS@ \
@@ -80,7 +80,7 @@ EXTRA_DIST = \
 	$(GENPYSCANNER) \
 	$(GENPYTABLE) \
 	pinyin.xml.in \
-	pydict.py \
+	scripts/pydict.py \
 	$(NULL)
 
 CLEANFILES = \

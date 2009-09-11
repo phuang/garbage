@@ -227,7 +227,7 @@ Database::queryInternal (const PinYinArray &pinyin,
 
     if (G_UNLIKELY (pinyin_len > pinyin.length () - pinyin_begin))
         pinyin_len = pinyin.length () - pinyin_begin;
-    if (G_UNLIKELY (pinyin_len > 16))
+    if (G_UNLIKELY (pinyin_len > MAX_PHRASE_LEN))
         return FALSE;
 
     /* prepare sql */
