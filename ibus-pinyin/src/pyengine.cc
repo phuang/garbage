@@ -27,10 +27,6 @@ PinYinEngine::PinYinEngine (IBusEngine *engine)
 /* destructor */
 PinYinEngine::~PinYinEngine (void)
 {
-    g_object_unref (m_engine);
-    g_object_unref (m_lookup_table);
-    // g_object_unref (m_mode_prop);
-    // g_object_unref (m_props);
 }
 
 
@@ -156,10 +152,9 @@ void
 PinYinEngine::updateAuxiliaryText (void)
 {
 
+    Pointer<IBusText> preedit_text;
     /* clear pinyin array */
-
     if (m_editor.isEmpty ()) {
-        IBusText *preedit_text;
         preedit_text = ibus_text_new_from_static_string ("");
         ibus_engine_update_auxiliary_text (m_engine, preedit_text, FALSE);
         g_object_unref (preedit_text);
@@ -189,7 +184,6 @@ PinYinEngine::updateAuxiliaryText (void)
         text << '|' << ((const gchar *)m_editor.text ()) + m_editor.cursor ();
     }
 
-    IBusText *preedit_text;
     preedit_text = ibus_text_new_from_static_string (text);
     ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, len, cursor_pos);
     ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, cursor_pos + 1, -1);
@@ -233,7 +227,7 @@ PinYinEngine::updateLookupTable ()
     }
 
     for (guint i = 0; i < m_phrases.length (); i++) {
-        IBusText *text;
+        Pointer<IBusText> text;
         text = ibus_text_new_from_static_string (m_phrases[i].phrase);
         ibus_lookup_table_append_candidate (m_lookup_table, text);
     }

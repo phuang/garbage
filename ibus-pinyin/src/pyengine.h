@@ -5,6 +5,7 @@
 #include <ibus.h>
 #include "pydatabase.h"
 #include "pyeditor.h"
+#include "pypointer.h"
 
 namespace PY {
 
@@ -60,16 +61,16 @@ private:
     }
 
 private:
-    IBusEngine *m_engine;
+    Pointer<IBusEngine>  m_engine;
     Editor m_editor;
 
     gint m_need_update;
 
     PhraseArray m_phrases;
 
-    IBusLookupTable *m_lookup_table;
-    IBusProperty    *m_mode_prop;
-    IBusPropList    *m_props;
+    Pointer<IBusLookupTable> m_lookup_table;
+    Pointer<IBusProperty>    m_mode_prop;
+    Pointer<IBusPropList>    m_props;
 
 private:
     // static members
