@@ -94,8 +94,8 @@ namespace PY {
 #define PINYIN_FUZZY_UAN_UANG       (1 << 27)
 #define PINYIN_FUZZY_UANG_UAN       (1 << 28)
 
-typedef struct _PinYin PinYin;
-struct _PinYin {
+typedef struct _Pinyin Pinyin;
+struct _Pinyin {
     const char *text;
     const char *sheng;
     const char *yun;

@@ -3,9 +3,6 @@
 #define __PY_ENGINE_H__
 
 #include <ibus.h>
-#include "Database.h"
-#include "Editor.h"
-#include "Pointer.h"
 
 namespace PY {
 

@@ -1,11 +1,11 @@
-#include "Editor.h"
+#include "PinyinEditor.h"
 
 namespace PY {
 
-guint Editor::m_option = 0x0;
-PinYinParser Editor::m_parser;
+guint PinyinEditor::m_option = 0x0;
+PinyinParser PinyinEditor::m_parser;
 
-Editor::Editor (void)
+PinyinEditor::PinyinEditor (void)
     : m_text (64),
       m_cursor (0),
       m_invalidate (0),
@@ -16,19 +16,19 @@ Editor::Editor (void)
 
 
 gboolean
-Editor::insert (gint ch)
+PinyinEditor::insert (gint ch)
 {
     m_text.insert (m_cursor++, ch);
     if (G_UNLIKELY ((m_option & PINYIN_SIMPLE_PINYIN) == 0))
-        updatePinYin ();
+        updatePinyin ();
     else if (G_LIKELY ((m_cursor - 1 == m_pinyin_len) ||
                   (m_cursor - 2 == m_pinyin_len && m_text[m_pinyin_len] == '\'')))
-        updatePinYin ();
+        updatePinyin ();
     return true;
 }
 
 gboolean
-Editor::removeCharBefore (void)
+PinyinEditor::removeCharBefore (void)
 {
     if (G_UNLIKELY (m_cursor == 0))
         return FALSE;
@@ -36,13 +36,13 @@ Editor::removeCharBefore (void)
     m_cursor --;
     m_text.erase (m_cursor, 1);
     
-    updatePinYin ();
+    updatePinyin ();
 
     return TRUE;
 }
 
 gboolean
-Editor::removeCharAfter (void)
+PinyinEditor::removeCharAfter (void)
 {
     if (G_UNLIKELY (m_cursor == m_text.length ()))
         return FALSE;
@@ -53,7 +53,7 @@ Editor::removeCharAfter (void)
 }
 
 gboolean
-Editor::removeWordBefore (void)
+PinyinEditor::removeWordBefore (void)
 {
     if (G_UNLIKELY (m_cursor == 0))
         return FALSE;
@@ -64,7 +64,7 @@ Editor::removeWordBefore (void)
         cursor = m_pinyin_len;
     }
     else {
-        const PinYin * p = m_pinyin.pop ();
+        const Pinyin * p = m_pinyin.pop ();
         cursor = m_cursor - p->len;
         m_pinyin_len -= p->len;
     }
@@ -75,7 +75,7 @@ Editor::removeWordBefore (void)
 }
 
 gboolean
-Editor::removeWordAfter (void)
+PinyinEditor::removeWordAfter (void)
 {
     if (G_UNLIKELY (m_cursor == m_text.length ()))
         return FALSE;
@@ -85,36 +85,36 @@ Editor::removeWordAfter (void)
 }
 
 gboolean
-Editor::moveCursorLeft (void)
+PinyinEditor::moveCursorLeft (void)
 {
     if (G_UNLIKELY (m_cursor == 0))
         return FALSE;
     
     m_cursor --;
-    updatePinYin ();
+    updatePinyin ();
 
     return TRUE;
 }
 
 gboolean
-Editor::moveCursorRight (void)
+PinyinEditor::moveCursorRight (void)
 {
     if (G_UNLIKELY (m_cursor == m_text.length ()))
         return FALSE;
     
     m_cursor ++;
-    updatePinYin ();
+    updatePinyin ();
 
     return TRUE;
 }
 
 gboolean
-Editor::moveCursorLeftByWord (void)
+PinyinEditor::moveCursorLeftByWord (void)
 {
     if (G_UNLIKELY (m_cursor == 0))
         return FALSE;
 
-    const PinYin * p = m_pinyin.pop ();
+    const Pinyin * p = m_pinyin.pop ();
     m_cursor -= p->len;
     m_pinyin_len -= p->len;
 
@@ -122,13 +122,13 @@ Editor::moveCursorLeftByWord (void)
 }
 
 gboolean
-Editor::moveCursorRightByWord (void)
+PinyinEditor::moveCursorRightByWord (void)
 {
     return moveCursorToEnd ();
 }
 
 gboolean
-Editor::moveCursorToBegin (void)
+PinyinEditor::moveCursorToBegin (void)
 {
     if (G_UNLIKELY (m_cursor == 0))
         return FALSE;
@@ -141,19 +141,19 @@ Editor::moveCursorToBegin (void)
 }
 
 gboolean
-Editor::moveCursorToEnd (void)
+PinyinEditor::moveCursorToEnd (void)
 {
     if (G_UNLIKELY (m_cursor == m_text.length ()))
         return FALSE;
 
     m_cursor = m_text.length ();
-    updatePinYin  ();
+    updatePinyin  ();
 
     return TRUE;
 }
 
 void
-Editor::updatePinYin (void)
+PinyinEditor::updatePinyin (void)
 {
     if (G_UNLIKELY (m_text.isEmpty ())) {
         m_pinyin.removeAll ();

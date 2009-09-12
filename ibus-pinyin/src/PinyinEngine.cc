@@ -2,16 +2,16 @@
 
 #include <ibus.h>
 #include <string.h>
-#include "PinYinEngine.h"
+#include "PinyinEngine.h"
 
 namespace PY {
 
 /* init static members */
-Database PinYinEngine::m_db;
-guint PinYinEngine::m_option = 0x0;
+Database PinyinEngine::m_db;
+guint PinyinEngine::m_option = 0x0;
 
 /* constructor */
-PinYinEngine::PinYinEngine (IBusEngine *engine)
+PinyinEngine::PinyinEngine (IBusEngine *engine)
     : m_engine (engine),
       m_need_update (0),
       m_candidates (32),
@@ -26,13 +26,13 @@ PinYinEngine::PinYinEngine (IBusEngine *engine)
 }
 
 /* destructor */
-PinYinEngine::~PinYinEngine (void)
+PinyinEngine::~PinyinEngine (void)
 {
 }
 
 
 gboolean
-PinYinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
+PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 {
 
     // ignore release event
@@ -50,25 +50,25 @@ PinYinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
     /* process letter at first */
     if (G_LIKELY (keyval >= IBUS_a && keyval <= IBUS_z)) {
         if (G_LIKELY (modifiers == 0)) {
-            if (m_editor.insert (keyval)) {
+            if (m_pinyin_editor.insert (keyval)) {
                 update (FALSE);
                 return TRUE;
             }
             return FALSE;
         }
-        return !m_editor.isEmpty ();
+        return !m_pinyin_editor.isEmpty ();
     }
 
     /* process ' */
     if (keyval == IBUS_apostrophe) {
-        if (G_UNLIKELY (m_editor.isEmpty ()))
+        if (G_UNLIKELY (m_pinyin_editor.isEmpty ()))
             return FALSE;
         if (G_LIKELY (modifiers == 0))
-            m_editor.insert (IBUS_apostrophe);
+            m_pinyin_editor.insert (IBUS_apostrophe);
         return TRUE;
     }
 
-    if (G_UNLIKELY (m_editor.isEmpty ()))
+    if (G_UNLIKELY (m_pinyin_editor.isEmpty ()))
         return FALSE;
 
     if (keyval >= IBUS_1 && keyval <= IBUS_0) {
@@ -89,51 +89,51 @@ PinYinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
         break;
     case IBUS_BackSpace:
         if (G_LIKELY (modifiers == 0))
-            _update = m_editor.removeCharBefore ();
+            _update = m_pinyin_editor.removeCharBefore ();
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK))
-            _update = m_editor.removeWordBefore ();
+            _update = m_pinyin_editor.removeWordBefore ();
         break;
 
     case IBUS_Delete:
         if (G_LIKELY (modifiers == 0))
-            _update = m_editor.removeCharAfter ();
+            _update = m_pinyin_editor.removeCharAfter ();
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK))
-            _update = m_editor.removeWordAfter ();
+            _update = m_pinyin_editor.removeWordAfter ();
         break;
 
     case IBUS_Left:
         if (G_LIKELY (modifiers == 0)) {
             // move left single char
-            _update = m_editor.moveCursorLeft ();
+            _update = m_pinyin_editor.moveCursorLeft ();
         }
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
             // move left one pinyin
-            _update = m_editor.moveCursorLeftByWord ();
+            _update = m_pinyin_editor.moveCursorLeftByWord ();
         }
         break;
 
     case IBUS_Right:
         if (G_LIKELY (modifiers == 0)) {
             // move right single char
-            _update = m_editor.moveCursorRight ();
+            _update = m_pinyin_editor.moveCursorRight ();
         }
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
             // move right to end
-            _update = m_editor.moveCursorToEnd ();
+            _update = m_pinyin_editor.moveCursorToEnd ();
         }
         break;
 
     case IBUS_Home:
         if (G_LIKELY (modifiers == 0)) {
             // move to begin
-            _update = m_editor.moveCursorToBegin ();
+            _update = m_pinyin_editor.moveCursorToBegin ();
         }
         break;
 
     case IBUS_End:
         if (G_LIKELY (modifiers == 0)) {
             // move to end
-            _update = m_editor.moveCursorToEnd ();
+            _update = m_pinyin_editor.moveCursorToEnd ();
         }
         break;
 
@@ -157,9 +157,9 @@ PinYinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 }
 
 void
-PinYinEngine::updatePreeditText (void)
+PinyinEngine::updatePreeditText (void)
 {
-    if (G_UNLIKELY (m_editor.pinyinLength () == 0)) {
+    if (G_UNLIKELY (m_pinyin_editor.pinyinLength () == 0)) {
         ibus_engine_hide_preedit_text (m_engine);
         return;
     }
@@ -173,12 +173,12 @@ PinYinEngine::updatePreeditText (void)
 
     PhraseArray phrases;
 
-    while (len < m_editor.pinyin ().length ()) {
+    while (len < m_pinyin_editor.pinyin ().length ()) {
         gboolean retval;
-        gint i = MIN (m_editor.pinyin ().length () - len, MAX_PHRASE_LEN);
+        gint i = MIN (m_pinyin_editor.pinyin ().length () - len, MAX_PHRASE_LEN);
         phrases.removeAll ();
         while (i > 0) {
-            retval = m_db.query (m_editor.pinyin (),
+            retval = m_db.query (m_pinyin_editor.pinyin (),
                                  len,
                                  i,
                                  1,
@@ -198,11 +198,11 @@ PinYinEngine::updatePreeditText (void)
 }
 
 void
-PinYinEngine::updateAuxiliaryText (void)
+PinyinEngine::updateAuxiliaryText (void)
 {
 
     /* clear pinyin array */
-    if (G_UNLIKELY (m_editor.isEmpty ())) {
+    if (G_UNLIKELY (m_pinyin_editor.isEmpty ())) {
         ibus_engine_hide_auxiliary_text (m_engine);
         return;
     }
@@ -211,23 +211,23 @@ PinYinEngine::updateAuxiliaryText (void)
     guint cursor_pos;
     guint len;
 
-    for (guint i = 0; i < m_editor.pinyin().length (); ++i) {
+    for (guint i = 0; i < m_pinyin_editor.pinyin().length (); ++i) {
         if (G_LIKELY (i != 0))
             text << '\'';
-        const PinYin *p = m_editor.pinyin()[i];
+        const Pinyin *p = m_pinyin_editor.pinyin()[i];
         text << p->sheng;
         text << p->yun;
     }
 
     len = text.length ();
-    if (G_UNLIKELY (m_editor.pinyinLength () == m_editor.cursor ())) {
+    if (G_UNLIKELY (m_pinyin_editor.pinyinLength () == m_pinyin_editor.cursor ())) {
         cursor_pos =  text.length ();
-        text << '|' << ((const gchar *)m_editor.text ()) + m_editor.pinyinLength ();
+        text << '|' << ((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.pinyinLength ();
     }
     else {
-        text.append (((const gchar *)m_editor.text ()) + m_editor.pinyinLength (), m_editor.cursor () - m_editor.pinyinLength ());
+        text.append (((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.pinyinLength (), m_pinyin_editor.cursor () - m_pinyin_editor.pinyinLength ());
         cursor_pos =  text.length ();
-        text << '|' << ((const gchar *)m_editor.text ()) + m_editor.cursor ();
+        text << '|' << ((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.cursor ();
     }
 
     Pointer<IBusText> aux_text = ibus_text_new_from_static_string (text);
@@ -239,7 +239,7 @@ PinYinEngine::updateAuxiliaryText (void)
 }
 
 void
-PinYinEngine::updateLookupTable (void)
+PinyinEngine::updateLookupTable (void)
 {
 
     updatePhrases ();
@@ -263,13 +263,13 @@ PinYinEngine::updateLookupTable (void)
 }
 
 void
-PinYinEngine::updatePhrases (void)
+PinyinEngine::updatePhrases (void)
 {
     gboolean retval;
 
     m_candidates.removeAll ();
-    if (G_UNLIKELY (m_editor.pinyinLength () != 0)) {
-        retval = m_db.query (m_editor.pinyin (),
+    if (G_UNLIKELY (m_pinyin_editor.pinyinLength () != 0)) {
+        retval = m_db.query (m_pinyin_editor.pinyin (),
                              30,
                              m_option,
                              m_candidates);
@@ -277,12 +277,12 @@ PinYinEngine::updatePhrases (void)
 }
 
 void
-PinYinEngine::commit (void)
+PinyinEngine::commit (void)
 {
 }
 
 gboolean
-PinYinEngine::selectPhrase (guint i)
+PinyinEngine::selectPhrase (guint i)
 {
 
     return TRUE;

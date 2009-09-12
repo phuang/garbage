@@ -42,16 +42,17 @@ ibus_engine_built_h_sources = \
 
 ibus_engine_c_sources = \
 	Main.cc \
-	Parser.cc \
+	PinyinParser.cc \
 	Engine.cc \
-	PinYinEngine.cc \
+	PinyinEngine.cc \
+	PinyinEditor.cc \
 	Database.cc \
-	Editor.cc \
 	$(NULL)
 ibus_engine_h_sources = \
-	Parser.h \
+	PinyinParser.h \
 	Engine.h \
-	PinYinEngine.h \
+	PinyinEngine.h \
+	PinyinEditor.h \
 	Database.h \
 	$(NULL)
 ibus_engine_pinyin_SOURCES = \
@@ -92,7 +93,7 @@ check_PROGRAMS =
 
 check_PROGRAMS += test-parser
 test_parser_SOURCES = \
-	Parser.cc \
+	PinyinParser.cc \
 	Table.h \
 	$(NULL)
 test_parser_CFLAGS = \

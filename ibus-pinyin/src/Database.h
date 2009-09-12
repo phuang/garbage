@@ -5,7 +5,7 @@
 #include <sqlite3.h>
 #include "Types.h"
 #include "Array.h"
-#include "Parser.h"
+#include "PinyinParser.h"
 #include "String.h"
 
 namespace PY {
@@ -16,12 +16,12 @@ class Database {
 public:
     Database ();
     ~Database ();
-    gboolean query (const PinYinArray &pinyin,
+    gboolean query (const PinyinArray &pinyin,
                     guint              m,
                     guint              option,
                     PhraseArray       &result);
 
-    gboolean query (const PinYinArray &pinyin,
+    gboolean query (const PinyinArray &pinyin,
                     guint              pinyin_begin,
                     guint              pinyin_len,
                     gint               m,

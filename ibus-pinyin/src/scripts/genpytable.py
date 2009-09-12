@@ -223,7 +223,7 @@ def gen_tables():
     pinyins = list(get_pinyin_with_fuzzy())
     pinyins = union_dups(pinyins)
 
-    print 'static const PinYin pinyin_table[] = {'
+    print 'static const Pinyin pinyin_table[] = {'
     for i, p in enumerate(pinyins):
         args = (i, ) + tuple(['"%s"' % s for s in p[:3]]) + tuple(["PINYIN_ID_%s" % s.upper() if s else "PINYIN_ID_VOID" for s in p[3:9]]) + p[9:-1] + (str(p[-1]), )
         print '''    {  /* %d */
@@ -306,7 +306,7 @@ def gen_special_table(pinyins):
 
     l = list(compaired_special())
     l.sort()
-    print 'static const PinYin *special_table[][4] = {'
+    print 'static const Pinyin *special_table[][4] = {'
     for r in l:
         ids =  [("&pinyin_table[%d]," % _dict[py]).ljust(20) for py in r]
 

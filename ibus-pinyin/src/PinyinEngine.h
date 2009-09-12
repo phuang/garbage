@@ -4,22 +4,22 @@
 
 #include <ibus.h>
 #include "Database.h"
-#include "Editor.h"
+#include "PinyinEditor.h"
 #include "Pointer.h"
 
 namespace PY {
 
-class PinYinEngine {
+class PinyinEngine {
 public:
-    PinYinEngine (IBusEngine *engine);
-    ~PinYinEngine (void);
+    PinyinEngine (IBusEngine *engine);
+    ~PinyinEngine (void);
 
     gboolean processKeyEvent (guint keyval, guint keycode, guint modifiers);
     void focusIn (void) {}
     void focusOut (void) {}
 
     void reset (gboolean need_update = TRUE) {
-        m_editor.reset ();
+        m_pinyin_editor.reset ();
         update (need_update);
     }
 
@@ -52,7 +52,7 @@ private:
     void updateLookupTable (void);
     void updatePhrases (void);
 
-    static gboolean delayUpdateHandler (PinYinEngine *pinyin) {
+    static gboolean delayUpdateHandler (PinyinEngine *pinyin) {
         if (pinyin->m_need_update > 0)
             pinyin->update (TRUE);
         return FALSE;
@@ -61,13 +61,14 @@ private:
 private:
     Pointer<IBusEngine>  m_engine;  // engine pointer
 
-    Editor m_editor;                // pinyin editor
+    PinyinEditor m_pinyin_editor;   // pinyin editor
 
     gint m_need_update;             // need update preedit, aux, or lookup table
 
     PhraseArray m_candidates;       // candidates array
     PhraseArray m_phrases;          // phrases array (preedit text)
     guint       m_phrases_len;      // sum of length of all phrases
+    guint       m_cursor;           // phrase edit cursor
 
     Pointer<IBusLookupTable> m_lookup_table;
     Pointer<IBusProperty>    m_mode_prop;

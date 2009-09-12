@@ -3,40 +3,40 @@
 #include <ibus.h>
 #include <string.h>
 #include "Engine.h"
-#include "PinYinEngine.h"
+#include "PinyinEngine.h"
 
 namespace PY {
 /* code of engine class of GObject */
 #define IBUS_PINYIN_ENGINE(obj)             \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), IBUS_TYPE_PINYIN_ENGINE, IBusPinYinEngine))
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), IBUS_TYPE_PINYIN_ENGINE, IBusPinyinEngine))
 #define IBUS_PINYIN_ENGINE_CLASS(klass)     \
-    (G_TYPE_CHECK_CLASS_CAST ((klass), IBUS_TYPE_PINYIN_ENGINE, IBusPinYinEngineClass))
+    (G_TYPE_CHECK_CLASS_CAST ((klass), IBUS_TYPE_PINYIN_ENGINE, IBusPinyinEngineClass))
 #define IBUS_IS_PINYIN_ENGINE(obj)          \
     (G_TYPE_CHECK_INSTANCE_TYPE ((obj), IBUS_TYPE_PINYIN_ENGINE))
 #define IBUS_IS_PINYIN_ENGINE_CLASS(klass)  \
     (G_TYPE_CHECK_CLASS_TYPE ((klass), IBUS_TYPE_PINYIN_ENGINE))
 #define IBUS_PINYIN_ENGINE_GET_CLASS(obj)   \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj), IBUS_TYPE_PINYIN_ENGINE, IBusPinYinEngineClass))
+    (G_TYPE_INSTANCE_GET_CLASS ((obj), IBUS_TYPE_PINYIN_ENGINE, IBusPinyinEngineClass))
 
 
-typedef struct _IBusPinYinEngine IBusPinYinEngine;
-typedef struct _IBusPinYinEngineClass IBusPinYinEngineClass;
+typedef struct _IBusPinyinEngine IBusPinyinEngine;
+typedef struct _IBusPinyinEngineClass IBusPinyinEngineClass;
 
-struct _IBusPinYinEngine {
+struct _IBusPinyinEngine {
     IBusEngine parent;
 
     /* members */
-    PinYinEngine *engine;
+    PinyinEngine *engine;
 };
 
-struct _IBusPinYinEngineClass {
+struct _IBusPinyinEngineClass {
     IBusEngineClass parent;
 };
 
 /* functions prototype */
-static void     ibus_pinyin_engine_class_init   (IBusPinYinEngineClass  *klass);
-static void     ibus_pinyin_engine_init         (IBusPinYinEngine       *pinyin);
-static void     ibus_pinyin_engine_destroy      (IBusPinYinEngine       *pinyin);
+static void     ibus_pinyin_engine_class_init   (IBusPinyinEngineClass  *klass);
+static void     ibus_pinyin_engine_init         (IBusPinyinEngine       *pinyin);
+static void     ibus_pinyin_engine_destroy      (IBusPinyinEngine       *pinyin);
 static gboolean ibus_pinyin_engine_process_key_event
                                                 (IBusEngine             *engine,
                                                  guint                   keyval,
@@ -91,20 +91,20 @@ ibus_pinyin_engine_get_type (void)
     static GType type = 0;
 
     static const GTypeInfo type_info = {
-        sizeof (IBusPinYinEngineClass),
+        sizeof (IBusPinyinEngineClass),
         (GBaseInitFunc) NULL,
         (GBaseFinalizeFunc) NULL,
         (GClassInitFunc) ibus_pinyin_engine_class_init,
         NULL,
         NULL,
-        sizeof (IBusPinYinEngine),
+        sizeof (IBusPinyinEngine),
         0,
         (GInstanceInitFunc) ibus_pinyin_engine_init,
     };
 
     if (type == 0) {
         type = g_type_register_static (IBUS_TYPE_ENGINE,
-                                       "IBusPinYinEngine",
+                                       "IBusPinyinEngine",
                                        &type_info,
                                        (GTypeFlags) 0);
     }
@@ -113,7 +113,7 @@ ibus_pinyin_engine_get_type (void)
 }
 
 static void
-ibus_pinyin_engine_class_init (IBusPinYinEngineClass *klass)
+ibus_pinyin_engine_class_init (IBusPinyinEngineClass *klass)
 {
     // GObjectClass *object_class = G_OBJECT_CLASS (klass);
     IBusObjectClass *ibus_object_class = IBUS_OBJECT_CLASS (klass);
@@ -140,13 +140,13 @@ ibus_pinyin_engine_class_init (IBusPinYinEngineClass *klass)
 }
 
 static void
-ibus_pinyin_engine_init (IBusPinYinEngine *pinyin)
+ibus_pinyin_engine_init (IBusPinyinEngine *pinyin)
 {
-    pinyin->engine = new PinYinEngine (IBUS_ENGINE (pinyin));
+    pinyin->engine = new PinyinEngine (IBUS_ENGINE (pinyin));
 }
 
 static void
-ibus_pinyin_engine_destroy (IBusPinYinEngine *pinyin)
+ibus_pinyin_engine_destroy (IBusPinyinEngine *pinyin)
 {
     if (pinyin->engine) {
         delete pinyin->engine;
@@ -161,7 +161,7 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
                                       guint           keycode,
                                       guint           modifiers)
 {
-    IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;
+    IBusPinyinEngine *pinyin = (IBusPinyinEngine *) engine;
     return pinyin->engine->processKeyEvent (keyval, keycode, modifiers);
 }
 
@@ -169,7 +169,7 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
     static void                                                     \
     ibus_pinyin_engine_##name (IBusEngine *engine)                  \
     {                                                               \
-        IBusPinYinEngine *pinyin = (IBusPinYinEngine *) engine;     \
+        IBusPinyinEngine *pinyin = (IBusPinyinEngine *) engine;     \
         pinyin->engine->Name ();                                    \
         parent_class->name (engine);                                \
     }

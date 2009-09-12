@@ -63,7 +63,7 @@ Database::~Database (void)
 }
 
 gboolean
-Database::query (const PinYinArray &pinyin,
+Database::query (const PinyinArray &pinyin,
                  guint              m,
                  guint              option,
                  PhraseArray       &result)
@@ -214,7 +214,7 @@ pinyin_option_check_yun (guint option, gint id, gint fid)
 }
 
 gboolean
-Database::query (const PinYinArray &pinyin,
+Database::query (const PinyinArray &pinyin,
                  guint              pinyin_begin,
                  guint              pinyin_len,
                  gint               m,
@@ -234,7 +234,7 @@ Database::query (const PinYinArray &pinyin,
     m_conditions[0] = this->string (0);
 
     for (guint i = 0; i < pinyin_len; i++) {
-        const PinYin *p;
+        const Pinyin *p;
         gboolean fs1, fs2;
         p = pinyin[i + pinyin_begin];
 

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <glib.h>
 #include "Table.h"
-#include "Parser.h"
+#include "PinyinParser.h"
 
 namespace PY {
 
@@ -11,19 +11,19 @@ static int
 py_cmp (const void *p1, const void *p2)
 {
     const gchar *str = (const gchar *) p1;
-    const PinYin *py = (const PinYin *) p2;
+    const Pinyin *py = (const Pinyin *) p2;
 
     return strcmp (str, py->text);
 }
 
-static const PinYin *
+static const Pinyin *
 is_pinyin (const gchar *p,
            const gchar *end,
            gint         len,
            guint        option)
 {
     gchar buf[7];
-    const PinYin *result;
+    const Pinyin *result;
 
     if (G_UNLIKELY (len > 6))
         return NULL;
@@ -34,8 +34,8 @@ is_pinyin (const gchar *p,
     if (G_LIKELY (len > 0)) {
         strncpy (buf, p, len);
         buf[len] = 0;
-        result = (const PinYin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR,
-                                            sizeof (PinYin), py_cmp);
+        result = (const Pinyin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR,
+                                            sizeof (Pinyin), py_cmp);
         if (G_UNLIKELY (result == NULL))
             return NULL;
         if (G_LIKELY (result->flags == 0))
@@ -51,8 +51,8 @@ is_pinyin (const gchar *p,
 
     for (; len > 0; len --) {
         buf[len] = 0;
-        result = (const PinYin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR,
-                                            sizeof (PinYin), py_cmp);
+        result = (const Pinyin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR,
+                                            sizeof (Pinyin), py_cmp);
         if (G_UNLIKELY (result && ((result->flags == 0) || (result->flags & option)))) {
             return result;
         }
@@ -65,8 +65,8 @@ static int
 sp_cmp (const void *p1,
         const void *p2)
 {
-    const PinYin **pys = (const PinYin **) p1;
-    const PinYin **e = (const PinYin **) p2;
+    const Pinyin **pys = (const Pinyin **) p1;
+    const Pinyin **e = (const Pinyin **) p2;
 
     gint r;
 
@@ -76,24 +76,24 @@ sp_cmp (const void *p1,
     return r;
 }
 
-static const PinYin **
-need_resplit(const PinYin *p1,
-             const PinYin *p2)
+static const Pinyin **
+need_resplit(const Pinyin *p1,
+             const Pinyin *p2)
 {
-    const PinYin * pys[] = {p1, p2};
+    const Pinyin * pys[] = {p1, p2};
 
-    return (const PinYin **) bsearch (pys, special_table, SPECIAL_TABLE_NR,
+    return (const Pinyin **) bsearch (pys, special_table, SPECIAL_TABLE_NR,
                                         sizeof (special_table[0]), sp_cmp);
 }
 
 guint
-PinYinParser::parse (const String  &pinyin, gint len, guint option, PinYinArray &result)
+PinyinParser::parse (const String  &pinyin, gint len, guint option, PinyinArray &result)
 {
 
     const gchar *p;
     const gchar *end;
-    const PinYin *py;
-    const PinYin *prev_py;
+    const Pinyin *py;
+    const Pinyin *prev_py;
     gboolean is_rng;
 
     result.removeAll ();
@@ -119,9 +119,9 @@ PinYinParser::parse (const String  &pinyin, gint len, guint option, PinYinArray 
             case 'e':
             case 'o':
                 {
-                    const PinYin **pp;
-                    const PinYin *new_py1;
-                    const PinYin *new_py2;
+                    const Pinyin **pp;
+                    const Pinyin *new_py1;
+                    const Pinyin *new_py2;
 
                     py = is_pinyin (p, end, -1, option);
 
@@ -203,7 +203,7 @@ int main(int argc, char **argv)
 {
     gint len;
     GArray *array;
-    PinYin **p;
+    Pinyin **p;
     gchar *str;
 
     str = "qinaide";
@@ -211,12 +211,12 @@ int main(int argc, char **argv)
     if (argc > 1)
         str = argv[1];
 
-    array = g_array_new (TRUE, TRUE, sizeof (PinYin *));
+    array = g_array_new (TRUE, TRUE, sizeof (Pinyin *));
 
     len = py_parse_pinyin (str, -1, 0xffffffff, array);
 
     if (len) {
-        p = (PinYin **) array->data;
+        p = (Pinyin **) array->data;
         while (*p) {
             g_printf ("%s'", (*p)->text);
             p ++;
