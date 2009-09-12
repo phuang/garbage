@@ -56,11 +56,11 @@ private:
     void updatePinYin (void);
 
 private:
-    String      m_text;
-    guint       m_cursor;
+    String      m_text;         // text buffer
+    guint       m_cursor;       // cursor pos in char
     gboolean    m_invalidate;
-    PinYinArray m_pinyin;
-    guint       m_pinyin_len;
+    PinYinArray m_pinyin;       // pinyin array
+    guint       m_pinyin_len;   // pinyin length in char
 
 private:
     static guint m_option;

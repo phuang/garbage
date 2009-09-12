@@ -14,9 +14,9 @@ guint PinYinEngine::m_option = 0x0;
 PinYinEngine::PinYinEngine (IBusEngine *engine)
     : m_engine (engine),
       m_need_update (0),
-      m_phrases (32),
-      m_commit_phrases (8),
-      m_commit_phrases_len (0),
+      m_candidates (32),
+      m_phrases (8),
+      m_phrases_len (0),
       m_lookup_table (NULL),
       m_mode_prop (NULL),
       m_props (NULL)
@@ -84,6 +84,9 @@ PinYinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
     /* process some cursor control keys */
     gboolean _update = FALSE;
     switch (keyval) {
+    case IBUS_space:
+        commit ();
+        break;
     case IBUS_BackSpace:
         if (G_LIKELY (modifiers == 0))
             _update = m_editor.removeCharBefore ();
@@ -161,12 +164,12 @@ PinYinEngine::updatePreeditText (void)
         return;
     }
 
-    if (G_UNLIKELY (m_phrases.length () == 0))
+    if (G_UNLIKELY (m_candidates.length () == 0))
         updatePhrases ();
 
     guint len;
-    len = m_phrases[0].len;
-    String text (m_phrases[0].phrase);
+    len = m_candidates[0].len;
+    String text (m_candidates[0].phrase);
 
     PhraseArray phrases;
 
@@ -236,21 +239,21 @@ PinYinEngine::updateAuxiliaryText (void)
 }
 
 void
-PinYinEngine::updateLookupTable ()
+PinYinEngine::updateLookupTable (void)
 {
 
     updatePhrases ();
 
     ibus_lookup_table_clear (m_lookup_table);
 
-    if (G_UNLIKELY (m_phrases.length () == 0)) {
+    if (G_UNLIKELY (m_candidates.length () == 0)) {
         ibus_engine_hide_lookup_table (m_engine);
         return;
     }
 
-    for (guint i = 0; i < m_phrases.length (); i++) {
+    for (guint i = 0; i < m_candidates.length (); i++) {
         Pointer<IBusText> text;
-        text = ibus_text_new_from_static_string (m_phrases[i].phrase);
+        text = ibus_text_new_from_static_string (m_candidates[i].phrase);
         ibus_lookup_table_append_candidate (m_lookup_table, text);
     }
 
@@ -259,19 +262,23 @@ PinYinEngine::updateLookupTable ()
                                           TRUE);
 }
 
-
 void
-PinYinEngine::updatePhrases ()
+PinYinEngine::updatePhrases (void)
 {
     gboolean retval;
 
-    m_phrases.removeAll ();
+    m_candidates.removeAll ();
     if (G_UNLIKELY (m_editor.pinyinLength () != 0)) {
         retval = m_db.query (m_editor.pinyin (),
                              30,
                              m_option,
-                             m_phrases);
+                             m_candidates);
     }
+}
+
+void
+PinYinEngine::commit (void)
+{
 }
 
 gboolean
@@ -392,7 +399,7 @@ ibus_pinyin_engine_get_type (void)
 static void
 ibus_pinyin_engine_class_init (IBusPinYinEngineClass *klass)
 {
-    GObjectClass *object_class = G_OBJECT_CLASS (klass);
+    // GObjectClass *object_class = G_OBJECT_CLASS (klass);
     IBusObjectClass *ibus_object_class = IBUS_OBJECT_CLASS (klass);
     IBusEngineClass *engine_class = IBUS_ENGINE_CLASS (klass);
 
@@ -414,13 +421,11 @@ ibus_pinyin_engine_class_init (IBusPinYinEngineClass *klass)
 
     engine_class->cursor_up = ibus_pinyin_engine_cursor_up;
     engine_class->cursor_down = ibus_pinyin_engine_cursor_down;
-
 }
 
 static void
 ibus_pinyin_engine_init (IBusPinYinEngine *pinyin)
 {
-
     pinyin->engine = new PinYinEngine (IBUS_ENGINE (pinyin));
 }
 

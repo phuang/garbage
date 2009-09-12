@@ -20,20 +20,20 @@ public:
     ~PinYinEngine (void);
 
     gboolean processKeyEvent (guint keyval, guint keycode, guint modifiers);
-    void focusIn () {}
-    void focusOut () {}
+    void focusIn (void) {}
+    void focusOut (void) {}
 
     void reset (gboolean need_update = TRUE) {
         m_editor.reset ();
         update (need_update);
     }
 
-    void enable () {}
-    void disable () {}
-    void pageUp () {}
-    void pageDown () {}
-    void cursorUp () {}
-    void cursorDown () {}
+    void enable (void) {}
+    void disable (void) {}
+    void pageUp (void) {}
+    void pageDown (void) {}
+    void cursorUp (void) {}
+    void cursorDown (void) {}
 
     void update (gboolean now = TRUE) {
         if (now || m_need_update >= 4) {
@@ -50,11 +50,12 @@ public:
     }
 
 private:
+    void commit (void);
     gboolean selectPhrase (guint i);
-    void updatePreeditText ();
-    void updateAuxiliaryText ();
-    void updateLookupTable ();
-    void updatePhrases ();
+    void updatePreeditText (void);
+    void updateAuxiliaryText (void);
+    void updateLookupTable (void);
+    void updatePhrases (void);
 
     static gboolean delayUpdateHandler (PinYinEngine *pinyin) {
         if (pinyin->m_need_update > 0)
@@ -63,14 +64,15 @@ private:
     }
 
 private:
-    Pointer<IBusEngine>  m_engine;
-    Editor m_editor;
+    Pointer<IBusEngine>  m_engine;  // engine pointer
 
-    gint m_need_update;
+    Editor m_editor;                // pinyin editor
 
-    PhraseArray m_phrases;
-    PhraseArray m_commit_phrases;
-    guint       m_commit_phrases_len;
+    gint m_need_update;             // need update preedit, aux, or lookup table
+
+    PhraseArray m_candidates;       // candidates array
+    PhraseArray m_phrases;          // phrases array (preedit text)
+    guint       m_phrases_len;      // sum of length of all phrases
 
     Pointer<IBusLookupTable> m_lookup_table;
     Pointer<IBusProperty>    m_mode_prop;
@@ -78,8 +80,8 @@ private:
 
 private:
     // static members
-    static Database m_db;
-    static guint m_option;
+    static Database m_db;           // phrases database
+    static guint m_option;          // option
 };
 
 
