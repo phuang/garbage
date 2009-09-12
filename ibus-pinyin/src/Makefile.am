@@ -41,21 +41,23 @@ ibus_engine_built_h_sources = \
 	$(NULL)
 
 ibus_engine_c_sources = \
-	Main.cc \
-	PinyinParser.cc \
-	Engine.cc \
-	PinyinEngine.cc \
-	PinyinEditor.cc \
 	Database.cc \
+	PinyinParser.cc \
+	PinyinEditor.cc \
+	PhraseEditor.cc \
+	PinyinEngine.cc \
+	Engine.cc \
+	Main.cc \
 	$(NULL)
 ibus_engine_h_sources = \
-	PinyinParser.h \
-	Engine.h \
-	PinyinEngine.h \
-	PinyinEditor.h \
 	PinyinArray.h \
 	PhraseArray.h \
 	Database.h \
+	PinyinParser.h \
+	PinyinEditor.h \
+	PhraseEditor.h \
+	PinyinEngine.h \
+	Engine.h \
 	$(NULL)
 ibus_engine_pinyin_SOURCES = \
 	$(ibus_engine_c_sources) \

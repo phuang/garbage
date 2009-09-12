@@ -2,6 +2,8 @@
 #ifndef __PY_TYPE_H_
 #define __PY_TYPE_H_
 
+#include <glib.h>
+
 namespace PY {
 
 #define PINYIN_ID_VOID  (0)

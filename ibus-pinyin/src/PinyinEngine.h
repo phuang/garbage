@@ -3,9 +3,10 @@
 #define __PY_PIN_YIN_ENGINE_H__
 
 #include <ibus.h>
+#include "Pointer.h"
 #include "Database.h"
 #include "PinyinEditor.h"
-#include "Pointer.h"
+#include "PhraseEditor.h"
 
 namespace PY {
 
@@ -62,6 +63,7 @@ private:
     Pointer<IBusEngine>  m_engine;  // engine pointer
 
     PinyinEditor m_pinyin_editor;   // pinyin editor
+    PhraseEditor m_phrase_editor;   // phrase editor
 
     gint m_need_update;             // need update preedit, aux, or lookup table
 
