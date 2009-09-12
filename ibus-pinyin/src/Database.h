@@ -7,10 +7,9 @@
 #include "Array.h"
 #include "String.h"
 #include "PinyinArray.h"
+#include "PhraseArray.h"
 
 namespace PY {
-
-typedef Array<Phrase> PhraseArray;
 
 class Database {
 public:
