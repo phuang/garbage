@@ -346,7 +346,7 @@ Database::query (const PinyinArray &pinyin,
         else
             m_sql << "  OR (" << (*m_conditions[i]) << ")\n";
     }
-    m_conditions.setSize (0);
+    m_conditions.removeAll ();
 
     if (m > 0)
         m_sql << " ORDER BY freq DESC LIMIT " << m;

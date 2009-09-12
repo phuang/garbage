@@ -24,8 +24,8 @@ public:
     }
 
     void reset (void) {
-        m_candidates.setSize (0);
-        m_phrases.setSize (0);
+        m_candidates.removeAll ();
+        m_phrases.removeAll ();
         m_cursor = 0;
     }
     void update (const PinyinArray &pinyin, gint cursor = -1);

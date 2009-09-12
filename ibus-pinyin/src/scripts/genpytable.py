@@ -176,7 +176,6 @@ def gen_header():
 #include "Types.h"
 
 namespace PY {
-
 '''
 
 def gen_macros():
