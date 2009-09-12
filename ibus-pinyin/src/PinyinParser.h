@@ -4,12 +4,9 @@
 
 #include <glib.h>
 #include "String.h"
-#include "Array.h"
-#include "Types.h"
+#include "PinyinArray.h"
 
 namespace PY {
-
-typedef Array<const Pinyin *> PinyinArray;
 
 class PinyinParser {
 

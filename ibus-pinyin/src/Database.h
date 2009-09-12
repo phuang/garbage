@@ -5,8 +5,8 @@
 #include <sqlite3.h>
 #include "Types.h"
 #include "Array.h"
-#include "PinyinParser.h"
 #include "String.h"
+#include "PinyinArray.h"
 
 namespace PY {
 

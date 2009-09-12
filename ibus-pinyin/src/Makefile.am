@@ -53,6 +53,7 @@ ibus_engine_h_sources = \
 	Engine.h \
 	PinyinEngine.h \
 	PinyinEditor.h \
+	PinyinArray.h \
 	Database.h \
 	$(NULL)
 ibus_engine_pinyin_SOURCES = \
