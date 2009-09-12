@@ -37,21 +37,20 @@ AM_LDFLAGS = $(AM_LDFLAGS)
 libexec_PROGRAMS = ibus-engine-pinyin
 
 ibus_engine_built_h_sources = \
-	pytable.h \
+	Table.h \
 	$(NULL)
 
 ibus_engine_c_sources = \
 	main.cc \
-	pyparser.cc \
-	pyengine.cc \
-	pydatabase.cc \
-	pyeditor.cc \
+	Parser.cc \
+	Engine.cc \
+	Database.cc \
+	Editor.cc \
 	$(NULL)
 ibus_engine_h_sources = \
-	pinyin.h \
-	pyparser.h \
-	pyengine.h \
-	pydatabase.h \
+	Parser.h \
+	Engine.h \
+	Database.h \
 	$(NULL)
 ibus_engine_pinyin_SOURCES = \
 	$(ibus_engine_c_sources) \
@@ -89,20 +88,20 @@ CLEANFILES = \
 
 check_PROGRAMS =
 
-check_PROGRAMS += test-pyparser
-test_pyparser_SOURCES = \
-	pyparser.cc \
-	pytable.h \
+check_PROGRAMS += test-parser
+test_parser_SOURCES = \
+	Parser.cc \
+	Table.h \
 	$(NULL)
-test_pyparser_CFLAGS = \
+test_parser_CFLAGS = \
 	$(AM_CFLAGS) \
 	-DTEST \
 	$(NULL)
 
 # check_PROGRAMS += test-pydatabase
 test_pydatabase_SOURCES = \
-	pydatabase.cc \
-	pydatabase.h \
+	Database.cc \
+	Database.h \
 	$(NULL)
 test_pydatabase_CFLAGS = \
 	$(AM_CFLAGS) \
@@ -113,7 +112,7 @@ TESTS = \
 	$(check_PROGRAMS) \
 	$(NULL)
 
-pytable.h: $(GENPYTABLE)
+Table.h: $(GENPYTABLE)
 	$(skip_genpytable) $(PYTHON) $(srcdir)/$(GENPYTABLE) > $@
 
 pinyin.xml: pinyin.xml.in

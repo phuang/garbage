@@ -3,10 +3,10 @@
 #define __PY_DATABASE_H__
 
 #include <sqlite3.h>
-#include "pytypes.h"
-#include "pyarray.h"
-#include "pyparser.h"
-#include "pystring.h"
+#include "Types.h"
+#include "Array.h"
+#include "Parser.h"
+#include "String.h"
 
 namespace PY {
 

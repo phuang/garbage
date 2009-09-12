@@ -3,8 +3,8 @@
 #include <ibus.h>
 #include <stdlib.h>
 #include <locale.h>
-#include "pyengine.h"
-#include "pypointer.h"
+#include "Engine.h"
+#include "Pointer.h"
 
 using namespace PY;
 

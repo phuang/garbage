@@ -1,4 +1,4 @@
-#include "pyeditor.h"
+#include "Editor.h"
 
 namespace PY {
 

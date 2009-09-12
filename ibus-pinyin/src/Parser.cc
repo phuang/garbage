@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <glib.h>
-#include "pytable.h"
-#include "pyparser.h"
+#include "Table.h"
+#include "Parser.h"
 
 namespace PY {
 

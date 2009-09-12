@@ -3,9 +3,9 @@
 #define __PY_PARSER_H__
 
 #include <glib.h>
-#include "pystring.h"
-#include "pyarray.h"
-#include "pytypes.h"
+#include "String.h"
+#include "Array.h"
+#include "Types.h"
 
 namespace PY {
 

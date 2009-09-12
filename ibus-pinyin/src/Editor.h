@@ -2,8 +2,8 @@
 #define __PY_EDITOR_H_
 
 #include <glib.h>
-#include "pystring.h"
-#include "pyparser.h"
+#include "String.h"
+#include "Parser.h"
 
 namespace PY {
 

@@ -3,9 +3,9 @@
 #define __PY_ENGINE_H__
 
 #include <ibus.h>
-#include "pydatabase.h"
-#include "pyeditor.h"
-#include "pypointer.h"
+#include "Database.h"
+#include "Editor.h"
+#include "Pointer.h"
 
 namespace PY {
 

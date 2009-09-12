@@ -4,10 +4,9 @@
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include "pytypes.h"
-#include "pydatabase.h"
+#include "Database.h"
 
-using namespace PY;
+namespace PY {
 
 #define DB_CACHE_SIZE "5000"
 #define DB_INDEX_SIZE (3)
@@ -378,3 +377,4 @@ Database::query (const PinYinArray &pinyin,
     return TRUE;
 }
 
+};
