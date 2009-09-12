@@ -126,6 +126,11 @@ PinyinEditor::moveCursorLeftByWord (void)
     if (G_UNLIKELY (m_cursor == 0))
         return FALSE;
 
+    if (G_UNLIKELY (m_cursor > m_pinyin_len)) {
+        m_cursor = m_pinyin_len;
+        return TRUE;
+    }
+
     const Pinyin * p = m_pinyin.pop ();
     m_cursor -= p->len;
     m_pinyin_len -= p->len;

@@ -26,7 +26,6 @@ PinyinEngine::~PinyinEngine (void)
 {
 }
 
-
 gboolean
 PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 {
@@ -167,7 +166,7 @@ PinyinEngine::updatePreeditText (void)
 
     Pointer<IBusText> preedit_text = ibus_text_new_from_static_string ((const gchar *) text);
     ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, 0 -1);
-    ibus_engine_update_preedit_text (m_engine, preedit_text, 0, TRUE);
+    ibus_engine_update_preedit_text (m_engine, preedit_text, m_phrase_editor.cursor (), TRUE);
 }
 
 void
@@ -180,7 +179,7 @@ PinyinEngine::updateAuxiliaryText (void)
         return;
     }
 
-    String text(128);
+    String text(64);
     guint cursor_pos;
     guint len;
 
@@ -198,7 +197,8 @@ PinyinEngine::updateAuxiliaryText (void)
         text << '|' << ((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.pinyinLength ();
     }
     else {
-        text.append (((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.pinyinLength (), m_pinyin_editor.cursor () - m_pinyin_editor.pinyinLength ());
+        text.append (((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.pinyinLength (),
+                     m_pinyin_editor.cursor () - m_pinyin_editor.pinyinLength ());
         cursor_pos =  text.length ();
         text << '|' << ((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.cursor ();
     }
@@ -206,9 +206,7 @@ PinyinEngine::updateAuxiliaryText (void)
     Pointer<IBusText> aux_text = ibus_text_new_from_static_string (text);
     ibus_text_append_attribute (aux_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, len, cursor_pos);
     ibus_text_append_attribute (aux_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, cursor_pos + 1, -1);
-    ibus_engine_update_auxiliary_text (m_engine,
-                                       aux_text,
-                                       TRUE);
+    ibus_engine_update_auxiliary_text (m_engine, aux_text, TRUE);
 }
 
 void
@@ -237,7 +235,7 @@ PinyinEngine::updateLookupTable (void)
 void
 PinyinEngine::updatePhraseEditor (void)
 {
-    m_phrase_editor.setPinyin (m_pinyin_editor.pinyin (), m_pinyin_editor.pinyin ().length ());
+    m_phrase_editor.update (m_pinyin_editor.pinyin ());
 }
 
 void
@@ -248,7 +246,6 @@ PinyinEngine::commit (void)
 gboolean
 PinyinEngine::selectPhrase (guint i)
 {
-
     return TRUE;
 }
 };

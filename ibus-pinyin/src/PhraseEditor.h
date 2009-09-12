@@ -28,11 +28,11 @@ public:
         m_phrases.setSize (0);
         m_cursor = 0;
     }
-
-    void setPinyin (const PinyinArray &pinyin, guint cursor);
+    void update (const PinyinArray &pinyin, gint cursor = -1);
 
 private:
-    void update (void);
+    void updateCandidates (void);
+    void updatePhrases (void);
 
 private:
     PhraseArray m_candidates;
