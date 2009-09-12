@@ -41,7 +41,7 @@ ibus_engine_built_h_sources = \
 	$(NULL)
 
 ibus_engine_c_sources = \
-	main.cc \
+	Main.cc \
 	Parser.cc \
 	Engine.cc \
 	Database.cc \
