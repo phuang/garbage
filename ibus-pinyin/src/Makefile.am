@@ -44,12 +44,14 @@ ibus_engine_c_sources = \
 	Main.cc \
 	Parser.cc \
 	Engine.cc \
+	PinYinEngine.cc \
 	Database.cc \
 	Editor.cc \
 	$(NULL)
 ibus_engine_h_sources = \
 	Parser.h \
 	Engine.h \
+	PinYinEngine.h \
 	Database.h \
 	$(NULL)
 ibus_engine_pinyin_SOURCES = \
