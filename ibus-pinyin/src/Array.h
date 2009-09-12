@@ -26,6 +26,10 @@ public:
         return m_array->len;
     }
 
+    gboolean isEmpty (void) const {
+        return length () == 0;
+    }
+
     Array<T> & setSize (guint size) {
         g_array_set_size (m_array, size);
         return *this;
@@ -52,6 +56,23 @@ public:
         return v;
     }
 
+    Array<T> & operator = (const Array<T> & v) {
+        removeAll ();
+        for (guint i = 0; i < v.length(); i++)
+            append (v[i]);
+        return *this;
+    }
+
+    gboolean operator == (const Array<T> &v) const {
+        if (length () != v.length ())
+            return FALSE;
+        for (guint i = 0; i < length (); i++) {
+            if (get (i) != v[i])
+                return FALSE;
+        }
+        return TRUE;
+    }
+
     Array<T> & operator << (const T & v) {
         return append (v);
     }
@@ -62,6 +83,10 @@ public:
 
     const T & operator[] (guint i) const {
         return get (i);
+    }
+
+    operator gboolean (void) const {
+        return length () != 0;
     }
 
 private:

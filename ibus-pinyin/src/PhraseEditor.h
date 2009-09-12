@@ -29,7 +29,10 @@ public:
         m_cursor = 0;
     }
 
-    void setPinyin (const PinyinArray &pinyin, gboolean only);
+    void setPinyin (const PinyinArray &pinyin, guint cursor);
+
+private:
+    void update (void);
 
 private:
     PhraseArray m_candidates;

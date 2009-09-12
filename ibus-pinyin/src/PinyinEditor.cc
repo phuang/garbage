@@ -2,6 +2,9 @@
 
 namespace PY {
 
+#define MAX_PINYIN_LEN 64
+
+
 guint PinyinEditor::m_option = 0x0;
 PinyinParser PinyinEditor::m_parser;
 
@@ -18,13 +21,22 @@ PinyinEditor::PinyinEditor (void)
 gboolean
 PinyinEditor::insert (gint ch)
 {
+    if (G_UNLIKELY (m_text.length () >= MAX_PINYIN_LEN))
+        return FALSE;
+
     m_text.insert (m_cursor++, ch);
-    if (G_UNLIKELY ((m_option & PINYIN_SIMPLE_PINYIN) == 0))
+
+    if (G_UNLIKELY ((m_option & PINYIN_SIMPLE_PINYIN) == 0)) {
         updatePinyin ();
-    else if (G_LIKELY ((m_cursor - 1 == m_pinyin_len) ||
-                  (m_cursor - 2 == m_pinyin_len && m_text[m_pinyin_len] == '\'')))
-        updatePinyin ();
-    return true;
+    }
+    else {
+        if (G_LIKELY ((m_cursor - 1 == m_pinyin_len) ||
+                      (m_cursor - 2 == m_pinyin_len &&
+                       m_text[m_pinyin_len] == '\''))) {
+            updatePinyin ();
+        }
+    }
+    return TRUE;
 }
 
 gboolean
@@ -32,10 +44,10 @@ PinyinEditor::removeCharBefore (void)
 {
     if (G_UNLIKELY (m_cursor == 0))
         return FALSE;
-    
+
     m_cursor --;
     m_text.erase (m_cursor, 1);
-    
+
     updatePinyin ();
 
     return TRUE;
@@ -46,9 +58,9 @@ PinyinEditor::removeCharAfter (void)
 {
     if (G_UNLIKELY (m_cursor == m_text.length ()))
         return FALSE;
-    
+
     m_text.erase (m_cursor, 1);
-    
+
     return TRUE;
 }
 
@@ -57,7 +69,7 @@ PinyinEditor::removeWordBefore (void)
 {
     if (G_UNLIKELY (m_cursor == 0))
         return FALSE;
-    
+
     guint cursor;
 
     if (G_UNLIKELY (m_cursor > m_pinyin_len)) {
@@ -89,7 +101,7 @@ PinyinEditor::moveCursorLeft (void)
 {
     if (G_UNLIKELY (m_cursor == 0))
         return FALSE;
-    
+
     m_cursor --;
     updatePinyin ();
 
@@ -101,7 +113,7 @@ PinyinEditor::moveCursorRight (void)
 {
     if (G_UNLIKELY (m_cursor == m_text.length ()))
         return FALSE;
-    
+
     m_cursor ++;
     updatePinyin ();
 
@@ -136,7 +148,7 @@ PinyinEditor::moveCursorToBegin (void)
     m_cursor = 0;
     m_pinyin.removeAll ();
     m_pinyin_len = 0;
-    
+
     return TRUE;
 }
 

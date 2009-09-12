@@ -33,6 +33,7 @@ public:
 
     void update (gboolean now = TRUE) {
         if (now || m_need_update >= 4) {
+            updatePhraseEditor ();
             updateLookupTable ();
             updateAuxiliaryText ();
             updatePreeditText ();
@@ -51,7 +52,7 @@ private:
     void updatePreeditText (void);
     void updateAuxiliaryText (void);
     void updateLookupTable (void);
-    void updatePhrases (void);
+    void updatePhraseEditor (void);
 
     static gboolean delayUpdateHandler (PinyinEngine *pinyin) {
         if (pinyin->m_need_update > 0)
@@ -66,11 +67,6 @@ private:
     PhraseEditor m_phrase_editor;   // phrase editor
 
     gint m_need_update;             // need update preedit, aux, or lookup table
-
-    PhraseArray m_candidates;       // candidates array
-    PhraseArray m_phrases;          // phrases array (preedit text)
-    guint       m_phrases_len;      // sum of length of all phrases
-    guint       m_cursor;           // phrase edit cursor
 
     Pointer<IBusLookupTable> m_lookup_table;
     Pointer<IBusProperty>    m_mode_prop;

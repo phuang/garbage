@@ -15,17 +15,17 @@ class Database {
 public:
     Database ();
     ~Database ();
-    gboolean query (const PinyinArray &pinyin,
-                    guint              m,
-                    guint              option,
-                    PhraseArray       &result);
+    gint query (const PinyinArray &pinyin,
+                guint              m,
+                guint              option,
+                PhraseArray       &result);
 
-    gboolean query (const PinyinArray &pinyin,
-                    guint              pinyin_begin,
-                    guint              pinyin_len,
-                    gint               m,
-                    guint              option,
-                    PhraseArray       &result);
+    gint query (const PinyinArray &pinyin,
+                guint              pinyin_begin,
+                guint              pinyin_len,
+                gint               m,
+                guint              option,
+                PhraseArray       &result);
 
     String *string (guint i) {
         guint j;

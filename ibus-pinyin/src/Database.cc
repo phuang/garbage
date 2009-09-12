@@ -62,7 +62,7 @@ Database::~Database (void)
     }
 }
 
-gboolean
+gint
 Database::query (const PinyinArray &pinyin,
                  guint              m,
                  guint              option,
@@ -70,22 +70,29 @@ Database::query (const PinyinArray &pinyin,
 {
     gint len;
     gint i;
+    gint row;
+    gint ret;
 
     len = MIN (pinyin.length (), MAX_PHRASE_LEN);
 
+    row = 0;
     for (i = len; i > 0; i--) {
         if (m < 0) {
-            if (!query (pinyin, 0, i, -1, option, result))
-                return FALSE;
+            ret = query (pinyin, 0, i, -1, option, result);
+            if (ret < 0)
+                return ret;
+            row += ret;
         }
         else {
-            if (!query (pinyin, 0, i, m - result.length (), option, result))
-                return FALSE;
+            ret = query (pinyin, 0, i, m - result.length (), option, result);
+            if (ret < 0)
+                return ret;
+            row += ret;
             if (result.length () >= m)
                 break;
         }
     }
-    return TRUE;
+    return row;
 }
 
 
@@ -213,7 +220,7 @@ pinyin_option_check_yun (guint option, gint id, gint fid)
     }
 }
 
-gboolean
+gint
 Database::query (const PinyinArray &pinyin,
                  guint              pinyin_begin,
                  guint              pinyin_len,
@@ -226,8 +233,9 @@ Database::query (const PinyinArray &pinyin,
 
     if (G_UNLIKELY (pinyin_len > pinyin.length () - pinyin_begin))
         pinyin_len = pinyin.length () - pinyin_begin;
+
     if (G_UNLIKELY (pinyin_len > MAX_PHRASE_LEN))
-        return FALSE;
+        return -1;
 
     /* prepare sql */
     m_conditions.setSize (1);
@@ -356,9 +364,10 @@ Database::query (const PinyinArray &pinyin,
                          &stmt,
                          NULL) != SQLITE_OK) {
         g_debug ("parse sql failed!\n %s", (const gchar *)m_sql);
-        return FALSE;
+        return -1;
     }
 
+    gint row = 0;
     while (sqlite3_step (stmt) == SQLITE_ROW) {
         result.setSize (result.length () + 1);
         Phrase &p = result[result.length() - 1];
@@ -371,10 +380,11 @@ Database::query (const PinyinArray &pinyin,
             p.pinyin_id[i][0] = sqlite3_column_int (stmt, (i << 1) + 2);
             p.pinyin_id[i][1] = sqlite3_column_int (stmt, (i << 1) + 3);
         }
+        row ++;
     }
 
     sqlite3_finalize (stmt);
-    return TRUE;
+    return row;
 }
 
 };

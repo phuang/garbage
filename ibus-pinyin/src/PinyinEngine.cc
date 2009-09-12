@@ -7,16 +7,12 @@
 namespace PY {
 
 /* init static members */
-Database PinyinEngine::m_db;
 guint PinyinEngine::m_option = 0x0;
 
 /* constructor */
 PinyinEngine::PinyinEngine (IBusEngine *engine)
     : m_engine (engine),
       m_need_update (0),
-      m_candidates (32),
-      m_phrases (8),
-      m_phrases_len (0),
       m_lookup_table (NULL),
       m_mode_prop (NULL),
       m_props (NULL)
@@ -52,9 +48,7 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
         if (G_LIKELY (modifiers == 0)) {
             if (m_pinyin_editor.insert (keyval)) {
                 update (FALSE);
-                return TRUE;
             }
-            return FALSE;
         }
         return !m_pinyin_editor.isEmpty ();
     }
@@ -159,41 +153,20 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 void
 PinyinEngine::updatePreeditText (void)
 {
-    if (G_UNLIKELY (m_pinyin_editor.pinyinLength () == 0)) {
+    const PhraseArray & phrases = m_phrase_editor.phrases ();
+
+    if (G_UNLIKELY (! phrases)) {
         ibus_engine_hide_preedit_text (m_engine);
         return;
     }
 
-    if (G_UNLIKELY (m_candidates.length () == 0))
-        updatePhrases ();
-
-    guint len;
-    len = m_candidates[0].len;
-    String text (m_candidates[0].phrase);
-
-    PhraseArray phrases;
-
-    while (len < m_pinyin_editor.pinyin ().length ()) {
-        gboolean retval;
-        gint i = MIN (m_pinyin_editor.pinyin ().length () - len, MAX_PHRASE_LEN);
-        phrases.removeAll ();
-        while (i > 0) {
-            retval = m_db.query (m_pinyin_editor.pinyin (),
-                                 len,
-                                 i,
-                                 1,
-                                 m_option,
-                                 phrases);
-            if (retval && phrases.length () > 0)
-                break;
-            i--;
-        }
-        g_assert (i != 0);
-        text << phrases[0].phrase;
-        len += i;
+    String text(64);
+    for (guint i = 0; i < phrases.length (); i++) {
+        text << phrases[i].phrase;
     }
 
     Pointer<IBusText> preedit_text = ibus_text_new_from_static_string ((const gchar *) text);
+    ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, 0 -1);
     ibus_engine_update_preedit_text (m_engine, preedit_text, 0, TRUE);
 }
 
@@ -241,19 +214,18 @@ PinyinEngine::updateAuxiliaryText (void)
 void
 PinyinEngine::updateLookupTable (void)
 {
-
-    updatePhrases ();
+    const PhraseArray &candidates = m_phrase_editor.candidates ();
 
     ibus_lookup_table_clear (m_lookup_table);
 
-    if (G_UNLIKELY (m_candidates.length () == 0)) {
+    if (G_UNLIKELY (!candidates)) {
         ibus_engine_hide_lookup_table (m_engine);
         return;
     }
 
-    for (guint i = 0; i < m_candidates.length (); i++) {
+    for (guint i = 0; i < candidates.length (); i++) {
         Pointer<IBusText> text;
-        text = ibus_text_new_from_static_string (m_candidates[i].phrase);
+        text = ibus_text_new_from_static_string (candidates[i].phrase);
         ibus_lookup_table_append_candidate (m_lookup_table, text);
     }
 
@@ -263,17 +235,9 @@ PinyinEngine::updateLookupTable (void)
 }
 
 void
-PinyinEngine::updatePhrases (void)
+PinyinEngine::updatePhraseEditor (void)
 {
-    gboolean retval;
-
-    m_candidates.removeAll ();
-    if (G_UNLIKELY (m_pinyin_editor.pinyinLength () != 0)) {
-        retval = m_db.query (m_pinyin_editor.pinyin (),
-                             30,
-                             m_option,
-                             m_candidates);
-    }
+    m_phrase_editor.setPinyin (m_pinyin_editor.pinyin (), m_pinyin_editor.pinyin ().length ());
 }
 
 void
