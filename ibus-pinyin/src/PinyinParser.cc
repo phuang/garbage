@@ -96,7 +96,7 @@ PinyinParser::parse (const String   &pinyin,
 
     result.removeAll ();
 
-    if (len < 0)
+    if (G_UNLIKELY (len < 0))
         len = pinyin.length ();
 
     p = pinyin;
@@ -162,7 +162,7 @@ PinyinParser::parse (const String   &pinyin,
             break;
         }
 
-        if (py == NULL)
+        if (G_UNLIKELY (py == NULL))
             break;
 
         result << py;
@@ -170,15 +170,14 @@ PinyinParser::parse (const String   &pinyin,
         prev_c = py->text[py->len - 1];
         prev_py = py;
 
-        if (*p == '\'') {
+        if (G_UNLIKELY (*p == '\'')) {
             prev_c = '\'';
             p++;
         }
     }
 
-    if (G_UNLIKELY (p == (const gchar *)pinyin)) {
+    if (G_UNLIKELY (p == (const gchar *)pinyin))
         return 0;
-    }
 
     if (G_UNLIKELY (*(p - 1) == '\''))
         p --;

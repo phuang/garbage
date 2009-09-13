@@ -57,7 +57,8 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
         if (G_UNLIKELY (m_pinyin_editor.isEmpty ()))
             return FALSE;
         if (G_LIKELY (modifiers == 0))
-            m_pinyin_editor.insert (IBUS_apostrophe);
+            if (m_pinyin_editor.insert (IBUS_apostrophe))
+                update (FALSE);
         return TRUE;
     }
 
