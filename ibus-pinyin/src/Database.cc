@@ -292,17 +292,17 @@ Database::query (const PinyinArray &pinyin,
                 if (fs1 && fs2 == 0) {
                     _conditions_append_printf (m_conditions,
                                                0, m_conditions.length (),
-                                               "s%d IN (%d, %d)", i, p->sheng_id, p->fsheng_id);
+                                               "s%d IN (%d,%d)", i, p->sheng_id, p->fsheng_id);
                 }
                 else if (fs1 == 0 && fs2) {
                     _conditions_append_printf (m_conditions,
                                                0, m_conditions.length (),
-                                               "s%d IN (%d, %d)", i, p->sheng_id, p->fsheng_id_2);
+                                               "s%d IN (%d,%d)", i, p->sheng_id, p->fsheng_id_2);
                 }
                 else {
                     _conditions_append_printf (m_conditions,
                                                0, m_conditions.length (),
-                                               "s%d IN (%d, %d, %d)", i, p->sheng_id, p->fsheng_id, p->fsheng_id_2);
+                                               "s%d IN (%d,%d,%d)", i, p->sheng_id, p->fsheng_id, p->fsheng_id_2);
                 }
             }
         }
@@ -326,7 +326,7 @@ Database::query (const PinyinArray &pinyin,
                 else {
                     _conditions_append_printf (m_conditions,
                                                0, m_conditions.length (),
-                                               " AND y%d IN (%d, %d)", i, p->yun_id, p->fyun_id);
+                                               " AND y%d IN (%d,%d)", i, p->yun_id, p->fyun_id);
                 }
             }
             else {
@@ -341,7 +341,7 @@ Database::query (const PinyinArray &pinyin,
     m_sql << pinyin_len - 1 << "\n WHERE\n";
 
     for (guint i = 0; i < m_conditions.length (); i++) {
-        if (i == 0)
+        if (G_UNLIKELY (i == 0))
             m_sql << "  (" << (*m_conditions[i]) << ")\n";
         else
             m_sql << "  OR (" << (*m_conditions[i]) << ")\n";
@@ -353,7 +353,7 @@ Database::query (const PinyinArray &pinyin,
     else
         m_sql << " ORDER BY freq DESC";
 #if 0
-    g_debug ("sql =\n%s", db->sql->str);
+    g_debug ("sql =\n%s", (const gchar *)m_sql);
 #endif
 
     /* query database */
