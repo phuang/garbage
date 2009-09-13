@@ -94,7 +94,7 @@ PinyinParser::parse (const String  &pinyin, gint len, guint option, PinyinArray 
     const gchar *end;
     const Pinyin *py;
     const Pinyin *prev_py;
-    gboolean is_rng;
+    gchar prev_c;
 
     result.removeAll ();
     
@@ -104,13 +104,14 @@ PinyinParser::parse (const String  &pinyin, gint len, guint option, PinyinArray 
     p = pinyin;
     end = p + len;
 
-    is_rng = FALSE;
     prev_py = NULL;
 
-
+    prev_c = 0;
     for (; p < end; ) {
-
-        if (G_UNLIKELY (is_rng)) {
+        switch (prev_c) {
+        case 'r':
+        case 'n':
+        case 'g':
             switch (*p) {
             case 'i':
             case 'u':
@@ -156,31 +157,23 @@ PinyinParser::parse (const String  &pinyin, gint len, guint option, PinyinArray 
                 py = is_pinyin (p, end, -1, option);
                 break;
             }
-        }
-        else {
+            break;
+        default:
             py = is_pinyin (p, end, -1, option);
+            break;
         }
 
         if (py == NULL)
             break;
+
         result << py;
         p += py->len;
-
-        switch (py->text[py->len - 1]) {
-        case 'r':
-        case 'n':
-        case 'g':
-            is_rng = TRUE;
-            break;
-        default:
-            is_rng = FALSE;
-        }
-
+        prev_c = py->text[py->len - 1];
         prev_py = py;
 
         if (*p == '\'') {
+            prev_c = '\'';
             p++;
-            is_rng = FALSE;
         }
     }
 
