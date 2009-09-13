@@ -65,6 +65,7 @@ private:
 
     PinyinEditor m_pinyin_editor;   // pinyin editor
     PhraseEditor m_phrase_editor;   // phrase editor
+    String m_buffer;                // string buffer
 
     gint m_need_update;             // need update preedit, aux, or lookup table
 

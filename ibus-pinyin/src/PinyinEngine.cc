@@ -159,12 +159,12 @@ PinyinEngine::updatePreeditText (void)
         return;
     }
 
-    String text(64);
+    m_buffer.truncate (0);
     for (guint i = 0; i < phrases.length (); i++) {
-        text << phrases[i].phrase;
+        m_buffer << phrases[i].phrase;
     }
 
-    Pointer<IBusText> preedit_text = ibus_text_new_from_static_string ((const gchar *) text);
+    Pointer<IBusText> preedit_text = ibus_text_new_from_static_string ((const gchar *) m_buffer);
     ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, 0 -1);
     ibus_engine_update_preedit_text (m_engine, preedit_text, m_phrase_editor.cursor (), TRUE);
 }
@@ -179,31 +179,31 @@ PinyinEngine::updateAuxiliaryText (void)
         return;
     }
 
-    String text(64);
     guint cursor_pos;
     guint len;
 
+    m_buffer.truncate (0);
     for (guint i = 0; i < m_pinyin_editor.pinyin().length (); ++i) {
         if (G_LIKELY (i != 0))
-            text << '\'';
+            m_buffer << '\'';
         const Pinyin *p = m_pinyin_editor.pinyin()[i];
-        text << p->sheng;
-        text << p->yun;
+        m_buffer << p->sheng;
+        m_buffer << p->yun;
     }
 
-    len = text.length ();
+    len = m_buffer.length ();
     if (G_UNLIKELY (m_pinyin_editor.pinyinLength () == m_pinyin_editor.cursor ())) {
-        cursor_pos =  text.length ();
-        text << '|' << ((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.pinyinLength ();
+        cursor_pos =  m_buffer.length ();
+        m_buffer << '|' << ((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.pinyinLength ();
     }
     else {
-        text.append (((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.pinyinLength (),
+        m_buffer.append (((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.pinyinLength (),
                      m_pinyin_editor.cursor () - m_pinyin_editor.pinyinLength ());
-        cursor_pos =  text.length ();
-        text << '|' << ((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.cursor ();
+        cursor_pos =  m_buffer.length ();
+        m_buffer << '|' << ((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.cursor ();
     }
 
-    Pointer<IBusText> aux_text = ibus_text_new_from_static_string (text);
+    Pointer<IBusText> aux_text = ibus_text_new_from_static_string (m_buffer);
     ibus_text_append_attribute (aux_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, len, cursor_pos);
     ibus_text_append_attribute (aux_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, cursor_pos + 1, -1);
     ibus_engine_update_auxiliary_text (m_engine, aux_text, TRUE);
@@ -221,8 +221,8 @@ PinyinEngine::updateLookupTable (void)
         return;
     }
 
+    Pointer<IBusText> text;
     for (guint i = 0; i < candidates.length (); i++) {
-        Pointer<IBusText> text;
         text = ibus_text_new_from_static_string (candidates[i].phrase);
         ibus_lookup_table_append_candidate (m_lookup_table, text);
     }

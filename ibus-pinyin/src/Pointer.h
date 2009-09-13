@@ -23,6 +23,7 @@ public:
 
         m_p = p;
         if (p) {
+            // g_debug ("%s, floating = %d",G_OBJECT_TYPE_NAME (p), g_object_is_floating (p));
             g_object_ref_sink (p);
         }
     }

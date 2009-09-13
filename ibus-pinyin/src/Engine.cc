@@ -142,6 +142,8 @@ ibus_pinyin_engine_class_init (IBusPinyinEngineClass *klass)
 static void
 ibus_pinyin_engine_init (IBusPinyinEngine *pinyin)
 {
+    if (g_object_is_floating (pinyin))
+        g_object_ref_sink (pinyin);  // make engine sink
     pinyin->engine = new PinyinEngine (IBUS_ENGINE (pinyin));
 }
 
