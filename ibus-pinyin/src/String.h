@@ -27,6 +27,10 @@ public:
         return m_string->len;
     }
 
+    gsize utf8Length (void) const {
+        return g_utf8_strlen (m_string->str, m_string->len);
+    }
+
     gboolean isEmpty (void) const {
         return m_string->len == 0;
     }
