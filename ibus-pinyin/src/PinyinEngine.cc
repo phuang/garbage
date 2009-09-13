@@ -258,7 +258,9 @@ PinyinEngine::commit (void)
 gboolean
 PinyinEngine::selectPhrase (guint i)
 {
+    m_phrase_editor.selectCandidate (i);
     return TRUE;
 }
+
 };
 

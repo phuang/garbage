@@ -23,7 +23,7 @@ PhraseEditor::update (const PinyinArray &pinyin, gint cursor)
 {
     g_assert (cursor <= (gint)pinyin.length ());
 
-    if (cursor < 0)
+    if (G_LIKELY (cursor < 0))
         cursor = pinyin.length ();
 
     m_pinyin = pinyin;
@@ -74,14 +74,14 @@ PhraseEditor::updatePhrases (void)
         end = m_cursor;
 
         while (begin != end) {
-            for (guint i = end; i > begin; i--) {
+            for (guint i = MIN (end, begin + MAX_PHRASE_LEN); i > begin; i--) {
                 retval = m_database.query (m_pinyin,
                                            begin,
                                            i - begin,
                                            1,
                                            m_option,
                                            m_phrases);
-                if (retval > 0) {
+                if (G_LIKELY (retval > 0)) {
                     begin += m_phrases[m_phrases.length () - 1].len;
                     break;
                 }
@@ -94,14 +94,14 @@ PhraseEditor::updatePhrases (void)
     end = m_pinyin.length ();
 
     while (begin != end) {
-        for (guint i = end; i > begin; i--) {
+        for (guint i = MIN (end, begin + MAX_PHRASE_LEN); i > begin; i--) {
             retval = m_database.query (m_pinyin,
                                        begin,
                                        i - begin,
                                        1,
                                        m_option,
                                        m_phrases);
-            if (retval > 0) {
+            if (G_LIKELY (retval > 0)) {
                 begin += m_phrases[m_phrases.length () - 1].len;
                 break;
             }
