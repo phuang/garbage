@@ -68,10 +68,7 @@ sp_cmp (const void *p1,
     const Pinyin **pys = (const Pinyin **) p1;
     const Pinyin **e = (const Pinyin **) p2;
 
-    gint r;
-
-    r = ((pys[0] - e[0]) << 16) + (pys[1] - e[1]);
-    return r;
+    return ((pys[0] - e[0]) << 16) + (pys[1] - e[1]);
 }
 
 static const Pinyin **
@@ -85,7 +82,10 @@ need_resplit(const Pinyin *p1,
 }
 
 guint
-PinyinParser::parse (const String  &pinyin, gint len, guint option, PinyinArray &result)
+PinyinParser::parse (const String   &pinyin,
+                     gint            len,
+                     guint           option,
+                     PinyinArray    &result)
 {
 
     const gchar *p;
@@ -95,7 +95,7 @@ PinyinParser::parse (const String  &pinyin, gint len, guint option, PinyinArray 
     gchar prev_c;
 
     result.removeAll ();
-    
+
     if (len < 0)
         len = pinyin.length ();
 
@@ -141,9 +141,8 @@ PinyinParser::parse (const String  &pinyin, gint len, guint option, PinyinArray 
                         }
                     }
 
-                    if ( py == NULL) {
+                    if ( py == NULL)
                         break;
-                    }
 
                     pp = need_resplit (prev_py, py);
                     if (pp != NULL) {
