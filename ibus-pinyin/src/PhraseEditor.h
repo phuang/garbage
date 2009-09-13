@@ -19,6 +19,7 @@ public:
     const Phrase & candidate (guint i) const {
         return m_candidates[i];
     }
+
     const Phrase & phrase (guint i) const {
         return m_phrases[i];
     }
@@ -28,7 +29,9 @@ public:
         m_phrases.removeAll ();
         m_cursor = 0;
     }
+
     void update (const PinyinArray &pinyin, gint cursor = -1);
+    gboolean selectCandidate (guint i);
 
 private:
     void updateCandidates (void);

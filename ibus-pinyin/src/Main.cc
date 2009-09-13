@@ -10,8 +10,8 @@ using namespace PY;
 
 #define N_(text) text
 
-static Pointer<IBusBus> bus = NULL;
-static Pointer<IBusFactory> factory = NULL;
+static Pointer<IBusBus> bus;
+static Pointer<IBusFactory> factory;
 
 /* options */
 static gboolean ibus = FALSE;

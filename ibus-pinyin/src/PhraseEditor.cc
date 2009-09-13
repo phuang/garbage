@@ -33,6 +33,12 @@ PhraseEditor::update (const PinyinArray &pinyin, gint cursor)
     updatePhrases ();
 }
 
+gboolean
+PhraseEditor::selectCandidate (guint i)
+{
+    return FALSE;
+}
+
 void
 PhraseEditor::updateCandidates (void)
 {

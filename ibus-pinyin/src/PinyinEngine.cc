@@ -241,6 +241,17 @@ PinyinEngine::updatePhraseEditor (void)
 void
 PinyinEngine::commit (void)
 {
+    const PhraseArray &phrases = m_phrase_editor.phrases ();
+
+    if (G_LIKELY (phrases)) {
+        m_buffer.truncate (0);
+        for (guint i = 0; i < phrases.length (); i++) {
+            m_buffer << phrases[i].phrase;
+        }
+        Pointer<IBusText> text = ibus_text_new_from_static_string (m_buffer);
+        ibus_engine_commit_text (m_engine, text);
+        reset ();
+    }
 }
 
 gboolean
