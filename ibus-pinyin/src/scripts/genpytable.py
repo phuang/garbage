@@ -254,6 +254,8 @@ def get_all_special():
                 new_pinyin = p[-1] + yun
                 # if new_pinyin in pinyin_list:
                 yield p, yun, p[:-1], new_pinyin
+        elif p[-1] in ["e"]:
+            yield p, "r", p[:-1], "er"
 
 def get_freq_sum_2(db, p1, p2):
     s1, y1 = get_sheng_yun(p1)

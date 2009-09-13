@@ -49,14 +49,13 @@ static void     ibus_pinyin_engine_enable       (IBusEngine             *engine)
 static void     ibus_pinyin_engine_disable      (IBusEngine             *engine);
 
 #if 0
-static void ibus_engine_set_cursor_location (IBusEngine             *engine,
-                                             gint                    x,
-                                             gint                    y,
-                                             gint                    w,
-                                             gint                    h);
-static void ibus_pinyin_engine_set_capabilities
-                                            (IBusEngine             *engine,
-                                             guint                   caps);
+static void     ibus_engine_set_cursor_location (IBusEngine             *engine,
+                                                 gint                    x,
+                                                 gint                    y,
+                                                 gint                    w,
+                                                 gint                    h);
+static void ibus_pinyin_engine_set_capabilities (IBusEngine             *engine,
+                                                guint                   caps);
 #endif
 
 static void     ibus_pinyin_engine_page_up      (IBusEngine             *engine);
@@ -64,23 +63,18 @@ static void     ibus_pinyin_engine_page_down    (IBusEngine             *engine)
 static void     ibus_pinyin_engine_cursor_up    (IBusEngine             *engine);
 static void     ibus_pinyin_engine_cursor_down  (IBusEngine             *engine);
 #if 0
-static void ibus_pinyin_property_activate   (IBusEngine             *engine,
-                                             const gchar            *prop_name,
-                                             gint                    prop_state);
-static void ibus_pinyin_engine_property_show
-                                            (IBusEngine             *engine,
-                                             const gchar            *prop_name);
-static void ibus_pinyin_engine_property_hide
-                                            (IBusEngine             *engine,
-                                             const gchar            *prop_name);
-#endif
-
-#if 0
-static void ibus_config_value_changed       (IBusConfig             *config,
-                                             const gchar            *section,
-                                             const gchar            *name,
-                                             GValue                 *value,
-                                             gpointer                user_data);
+static void ibus_pinyin_property_activate       (IBusEngine             *engine,
+                                                 const gchar            *prop_name,
+                                                 gint                    prop_state);
+static void ibus_pinyin_engine_property_show    (IBusEngine             *engine,
+                                                 const gchar            *prop_name);
+static void ibus_pinyin_engine_property_hide    (IBusEngine             *engine,
+                                                 const gchar            *prop_name);
+static void ibus_config_value_changed           (IBusConfig             *config,
+                                                 const gchar            *section,
+                                                 const gchar            *name,
+                                                 GValue                 *value,
+                                                 gpointer                user_data);
 #endif
 
 static IBusEngineClass *parent_class = NULL;

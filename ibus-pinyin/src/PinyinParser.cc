@@ -112,6 +112,7 @@ PinyinParser::parse (const String  &pinyin, gint len, guint option, PinyinArray 
         case 'r':
         case 'n':
         case 'g':
+        case 'e':
             switch (*p) {
             case 'i':
             case 'u':
@@ -119,6 +120,7 @@ PinyinParser::parse (const String  &pinyin, gint len, guint option, PinyinArray 
             case 'a':
             case 'e':
             case 'o':
+            case 'r':
                 {
                     const Pinyin **pp;
                     const Pinyin *new_py1;
