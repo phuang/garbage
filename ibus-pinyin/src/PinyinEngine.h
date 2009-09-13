@@ -48,7 +48,7 @@ public:
 
 private:
     void commit (void);
-    gboolean selectPhrase (guint i);
+    gboolean selectCandidate (guint i);
     void updatePreeditText (void);
     void updateAuxiliaryText (void);
     void updateLookupTable (void);

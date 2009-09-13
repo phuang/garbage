@@ -65,13 +65,13 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
     if (G_UNLIKELY (m_pinyin_editor.isEmpty ()))
         return FALSE;
 
-    if (keyval >= IBUS_1 && keyval <= IBUS_0) {
+    if (keyval >= IBUS_0 && keyval <= IBUS_9) {
         guint i;
         if (G_UNLIKELY (keyval == IBUS_0))
             i = 10;
         else
             i = keyval - IBUS_1;
-        selectPhrase (i);
+        selectCandidate (i);
         return TRUE;
     }
 
@@ -153,21 +153,29 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 void
 PinyinEngine::updatePreeditText (void)
 {
-    const PhraseArray & phrases = m_phrase_editor.phrases ();
+    const PhraseArray & phrases1 = m_phrase_editor.phrases1 ();
+    const PhraseArray & phrases2 = m_phrase_editor.phrases2 ();
 
-    if (G_UNLIKELY (! phrases)) {
+    if (G_UNLIKELY (phrases1.isEmpty () && phrases2.isEmpty ())) {
         ibus_engine_hide_preedit_text (m_engine);
         return;
     }
 
     m_buffer.truncate (0);
-    for (guint i = 0; i < phrases.length (); i++) {
-        m_buffer << phrases[i].phrase;
+    for (guint i = 0; i < phrases1.length (); i++) {
+        m_buffer << phrases1[i].phrase;
+    }
+
+    if (phrases1.length () > 0 && phrases2.length () > 0)
+        m_buffer << ' ';
+
+    for (guint i = 0; i < phrases2.length (); i++) {
+        m_buffer << phrases2[i].phrase;
     }
 
     Pointer<IBusText> preedit_text = ibus_text_new_from_static_string ((const gchar *) m_buffer);
-    ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, 0 -1);
-    ibus_engine_update_preedit_text (m_engine, preedit_text, m_phrase_editor.cursor (), TRUE);
+    ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
+    ibus_engine_update_preedit_text (m_engine, preedit_text, m_buffer.length (), TRUE);
 }
 
 void
@@ -180,12 +188,21 @@ PinyinEngine::updateAuxiliaryText (void)
         return;
     }
 
+    const PhraseArray &phrases = m_phrase_editor.phrases1 ();
     guint cursor_pos;
     guint len;
 
     m_buffer.truncate (0);
-    for (guint i = 0; i < m_pinyin_editor.pinyin().length (); ++i) {
-        if (G_LIKELY (i != 0))
+
+    if (G_UNLIKELY (phrases)) {
+        for (guint i = 0; i < phrases.length (); i++) {
+            m_buffer << phrases[i].phrase;
+        }
+        m_buffer << ' ';
+    }
+
+    for (guint i = m_phrase_editor.cursor (); i < m_pinyin_editor.pinyin().length (); ++i) {
+        if (G_LIKELY (i != m_phrase_editor.cursor ()))
             m_buffer << '\'';
         const Pinyin *p = m_pinyin_editor.pinyin()[i];
         m_buffer << p->sheng;
@@ -242,13 +259,18 @@ PinyinEngine::updatePhraseEditor (void)
 void
 PinyinEngine::commit (void)
 {
-    const PhraseArray &phrases = m_phrase_editor.phrases ();
+    const PhraseArray &phrases1 = m_phrase_editor.phrases1 ();
+    const PhraseArray &phrases2 = m_phrase_editor.phrases2 ();
 
-    if (G_LIKELY (phrases)) {
+    if (phrases1.length () > 0 || phrases2.length () > 0) {
         m_buffer.truncate (0);
-        for (guint i = 0; i < phrases.length (); i++) {
-            m_buffer << phrases[i].phrase;
+        for (guint i = 0; i < phrases1.length (); i++) {
+            m_buffer << phrases1[i].phrase;
         }
+        for (guint i = 0; i < phrases2.length (); i++) {
+            m_buffer << phrases2[i].phrase;
+        }
+
         Pointer<IBusText> text = ibus_text_new_from_static_string (m_buffer);
         ibus_engine_commit_text (m_engine, text);
         reset ();
@@ -256,9 +278,18 @@ PinyinEngine::commit (void)
 }
 
 gboolean
-PinyinEngine::selectPhrase (guint i)
+PinyinEngine::selectCandidate (guint i)
 {
-    m_phrase_editor.selectCandidate (i);
+    if (m_phrase_editor.selectCandidate (i)) {
+        if (G_UNLIKELY (m_phrase_editor.cursor () == m_pinyin_editor.pinyin ().length ())) {
+            commit ();
+        }
+        else {
+            updatePreeditText ();
+            updateAuxiliaryText ();
+            updateLookupTable ();
+        }
+    }
     return TRUE;
 }
 

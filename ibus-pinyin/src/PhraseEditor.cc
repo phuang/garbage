@@ -8,7 +8,8 @@ guint PhraseEditor::m_option = 0;
 
 PhraseEditor::PhraseEditor (void)
     : m_candidates (32),
-      m_phrases (8),
+      m_phrases1 (8),
+      m_phrases2 (8),
       m_pinyin (16),
       m_cursor (0)
 {
@@ -19,15 +20,11 @@ PhraseEditor::~PhraseEditor (void)
 }
 
 void
-PhraseEditor::update (const PinyinArray &pinyin, gint cursor)
+PhraseEditor::update (const PinyinArray &pinyin)
 {
-    g_assert (cursor <= (gint)pinyin.length ());
-
-    if (G_LIKELY (cursor < 0))
-        cursor = pinyin.length ();
-
     m_pinyin = pinyin;
-    m_cursor = cursor;
+    m_phrases1.removeAll ();
+    m_cursor = 0;
 
     updateCandidates ();
     updatePhrases ();
@@ -36,7 +33,14 @@ PhraseEditor::update (const PinyinArray &pinyin, gint cursor)
 gboolean
 PhraseEditor::selectCandidate (guint i)
 {
-    return FALSE;
+    if (G_UNLIKELY (i >= m_candidates.length ()))
+        return FALSE;
+
+    m_phrases1 << m_candidates[i];
+    m_cursor += m_candidates[i].len;
+    updateCandidates ();
+    updatePhrases ();
+    return TRUE;
 }
 
 void
@@ -45,10 +49,11 @@ PhraseEditor::updateCandidates (void)
     gboolean retval;
     m_candidates.removeAll ();
 
-    for (guint i = m_cursor; i > 0; i--) {
+    guint len = MIN (MAX_PHRASE_LEN, m_pinyin.length () - m_cursor);
+    for (; len > 0; len--) {
         retval = m_database.query (m_pinyin,
-                                   0,
-                                   i,
+                                   m_cursor,
+                                   len,
                                    -1,
                                    m_option,
                                    m_candidates);
@@ -62,16 +67,16 @@ PhraseEditor::updatePhrases (void)
     guint end;
     gboolean retval;
 
-    m_phrases.removeAll ();
+    m_phrases2.removeAll ();
 
     if (G_UNLIKELY (m_pinyin.length () == 0))
         return;
 
-    if (G_LIKELY (m_cursor > 0)) {
-        m_phrases << m_candidates[0];
+    if (G_LIKELY (m_cursor < m_pinyin.length ())) {
+        m_phrases2 << m_candidates[0];
 
-        begin = m_phrases[0].len;
-        end = m_cursor;
+        begin = m_phrases2[0].len + m_cursor;
+        end = m_pinyin.length ();
 
         while (begin != end) {
             for (guint i = MIN (end, begin + MAX_PHRASE_LEN); i > begin; i--) {
@@ -80,33 +85,14 @@ PhraseEditor::updatePhrases (void)
                                            i - begin,
                                            1,
                                            m_option,
-                                           m_phrases);
+                                           m_phrases2);
                 if (G_LIKELY (retval > 0)) {
-                    begin += m_phrases[m_phrases.length () - 1].len;
+                    begin += m_phrases2[m_phrases2.length () - 1].len;
                     break;
                 }
             }
             g_assert (retval > 0);
         }
-    }
-
-    begin = m_cursor;
-    end = m_pinyin.length ();
-
-    while (begin != end) {
-        for (guint i = MIN (end, begin + MAX_PHRASE_LEN); i > begin; i--) {
-            retval = m_database.query (m_pinyin,
-                                       begin,
-                                       i - begin,
-                                       1,
-                                       m_option,
-                                       m_phrases);
-            if (G_LIKELY (retval > 0)) {
-                begin += m_phrases[m_phrases.length () - 1].len;
-                break;
-            }
-        }
-        g_assert (retval > 0);
     }
 }
 
