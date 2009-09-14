@@ -45,6 +45,12 @@ public:
         return *this;
     }
 
+    Array<T> & append (const Array<T> & a) {
+        for (guint i = 0; i < a.length (); i++)
+            append (a[i]);
+        return *this;
+    }
+
     Array<T> & push (const T & v) {
         append (v);
         return *this;
@@ -75,6 +81,10 @@ public:
 
     Array<T> & operator << (const T & v) {
         return append (v);
+    }
+
+    Array<T> & operator << (const Array<T> & a) {
+        return append (a);
     }
 
     T & operator[] (guint i) {

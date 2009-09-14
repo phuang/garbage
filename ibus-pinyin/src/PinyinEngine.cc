@@ -185,25 +185,18 @@ PinyinEngine::cursorDown (void)
 void
 PinyinEngine::updatePreeditText (void)
 {
-    const PhraseArray & phrases1 = m_phrase_editor.phrases1 ();
-    const PhraseArray & phrases2 = m_phrase_editor.phrases2 ();
-
-    if (G_UNLIKELY (phrases1.isEmpty () && phrases2.isEmpty ())) {
+    if (G_UNLIKELY ((!m_phrase_editor.string1 ()) && (!m_phrase_editor.string2 ()))) {
         ibus_engine_hide_preedit_text (m_engine);
         return;
     }
 
     m_buffer.truncate (0);
-    for (guint i = 0; i < phrases1.length (); i++) {
-        m_buffer << phrases1[i].phrase;
-    }
+    m_buffer << m_phrase_editor.string1 ();
 
-    if (phrases1.length () > 0 && phrases2.length () > 0)
+    if (m_phrase_editor.string1 () && m_phrase_editor.string2 ())
         m_buffer << ' ';
 
-    for (guint i = 0; i < phrases2.length (); i++) {
-        m_buffer << phrases2[i].phrase;
-    }
+    m_buffer << m_phrase_editor.string2 ();
 
     Pointer<IBusText> preedit_text = ibus_text_new_from_static_string ((const gchar *) m_buffer);
     ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
@@ -220,17 +213,12 @@ PinyinEngine::updateAuxiliaryText (void)
         return;
     }
 
-    const PhraseArray &phrases = m_phrase_editor.phrases1 ();
     guint cursor_pos;
     guint len;
 
     m_buffer.truncate (0);
-
-    if (G_UNLIKELY (phrases)) {
-        for (guint i = 0; i < phrases.length (); i++) {
-            m_buffer << phrases[i].phrase;
-        }
-        m_buffer << ' ';
+    if (G_UNLIKELY (m_phrase_editor.string1 ())) {
+        m_buffer << m_phrase_editor.string1 () << ' ';
     }
 
     for (guint i = m_phrase_editor.cursor (); i < m_pinyin_editor.pinyin().length (); ++i) {
@@ -262,18 +250,17 @@ PinyinEngine::updateAuxiliaryText (void)
 void
 PinyinEngine::updateLookupTable (void)
 {
-    const PhraseArray &candidates = m_phrase_editor.candidates ();
-
     ibus_lookup_table_clear (m_lookup_table);
+    guint candidate_nr = m_phrase_editor.candidateNumber ();
 
-    if (G_UNLIKELY (!candidates)) {
+    if (G_UNLIKELY (candidate_nr == 0)) {
         ibus_engine_hide_lookup_table (m_engine);
         return;
     }
 
     Pointer<IBusText> text;
-    for (guint i = 0; i < candidates.length (); i++) {
-        text = ibus_text_new_from_static_string (candidates[i].phrase);
+    for (guint i = 0; i < candidate_nr; i++) {
+        text = ibus_text_new_from_static_string (m_phrase_editor.candidate (i));
         ibus_lookup_table_append_candidate (m_lookup_table, text);
     }
 
@@ -291,18 +278,9 @@ PinyinEngine::updatePhraseEditor (void)
 void
 PinyinEngine::commit (void)
 {
-    const PhraseArray &phrases1 = m_phrase_editor.phrases1 ();
-    const PhraseArray &phrases2 = m_phrase_editor.phrases2 ();
-
-    if (phrases1.length () > 0 || phrases2.length () > 0) {
+    if (m_phrase_editor.string1 () || m_phrase_editor.string2 ()) {
         m_buffer.truncate (0);
-        for (guint i = 0; i < phrases1.length (); i++) {
-            m_buffer << phrases1[i].phrase;
-        }
-        for (guint i = 0; i < phrases2.length (); i++) {
-            m_buffer << phrases2[i].phrase;
-        }
-
+        m_buffer << m_phrase_editor.string1 () << m_phrase_editor.string2 ();
         Pointer<IBusText> text = ibus_text_new_from_static_string (m_buffer);
         ibus_engine_commit_text (m_engine, text);
         reset ();
@@ -315,6 +293,10 @@ PinyinEngine::selectCandidate (guint i)
     guint page_size = ibus_lookup_table_get_page_size (m_lookup_table);
     guint cursor_pos = ibus_lookup_table_get_cursor_pos (m_lookup_table);
     i += (cursor_pos / page_size) * page_size;
+
+    if (G_LIKELY (i == 0)) {
+
+    }
     if (m_phrase_editor.selectCandidate (i)) {
         if (G_UNLIKELY (m_phrase_editor.cursor () == m_pinyin_editor.pinyin ().length ())) {
             commit ();

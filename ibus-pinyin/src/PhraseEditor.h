@@ -11,22 +11,23 @@ public:
     PhraseEditor(void);
     ~PhraseEditor(void);
 
-    const PhraseArray & candidates (void) const { return m_candidates; }
-    const PhraseArray & phrases1 (void) const { return m_phrases1; }
-    const PhraseArray & phrases2 (void) const { return m_phrases2; }
+    const String & string1 (void) const { return m_string1; }
+    const String & string2 (void) const { return m_string2; }
     const PinyinArray & pinyin (void) const { return m_pinyin; }
     guint cursor (void) const { return m_cursor; }
 
-    const Phrase & candidate (guint i) const {
-        return m_candidates[i];
+    guint candidateNumber (void) const {
+        if (m_phrases2.length () > 1)
+            return m_candidates.length () + 1;
+        return m_candidates.length ();
     }
 
-    const Phrase & phrase1 (guint i) const {
-        return m_phrases1[i];
-    }
-
-    const Phrase & phrase2 (guint i) const {
-        return m_phrases2[i];
+    const gchar * candidate (guint i) const {
+        if (G_UNLIKELY (i == 0))
+            return m_string2;
+        if (G_UNLIKELY (m_phrases2.length () > 1))
+            return m_candidates[i - 1].phrase;
+        return m_candidates[i].phrase;
     }
 
     void reset (void) {
@@ -46,7 +47,9 @@ private:
 private:
     PhraseArray m_candidates;   // candidates phrase array
     PhraseArray m_phrases1;     // phrases before cursor
+    String      m_string1;      // phrases before cursor as string
     PhraseArray m_phrases2;     // phrases after cursor
+    String      m_string2;      // phrases before cursor as string
     PinyinArray m_pinyin;
     guint m_cursor;
 
