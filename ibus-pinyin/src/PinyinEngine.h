@@ -26,10 +26,10 @@ public:
 
     void enable (void) {}
     void disable (void) {}
-    void pageUp (void) {}
-    void pageDown (void) {}
-    void cursorUp (void) {}
-    void cursorDown (void) {}
+    void pageUp (void);
+    void pageDown (void);
+    void cursorUp (void);
+    void cursorDown (void);
 
     void update (gboolean now = TRUE) {
         if (now || m_need_update >= 4) {
