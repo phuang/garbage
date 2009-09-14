@@ -271,7 +271,7 @@ def get_freq_sum_2(db, p1, p2):
 def get_freq_sum_1(db, p1):
     s1, y1 = get_sheng_yun(p1)
 
-    sql = "select max(freq), phrase from py_phrase_1 where s0 = %d and y0 = %d"
+    sql = "select max(freq), phrase from py_phrase_0 where s0 = %d and y0 = %d"
 
     c = db.execute(sql % (encode_pinyin(s1), encode_pinyin(y1)))
     for r in c:
