@@ -8,13 +8,13 @@ con2.execute ("PRAGMA synchronous = NORMAL;")
 con2.execute ("PRAGMA temp_store = MEMORY;")
 con2.execute ("PRAGMA default_cache_size = 5000;")
 
-sql = "create table py_phrase_%d (phrase text, freq integer, %s)"
+sql = "CREATE TABLE py_phrase_%d (phrase TEXT, freq INTEGER, %s)"
 
 for i in range(0, 16):
 	column= []
 	for j in range(0, i + 1):
-		column.append ("s%d integer" % j)
-		column.append ("y%d integer" % j)
+		column.append ("s%d INTEGER" % j)
+		column.append ("y%d INTEGER" % j)
 	column = ",".join(column)
 	con2.execute(sql % (i, column))
 con2.commit()
@@ -39,11 +39,11 @@ def encode_pinyin(pinyin):
 		e = (e << 5) + (ord(c) - ord('a') + 1)
 	return e
 
-insert_sql = "insert into py_phrase_%d values (%s);"
+insert_sql = "INSERT INTO py_phrase_%d VALUES (%s);"
 con2.commit()
 new_freq = 0
 freq = 0
-for r in con1.execute("select * from py_phrase order by freq"):
+for r in con1.execute("SELECT * FROM py_phrase ORDER BY freq"):
 	
 	ylen = r[0]
 	phrase = r[10]
