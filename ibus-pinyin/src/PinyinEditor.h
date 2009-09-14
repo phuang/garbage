@@ -11,11 +11,13 @@ class PinyinEditor {
 
 public:
     PinyinEditor (void);
-    const String & text (void) { return m_text; }
-    guint cursor (void) { return m_cursor; }
-    gboolean isEmpty (void) { return m_text.isEmpty (); }
-    const PinyinArray & pinyin (void) { return m_pinyin; }
-    guint pinyinLength (void) { return m_pinyin_len; }
+    const String & text (void) const { return m_text; }
+    const gchar * textAfterPinyin (void) const { return (const gchar *)m_text + m_pinyin_len; }
+    const gchar * textAfterCursor (void) const { return (const gchar *)m_text + m_cursor; }
+    guint cursor (void) const { return m_cursor; }
+    gboolean isEmpty (void) const { return m_text.isEmpty (); }
+    const PinyinArray & pinyin (void) const { return m_pinyin; }
+    guint pinyinLength (void) const { return m_pinyin_len; }
 
     gboolean insert (gint ch);
 

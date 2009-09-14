@@ -144,7 +144,6 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
     default:
         return TRUE;
     }
-
     if (G_LIKELY (_update))
         update (FALSE);
     return TRUE;
@@ -197,6 +196,7 @@ PinyinEngine::updatePreeditText (void)
         m_buffer << ' ';
 
     m_buffer << m_phrase_editor.string2 ();
+    m_buffer << m_pinyin_editor.textAfterPinyin ();
 
     Pointer<IBusText> preedit_text = ibus_text_new_from_static_string ((const gchar *) m_buffer);
     ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
@@ -231,14 +231,16 @@ PinyinEngine::updateAuxiliaryText (void)
 
     len = m_buffer.length ();
     if (G_UNLIKELY (m_pinyin_editor.pinyinLength () == m_pinyin_editor.cursor ())) {
-        cursor_pos =  m_buffer.length ();
-        m_buffer << '|' << ((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.pinyinLength ();
+        /* aux = pinyin + non-pinyin */
+        cursor_pos =  m_buffer.utf8Length ();
+        m_buffer << '|' << m_pinyin_editor.textAfterPinyin ();
     }
     else {
-        m_buffer.append (((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.pinyinLength (),
+        /* aux = pinyin + non-pinyin before cursor + non-pinyin after cursor */
+        m_buffer.append (m_pinyin_editor.textAfterPinyin (),
                      m_pinyin_editor.cursor () - m_pinyin_editor.pinyinLength ());
-        cursor_pos =  m_buffer.length ();
-        m_buffer << '|' << ((const gchar *)m_pinyin_editor.text ()) + m_pinyin_editor.cursor ();
+        cursor_pos =  m_buffer.utf8Length ();
+        m_buffer  << '|' << m_pinyin_editor.textAfterCursor ();
     }
 
     Pointer<IBusText> aux_text = ibus_text_new_from_static_string (m_buffer);
@@ -280,7 +282,7 @@ PinyinEngine::commit (void)
 {
     if (m_phrase_editor.string1 () || m_phrase_editor.string2 ()) {
         m_buffer.truncate (0);
-        m_buffer << m_phrase_editor.string1 () << m_phrase_editor.string2 ();
+        m_buffer << m_phrase_editor.string1 () << m_phrase_editor.string2 () << m_pinyin_editor.textAfterPinyin ();
         Pointer<IBusText> text = ibus_text_new_from_static_string (m_buffer);
         ibus_engine_commit_text (m_engine, text);
         reset ();

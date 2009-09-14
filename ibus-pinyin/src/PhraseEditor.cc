@@ -24,10 +24,27 @@ PhraseEditor::~PhraseEditor (void)
 void
 PhraseEditor::update (const PinyinArray &pinyin)
 {
+    gboolean diff = FALSE;
+
+    if (m_cursor > pinyin.length ()) {
+        diff = TRUE;
+    }
+    else {
+        for (gint i = m_cursor - 1; i >= 0; i--) {
+            if (m_pinyin[i] != pinyin[i]) {
+                diff = TRUE;
+                break;
+            }
+        }
+    }
+
     m_pinyin = pinyin;
-    m_phrases1.removeAll ();
-    m_string1.truncate (0);
-    m_cursor = 0;
+
+    if (diff) {
+        m_phrases1.removeAll ();
+        m_string1.truncate (0);
+        m_cursor = 0;
+    }
 
     updateCandidates ();
     updatePhrases ();
@@ -36,15 +53,18 @@ PhraseEditor::update (const PinyinArray &pinyin)
 gboolean
 PhraseEditor::selectCandidate (guint i)
 {
-    if (G_UNLIKELY (i >= m_candidates.length ()))
-        return FALSE;
-
     if (G_LIKELY (i == 0)) {
         m_phrases1 << m_phrases2;
         m_string1 << m_string2;
         m_cursor = m_pinyin.length ();
     }
     else {
+        if (m_phrases2.length() > 1)
+            i --;
+
+        if (G_UNLIKELY (i >= m_candidates.length ()))
+            return FALSE;
+
         m_phrases1 << m_candidates[i];
         m_string1 << m_candidates[i].phrase;
         m_cursor += m_candidates[i].len;
