@@ -17,7 +17,12 @@ Database::Database (void)
       m_conditions (32),
       m_strings (32)
 {
-    gchar *sql;
+    init ();
+}
+
+void
+Database::init (void)
+{
     const gchar *userdb;
     gchar *errmsg;
 
@@ -26,21 +31,37 @@ Database::Database (void)
     if (sqlite3_open_v2 ("py.db", &m_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) != SQLITE_OK) {
         goto _failed;
     }
-
     userdb = "/home/phuang/.cache/ibus/ibus-pinyin/user.db";
-    sql = g_strdup_printf ("ATTACH DATABASE \"%s\" AS userdb;", userdb);
-    if (sqlite3_exec (m_db, sql, NULL, NULL, &errmsg) != SQLITE_OK) {
+    m_sql.printf ("ATTACH DATABASE \"%s\" AS userdb;", userdb);
+    if (sqlite3_exec (m_db, m_sql, NULL, NULL, &errmsg) != SQLITE_OK) {
         g_debug ("%s", errmsg);
         sqlite3_free (errmsg);
         goto _failed;
     }
-    g_free (sql);
 
     if (sqlite3_exec (m_db, "PRAGMA cache_size=" DB_CACHE_SIZE, NULL, NULL, &errmsg) != SQLITE_OK) {
         g_debug ("%s", errmsg);
         sqlite3_free (errmsg);
         goto _failed;
     }
+
+    m_sql = "BEGIN TRANSACTION;\n";
+    for (guint i = 0; i < MAX_PHRASE_LEN; i++) {
+        m_sql.appendPrintf ("CREATE TABLE IF NOT EXISTS userdb.py_phrase_%d (phrase TEXT, freq INTEGER", i);
+        for (guint j = 0; j <= i; j++) 
+            m_sql.appendPrintf (",s%d INTEGER, y%d INTEGER", j, j);
+        m_sql << ");\n";
+    }
+    m_sql << "COMMIT;\n";
+    
+    g_debug ("%s", (const gchar *)m_sql);
+
+    if (sqlite3_exec (m_db, m_sql, NULL, NULL, &errmsg) != SQLITE_OK) {
+        g_debug ("%s", errmsg);
+        sqlite3_free (errmsg);
+        goto _failed;
+    }
+
     return;
 
 _failed:

@@ -39,6 +39,9 @@ public:
     void conditionsTriple (void);
 
 private:
+    void init (void);
+
+private:
     sqlite3 *m_db;
     String   m_sql;
     Array<String *> m_conditions;
