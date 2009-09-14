@@ -46,15 +46,23 @@ Database::init (void)
     }
 
     m_sql = "BEGIN TRANSACTION;\n";
+    /* create table */
     for (guint i = 0; i < MAX_PHRASE_LEN; i++) {
         m_sql.appendPrintf ("CREATE TABLE IF NOT EXISTS userdb.py_phrase_%d (phrase TEXT, freq INTEGER", i);
-        for (guint j = 0; j <= i; j++) 
+        for (guint j = 0; j <= i; j++)
             m_sql.appendPrintf (",s%d INTEGER, y%d INTEGER", j, j);
         m_sql << ");\n";
     }
+
+    /* create index */
+    m_sql << "CREATE INDEX IF NOT EXISTS " << "userdb.index_0_0 ON py_phrase_0(s0, y0);\n";
+    m_sql << "CREATE INDEX IF NOT EXISTS " << "userdb.index_1_0 ON py_phrase_1(s0, y0, s1, y1);\n";
+    m_sql << "CREATE INDEX IF NOT EXISTS " << "userdb.index_1_1 ON py_phrase_1(s0, s1, y1);\n";
+    for (guint i = 2; i < MAX_PHRASE_LEN; i++) {
+        m_sql << "CREATE INDEX IF NOT EXISTS " << "userdb.index_" << i << "_0 ON py_phrase_" << i << "(s0, y0, s1, y1, s2, y2);\n";
+        m_sql << "CREATE INDEX IF NOT EXISTS " << "userdb.index_" << i << "_1 ON py_phrase_" << i << "(s0, s1, s2, y2);\n";
+    }
     m_sql << "COMMIT;\n";
-    
-    g_debug ("%s", (const gchar *)m_sql);
 
     if (sqlite3_exec (m_db, m_sql, NULL, NULL, &errmsg) != SQLITE_OK) {
         g_debug ("%s", errmsg);
