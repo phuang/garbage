@@ -61,11 +61,14 @@ Database::init (void)
     }
 
     /* create index */
-    m_sql << "CREATE INDEX IF NOT EXISTS " << "userdb.index_0_0 ON py_phrase_0(s0, y0);\n";
-    m_sql << "CREATE INDEX IF NOT EXISTS " << "userdb.index_1_0 ON py_phrase_1(s0, y0, s1, y1);\n";
+    m_sql << "CREATE UNIQUE INDEX IF NOT EXISTS " << "userdb.index_0_0 ON py_phrase_0(s0, y0, phrase);\n";
+    m_sql << "CREATE UNIQUE INDEX IF NOT EXISTS " << "userdb.index_1_0 ON py_phrase_1(s0, y0, s1, y1, phrase);\n";
     m_sql << "CREATE INDEX IF NOT EXISTS " << "userdb.index_1_1 ON py_phrase_1(s0, s1, y1);\n";
     for (guint i = 2; i < MAX_PHRASE_LEN; i++) {
-        m_sql << "CREATE INDEX IF NOT EXISTS " << "userdb.index_" << i << "_0 ON py_phrase_" << i << "(s0, y0, s1, y1, s2, y2);\n";
+        m_sql << "CREATE UNIQUE INDEX IF NOT EXISTS " << "userdb.index_" << i << "_0 ON py_phrase_" << i << "(s0, y0";
+        for (guint j = 1; j <= i; j++)
+            m_sql << ",s" << j << ",y" << j;
+        m_sql << ",phrase);\n";
         m_sql << "CREATE INDEX IF NOT EXISTS " << "userdb.index_" << i << "_1 ON py_phrase_" << i << "(s0, s1, s2, y2);\n";
     }
     m_sql << "COMMIT;\n";
@@ -409,9 +412,9 @@ Database::query (const PinyinArray &pinyin,
         result.setSize (result.length () + 1);
         Phrase &p = result[result.length() - 1];
 
-        p.user_freq = sqlite3_column_int (stmt, DB_COLUMN_USER_FREQ);
         strcpy (p.phrase, (gchar *) sqlite3_column_text (stmt, DB_COLUMN_PHRASE));
         p.freq = sqlite3_column_int (stmt, DB_COLUMN_FREQ);
+        p.user_freq = sqlite3_column_int (stmt, DB_COLUMN_USER_FREQ);
         p.len = pinyin_len;
 
         for (guint i = 0; i < pinyin_len; i++) {
@@ -423,6 +426,56 @@ Database::query (const PinyinArray &pinyin,
 
     sqlite3_finalize (stmt);
     return row;
+}
+
+void
+Database::phraseSql (const Phrase &p, String &sql)
+{
+    sql << "INSERT OR IGNORE INTO userdb.py_phrase_" << p.len - 1
+        << " VALUES(" << 0                  /* user_freq */
+        << ",\"" << p.phrase << '"'         /* phrase */
+        << ','   << p.freq;                 /* freq */
+        for (guint i = 0; i < p.len; i++) {
+            sql << ',' << p.pinyin_id[i][0] << ',' << p.pinyin_id[i][1];
+        }
+    sql << ");\n";
+
+    sql << "UPDATE userdb.py_phrase_" << p.len - 1
+        << " SET user_freq=user_freq+1 WHERE ";
+
+    sql << "s0=" << p.pinyin_id[0][0]
+        << " AND y0=" << p.pinyin_id[0][1];
+    for (guint i = 1; i < p.len; i++) {
+        sql << " AND s" << i << '=' << p.pinyin_id[i][0]
+            << " AND y" << i << '=' << p.pinyin_id[i][1];
+    }
+    sql << " AND phrase=\"" << p.phrase << "\";\n";
+}
+
+void
+Database::commit (const PhraseArray  &phrases)
+{
+    gchar *errmsg;
+    Phrase phrase = {0};
+
+    m_sql = "BEGIN TRANSACTION;\n";
+    for (guint i = 0; i < phrases.length (); i++) {
+        strcat (phrase.phrase, phrases[i].phrase);
+        for (guint j = 0; j < phrases[i].len; j++) {
+            phrase.pinyin_id[phrase.len + j][0] = phrases[i].pinyin_id[j][0];
+            phrase.pinyin_id[phrase.len + j][1] = phrases[i].pinyin_id[j][1];
+        }
+        phrase.len += phrases[i].len;
+        phraseSql (phrases[i], m_sql);
+    }
+    if (phrases.length () > 1)
+        phraseSql (phrase, m_sql);
+    m_sql << "COMMIT;";
+
+    if (sqlite3_exec (m_db, m_sql, NULL, NULL, &errmsg) != SQLITE_OK) {
+        g_debug ("%s", errmsg);
+        sqlite3_free (errmsg);
+    }
 }
 
 };

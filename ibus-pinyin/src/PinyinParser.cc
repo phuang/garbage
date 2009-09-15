@@ -85,7 +85,8 @@ guint
 PinyinParser::parse (const String   &pinyin,
                      gint            len,
                      guint           option,
-                     PinyinArray    &result)
+                     PinyinArray    &result,
+                     guint           max)
 {
 
     const gchar *p;
@@ -105,7 +106,7 @@ PinyinParser::parse (const String   &pinyin,
     prev_py = NULL;
 
     prev_c = 0;
-    for (; p < end; ) {
+    for (; p < end && result.length () < max; ) {
         switch (prev_c) {
         case 'r':
         case 'n':

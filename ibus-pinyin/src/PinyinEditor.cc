@@ -180,7 +180,8 @@ PinyinEditor::updatePinyin (void)
         m_pinyin_len = m_parser.parse (m_text,
                                        m_cursor,
                                        m_option,
-                                       m_pinyin);
+                                       m_pinyin,
+                                       MAX_PHRASE_LEN);
     }
 }
 

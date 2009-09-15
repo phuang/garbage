@@ -15,17 +15,18 @@ class Database {
 public:
     Database ();
     ~Database ();
-    gint query (const PinyinArray &pinyin,
-                guint              m,
-                guint              option,
-                PhraseArray       &result);
+    gint query (const PinyinArray   &pinyin,
+                guint                m,
+                guint                option,
+                PhraseArray         &result);
 
-    gint query (const PinyinArray &pinyin,
-                guint              pinyin_begin,
-                guint              pinyin_len,
-                gint               m,
-                guint              option,
-                PhraseArray       &result);
+    gint query (const PinyinArray   &pinyin,
+                guint                pinyin_begin,
+                guint                pinyin_len,
+                gint                 m,
+                guint                option,
+                PhraseArray         &result);
+    void commit (const PhraseArray  &phrases);
 
     String *string (guint i) {
         guint j;
@@ -40,6 +41,7 @@ public:
 
 private:
     void init (void);
+    void phraseSql (const Phrase &p, String &sql);
 
 private:
     sqlite3 *m_db;                  /* sqlite3 database */

@@ -285,6 +285,7 @@ PinyinEngine::commit (void)
         m_buffer << m_phrase_editor.string1 () << m_phrase_editor.string2 () << m_pinyin_editor.textAfterPinyin ();
         Pointer<IBusText> text = ibus_text_new_from_static_string (m_buffer);
         ibus_engine_commit_text (m_engine, text);
+        m_phrase_editor.commit ();
         reset ();
     }
 }
