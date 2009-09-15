@@ -49,7 +49,7 @@ Database::init (void)
     m_sql = "BEGIN TRANSACTION;\n";
     /* create table */
     for (guint i = 0; i < MAX_PHRASE_LEN; i++) {
-        m_sql.appendPrintf ("CREATE TABLE IF NOT EXISTS userdb.py_phrase_%d (phrase TEXT, freq INTEGER", i);
+        m_sql.appendPrintf ("CREATE TABLE IF NOT EXISTS userdb.py_phrase_%d (user_freq, phrase TEXT, freq INTEGER ", i);
         for (guint j = 0; j <= i; j++)
             m_sql.appendPrintf (",s%d INTEGER, y%d INTEGER", j, j);
         m_sql << ");\n";
@@ -378,9 +378,9 @@ Database::query (const PinyinArray &pinyin,
     m_conditions.removeAll ();
 
     m_sql.printf ("SELECT * FROM ("
-                  "SELECT * FROM main.py_phrase_%d WHERE %s UNION ALL "
+                  "SELECT 0 AS user_freq, * FROM main.py_phrase_%d WHERE %s UNION ALL "
                   "SELECT * FROM userdb.py_phrase_%d WHERE %s) "
-                  "GROUP BY phrase ORDER BY freq DESC ",
+                  "GROUP BY phrase ORDER BY user_freq DESC, freq DESC ",
                   pinyin_len - 1, (const gchar *) m_buffer, pinyin_len - 1, (const gchar *)m_buffer);
     if (m > 0)
         m_sql << "LIMIT " << m;
@@ -404,13 +404,14 @@ Database::query (const PinyinArray &pinyin,
         result.setSize (result.length () + 1);
         Phrase &p = result[result.length() - 1];
 
-        strcpy (p.phrase, (gchar *) sqlite3_column_text (stmt, 0));
-        p.freq = sqlite3_column_int (stmt, 1);
+        p.user_freq = sqlite3_column_int (stmt, 0);
+        strcpy (p.phrase, (gchar *) sqlite3_column_text (stmt, 1));
+        p.freq = sqlite3_column_int (stmt, 2);
         p.len = pinyin_len;
 
         for (guint i = 0; i < pinyin_len; i++) {
-            p.pinyin_id[i][0] = sqlite3_column_int (stmt, (i << 1) + 2);
-            p.pinyin_id[i][1] = sqlite3_column_int (stmt, (i << 1) + 3);
+            p.pinyin_id[i][0] = sqlite3_column_int (stmt, (i << 1) + 3);
+            p.pinyin_id[i][1] = sqlite3_column_int (stmt, (i << 1) + 4);
         }
         row ++;
     }
