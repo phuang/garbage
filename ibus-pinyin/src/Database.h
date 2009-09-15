@@ -42,10 +42,11 @@ private:
     void init (void);
 
 private:
-    sqlite3 *m_db;
-    String   m_sql;
-    Array<String *> m_conditions;
-    Array<String *> m_strings;
+    sqlite3 *m_db;                  /* sqlite3 database */
+    String   m_sql;                 /* sql stmt */
+    String   m_buffer;              /* temp buffer */
+    Array<String *> m_conditions;   /* select conditions */
+    Array<String *> m_strings;      /* strings */
 };
 
 };

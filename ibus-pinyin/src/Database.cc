@@ -14,6 +14,7 @@ namespace PY {
 Database::Database (void)
     : m_db (NULL),
       m_sql (1024),
+      m_buffer (1024),
       m_conditions (32),
       m_strings (32)
 {
@@ -366,21 +367,23 @@ Database::query (const PinyinArray &pinyin,
         }
     }
 
-    m_sql = "SELECT * FROM main.py_phrase_";
-    m_sql << pinyin_len - 1 << "\n WHERE\n";
 
+    m_buffer.truncate (0);
     for (guint i = 0; i < m_conditions.length (); i++) {
         if (G_UNLIKELY (i == 0))
-            m_sql << "  (" << (*m_conditions[i]) << ")\n";
+            m_buffer << "  (" << (*m_conditions[i]) << ")\n";
         else
-            m_sql << "  OR (" << (*m_conditions[i]) << ")\n";
+            m_buffer << "  OR (" << (*m_conditions[i]) << ")\n";
     }
     m_conditions.removeAll ();
 
+    m_sql.printf ("SELECT * FROM ("
+                  "SELECT * FROM main.py_phrase_%d WHERE %s UNION ALL "
+                  "SELECT * FROM userdb.py_phrase_%d WHERE %s) "
+                  "GROUP BY phrase ORDER BY freq DESC ",
+                  pinyin_len - 1, (const gchar *) m_buffer, pinyin_len - 1, (const gchar *)m_buffer);
     if (m > 0)
-        m_sql << " ORDER BY freq DESC LIMIT " << m;
-    else
-        m_sql << " ORDER BY freq DESC";
+        m_sql << "LIMIT " << m;
 #if 0
     g_debug ("sql =\n%s", (const gchar *)m_sql);
 #endif
