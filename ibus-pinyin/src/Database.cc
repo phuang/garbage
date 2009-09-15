@@ -8,8 +8,13 @@
 
 namespace PY {
 
-#define DB_CACHE_SIZE "5000"
-#define DB_INDEX_SIZE (3)
+#define DB_CACHE_SIZE       "5000"
+#define DB_INDEX_SIZE       (3)
+/* define columns */
+#define DB_COLUMN_USER_FREQ (0)
+#define DB_COLUMN_PHRASE    (1)
+#define DB_COLUMN_FREQ      (2)
+#define DB_COLUMN_S0        (3)
 
 Database::Database (void)
     : m_db (NULL),
@@ -404,14 +409,14 @@ Database::query (const PinyinArray &pinyin,
         result.setSize (result.length () + 1);
         Phrase &p = result[result.length() - 1];
 
-        p.user_freq = sqlite3_column_int (stmt, 0);
-        strcpy (p.phrase, (gchar *) sqlite3_column_text (stmt, 1));
-        p.freq = sqlite3_column_int (stmt, 2);
+        p.user_freq = sqlite3_column_int (stmt, DB_COLUMN_USER_FREQ);
+        strcpy (p.phrase, (gchar *) sqlite3_column_text (stmt, DB_COLUMN_PHRASE));
+        p.freq = sqlite3_column_int (stmt, DB_COLUMN_FREQ);
         p.len = pinyin_len;
 
         for (guint i = 0; i < pinyin_len; i++) {
-            p.pinyin_id[i][0] = sqlite3_column_int (stmt, (i << 1) + 3);
-            p.pinyin_id[i][1] = sqlite3_column_int (stmt, (i << 1) + 4);
+            p.pinyin_id[i][0] = sqlite3_column_int (stmt, (i << 1) + DB_COLUMN_S0);
+            p.pinyin_id[i][1] = sqlite3_column_int (stmt, (i << 1) + DB_COLUMN_S0 + 1);
         }
         row ++;
     }
