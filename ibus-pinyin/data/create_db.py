@@ -43,6 +43,8 @@ insert_sql = "INSERT INTO py_phrase_%d VALUES (%s);"
 con2.commit()
 new_freq = 0
 freq = 0
+
+print "INSERTING"
 for r in con1.execute("SELECT * FROM py_phrase ORDER BY freq"):
 	
 	ylen = r[0]
@@ -73,10 +75,13 @@ for r in con1.execute("SELECT * FROM py_phrase ORDER BY freq"):
 	sql = insert_sql % (i, ",".join(["?"] * len(column)))
 	con2.execute (sql, column)
 
+print "Remove dupilcate"
 for i in xrange(0, 16):
     sql = "DELETE FROM py_phrase_%d WHERE rowid IN (SELECT rowid FROM (SELECT count() as count, rowid FROM py_phrase_%d GROUP by %s,phrase) WHERE count > 1)" % (i, i, ",".join(map(lambda i: "s%d,y%d"%(i,i), range(0, i + 1))))
-    con2.execute (sql)
-
+    con2.execute(sql)
+con2.commit()
+print "CACUUM"
+con2.execute("VACUUM;")
 con2.commit()
 
 # con2.execute("create index index_0_0 on py_phrase_0(s0, y0)")
