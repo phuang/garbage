@@ -32,7 +32,6 @@ AM_LDFLAGS = \
 	$(NULL)
 
 AM_CXXFLAGS = $(AM_CFLAGS)
-AM_LDFLAGS = $(AM_LDFLAGS)
 
 libexec_PROGRAMS = ibus-engine-pinyin
 
@@ -108,14 +107,14 @@ test_parser_CFLAGS = \
 	$(NULL)
 
 # check_PROGRAMS += test-pydatabase
-test_pydatabase_SOURCES = \
-	Database.cc \
-	Database.h \
-	$(NULL)
-test_pydatabase_CFLAGS = \
-	$(AM_CFLAGS) \
-	-DTEST \
-	$(NULL)
+# test_pydatabase_SOURCES = \
+# 	Database.cc \
+# 	Database.h \
+# 	$(NULL)
+# test_pydatabase_CFLAGS = \
+# 	$(AM_CFLAGS) \
+# 	-DTEST \
+# 	$(NULL)
 
 TESTS = \
 	$(check_PROGRAMS) \
