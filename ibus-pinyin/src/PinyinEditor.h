@@ -60,7 +60,6 @@ private:
 private:
     String      m_text;         // text buffer
     guint       m_cursor;       // cursor pos in char
-    gboolean    m_invalidate;
     PinyinArray m_pinyin;       // pinyin array
     guint       m_pinyin_len;   // pinyin length in char
 

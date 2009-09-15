@@ -9,10 +9,9 @@ guint PinyinEditor::m_option = 0x0;
 PinyinParser PinyinEditor::m_parser;
 
 PinyinEditor::PinyinEditor (void)
-    : m_text (64),
+    : m_text (MAX_PINYIN_LEN),
       m_cursor (0),
-      m_invalidate (0),
-      m_pinyin (32),
+      m_pinyin (MAX_PHRASE_LEN),
       m_pinyin_len (0)
 {
 }
