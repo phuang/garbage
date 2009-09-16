@@ -211,9 +211,8 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 {
 
     // ignore release event
-    if (modifiers & IBUS_RELEASE_MASK) {
+    if (modifiers & IBUS_RELEASE_MASK)
         return TRUE;
-    }
 
     modifiers &= (IBUS_SHIFT_MASK |
                   IBUS_CONTROL_MASK |
@@ -237,7 +236,6 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
     default:
         return processOthers (keyval, keycode, modifiers);
     }
-
 
     return TRUE;
 }
@@ -450,7 +448,6 @@ PinyinEngine::resetCandidate (guint i)
         updateLookupTable ();
     }
     return TRUE;
-
 }
 
 };

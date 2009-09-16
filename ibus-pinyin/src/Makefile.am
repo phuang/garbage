@@ -71,6 +71,7 @@ ibus_engine_pinyin_CFLAGS = \
 ibus_engine_pinyin_LDFLAGS = \
 	@IBUS_LIBS@ \
 	@SQLITE_LIBS@ \
+	-luuid \
 	$(NULL)
 
 BUILT_SOURCES = \

@@ -41,7 +41,8 @@ public:
     void conditionsTriple (void);
 
 private:
-    void init (void);
+    gboolean init (void);
+    gboolean initUserDatabase (const gchar *userdb);
     void phraseSql (const Phrase & p, String & sql);
     void phraseWhereSql (const Phrase & p, String & sql);
 

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "Database.h"
+#include "Util.h"
 
 namespace PY {
 
@@ -26,22 +27,28 @@ Database::Database (void)
     init ();
 }
 
-void
+Database::~Database (void)
+{
+    for (guint i = 0; i < m_strings.length (); i++) {
+        delete m_strings[i];
+    }
+
+    if (m_db) {
+        sqlite3_close (m_db);
+        m_db = NULL;
+    }
+}
+
+gboolean
 Database::init (void)
 {
-    const gchar *userdb;
     gchar *errmsg;
+    gchar *userdb;
+    gboolean retval;
 
     sqlite3_initialize ();
 
     if (sqlite3_open_v2 ("py.db", &m_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) != SQLITE_OK) {
-        goto _failed;
-    }
-    userdb = "/home/phuang/.cache/ibus/ibus-pinyin/user.db";
-    m_sql.printf ("ATTACH DATABASE \"%s\" AS userdb;", userdb);
-    if (sqlite3_exec (m_db, m_sql, NULL, NULL, &errmsg) != SQLITE_OK) {
-        g_debug ("%s", errmsg);
-        sqlite3_free (errmsg);
         goto _failed;
     }
 
@@ -51,8 +58,50 @@ Database::init (void)
         goto _failed;
     }
 
+    userdb = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (), "ibus", "ibus-pinyin", NULL);
+    g_mkdir_with_parents (userdb, 0750);
+    g_free (userdb);
+    userdb = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (), "ibus", "ibus-pinyin", "user.db", NULL);
+    retval = initUserDatabase (userdb);
+    if (!retval) {
+        g_free (userdb);
+        g_warning ("can not open user database %s", userdb);
+        if (!initUserDatabase (":memory:"))
+            goto _failed;
+    }
+    g_free (userdb);
+    return TRUE;
+
+_failed:
+    if (m_db) {
+        sqlite3_close (m_db);
+        m_db = NULL;
+    }
+    return FALSE;
+}
+
+gboolean
+Database::initUserDatabase (const gchar *userdb)
+{
+    gchar *errmsg;
+
+    m_sql.printf ("ATTACH DATABASE \"%s\" AS userdb;", userdb);
+    if (sqlite3_exec (m_db, m_sql, NULL, NULL, &errmsg) != SQLITE_OK) {
+        g_debug ("%s", errmsg);
+        sqlite3_free (errmsg);
+        return FALSE;
+    }
+
     m_sql = "BEGIN TRANSACTION;\n";
-    /* create table */
+    /* create desc table*/
+    m_sql << "CREATE TABLE IF NOT EXISTS userdb.desc (name PRIMARY KEY, value TEXT);\n";
+    m_sql << "INSERT OR IGNORE INTO userdb.desc VALUES ('version', '1.2.0');\n"
+          << "INSERT OR IGNORE INTO userdb.desc VALUES ('uuid', '" << UUID () << "');\n"
+          << "INSERT OR IGNORE INTO userdb.desc VALUES ('hostname', '" << Uname ().hostname () << "');\n"
+          << "INSERT OR IGNORE INTO userdb.desc VALUES ('create-time', datetime ());\n"
+          << "INSERT OR IGNORE INTO userdb.desc VALUES ('attach-time', datetime ());\n";
+
+    /* create phrase tables */
     for (guint i = 0; i < MAX_PHRASE_LEN; i++) {
         m_sql.appendPrintf ("CREATE TABLE IF NOT EXISTS userdb.py_phrase_%d (user_freq, phrase TEXT, freq INTEGER ", i);
         for (guint j = 0; j <= i; j++)
@@ -79,25 +128,22 @@ Database::init (void)
         goto _failed;
     }
 
-    return;
+    m_sql  = "UPDATE userdb.desc SET value = datetime () WHERE name = 'attach-time';\n";
+
+    if (sqlite3_exec (m_db, m_sql, NULL, NULL, &errmsg) != SQLITE_OK) {
+        g_debug ("%s", errmsg);
+        sqlite3_free (errmsg);
+        goto _failed;
+    }
+    return TRUE;
 
 _failed:
-    if (m_db) {
-        sqlite3_close (m_db);
-        m_db = NULL;
+    m_sql = "DETACH DATABASE userdb;\n";
+    if (sqlite3_exec (m_db, m_sql, NULL, NULL, &errmsg) != SQLITE_OK) {
+        g_debug ("%s", errmsg);
+        sqlite3_free (errmsg);
     }
-}
-
-Database::~Database (void)
-{
-    for (guint i = 0; i < m_strings.length (); i++) {
-        delete m_strings[i];
-    }
-
-    if (m_db) {
-        sqlite3_close (m_db);
-        m_db = NULL;
-    }
+    return FALSE;
 }
 
 gint
