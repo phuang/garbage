@@ -124,6 +124,10 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
             commit (); return TRUE;
         case IBUS_apostrophe:
             return processPinyin (keyval, keycode, modifiers);
+        case IBUS_comma:
+            pageUp (); return TRUE;
+        case IBUS_period:
+            pageDown (); return TRUE;
         }
     }
     return TRUE;
