@@ -332,7 +332,15 @@ PinyinEngine::commit (void)
         return;
 
     m_buffer.truncate (0);
-    m_buffer << m_phrase_editor.string1 () << m_phrase_editor.string2 () << m_pinyin_editor.textAfterPinyin ();
+    m_buffer << m_phrase_editor.string1 () << m_phrase_editor.string2 ();
+    const gchar *p = m_pinyin_editor.textAfterPinyin ();
+    if (G_UNLIKELY (m_mode_full_letter)) {
+        while (*p != 0)
+            m_buffer.appendUnichar (HalfFullConverter::toFull (*p++));
+    }
+    else {
+        m_buffer << p;
+    }
     commit ((const gchar *)m_buffer);
     m_phrase_editor.commit ();
     reset ();

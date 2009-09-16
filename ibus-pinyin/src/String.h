@@ -44,13 +44,18 @@ public:
         return assign ((const gchar *) str);
     }
 
-    String & insert (gint pos, gint ch) {
+    String & insert (gint pos, gchar ch) {
         g_string_insert_c (m_string, pos, ch);
         return *this;
     }
 
     String & append (const gchar *str) {
         g_string_append (m_string, str);
+        return *this;
+    }
+
+    String & appendUnichar (gunichar ch) {
+        g_string_append_unichar (m_string, ch);
         return *this;
     }
 
@@ -120,11 +125,6 @@ public:
     }
 
     String & operator << (gchar ch) {
-        g_string_append_c (m_string, ch);
-        return *this;
-    }
-
-    String & operator += (gint ch) {
         g_string_append_c (m_string, ch);
         return *this;
     }
