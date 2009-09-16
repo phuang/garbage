@@ -32,7 +32,7 @@ public:
     void cursorDown (void);
 
     void update (gboolean now = TRUE) {
-        if (now || m_need_update >= 4) {
+        if (G_UNLIKELY (now || m_need_update >= 4)) {
             updatePhraseEditor ();
             updateLookupTable ();
             updateAuxiliaryText ();
@@ -47,6 +47,12 @@ public:
     }
 
 private:
+    gboolean processLetter (gint ch);
+    gboolean processPunct (gint ch);
+
+private:
+    gboolean isEmpty (void) { return m_pinyin_editor.isEmpty (); }
+
     void commit (void);
     gboolean selectCandidate (guint i);
     void updatePreeditText (void);
@@ -72,6 +78,10 @@ private:
     Pointer<IBusLookupTable> m_lookup_table;
     Pointer<IBusProperty>    m_mode_prop;
     Pointer<IBusPropList>    m_props;
+
+    gboolean m_mode_chinese;
+    gboolean m_mode_full_letter;
+    gboolean m_mode_full_punct;
 
 private:
     // static members

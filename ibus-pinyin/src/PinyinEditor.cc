@@ -20,6 +20,7 @@ PinyinEditor::PinyinEditor (void)
 gboolean
 PinyinEditor::insert (gint ch)
 {
+    /* is full */
     if (G_UNLIKELY (m_text.length () >= MAX_PINYIN_LEN))
         return FALSE;
 

@@ -456,7 +456,7 @@ void
 Database::commit (const PhraseArray  &phrases)
 {
     gchar *errmsg;
-    Phrase phrase = {0};
+    Phrase phrase = {""};
 
     m_sql = "BEGIN TRANSACTION;\n";
     for (guint i = 0; i < phrases.length (); i++) {

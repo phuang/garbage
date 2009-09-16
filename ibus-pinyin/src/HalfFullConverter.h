@@ -12,7 +12,7 @@ public:
     static gunichar toHalf (gunichar ch);
 
 private:
-    const static gint m_table[][3];
+    const static guint m_table[][3];
 };
 
 };

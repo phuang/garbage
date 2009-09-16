@@ -3,7 +3,7 @@
 
 namespace PY {
 
-const gint
+const guint
 HalfFullConverter::m_table[][3] = {
     { 0x0020, 0x3000, 1 },
     { 0x0021, 0xFF01, 94 },

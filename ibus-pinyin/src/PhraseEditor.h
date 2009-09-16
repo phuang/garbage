@@ -44,6 +44,10 @@ public:
         m_database.commit (m_phrases1);
     }
 
+    gboolean isEmpty (void) {
+        return m_string1.isEmpty () && m_string2.isEmpty ();
+    }
+
 private:
     void updateCandidates (void);
     void updatePhrases (void);

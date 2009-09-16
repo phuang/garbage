@@ -9,8 +9,8 @@ guint PhraseEditor::m_option = 0;
 PhraseEditor::PhraseEditor (void)
     : m_candidates (32),
       m_phrases1 (8),
-      m_phrases2 (8),
       m_string1 (32),
+      m_phrases2 (8),
       m_string2 (32),
       m_pinyin (16),
       m_cursor (0)
@@ -41,6 +41,7 @@ PhraseEditor::update (const PinyinArray &pinyin)
     m_pinyin = pinyin;
 
     if (diff) {
+        /* FIXME, should not remove all phrases1 */
         m_phrases1.removeAll ();
         m_string1.truncate (0);
         m_cursor = 0;

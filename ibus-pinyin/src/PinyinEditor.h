@@ -65,8 +65,6 @@ private:
 
 private:
     static guint m_option;
-
-private:
     static PinyinParser m_parser; 
 };
 

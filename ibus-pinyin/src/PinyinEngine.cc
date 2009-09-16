@@ -3,6 +3,7 @@
 #include <ibus.h>
 #include <string.h>
 #include "PinyinEngine.h"
+#include "HalfFullConverter.h"
 
 namespace PY {
 
@@ -15,7 +16,10 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
       m_need_update (0),
       m_lookup_table (NULL),
       m_mode_prop (NULL),
-      m_props (NULL)
+      m_props (NULL),
+      m_mode_chinese (TRUE),
+      m_mode_full_letter (TRUE),
+      m_mode_full_punct (TRUE)
 
 {
     m_lookup_table = ibus_lookup_table_new (10, 0, TRUE, FALSE);
@@ -49,12 +53,12 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
                 update (FALSE);
             }
         }
-        return !m_pinyin_editor.isEmpty ();
+        return !isEmpty ();
     }
 
     /* process ' */
     if (keyval == IBUS_apostrophe) {
-        if (G_UNLIKELY (m_pinyin_editor.isEmpty ()))
+        if (G_UNLIKELY (isEmpty ()))
             return FALSE;
         if (G_LIKELY (modifiers == 0))
             if (m_pinyin_editor.insert (IBUS_apostrophe))
@@ -62,7 +66,7 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
         return TRUE;
     }
 
-    if (G_UNLIKELY (m_pinyin_editor.isEmpty ()))
+    if (G_UNLIKELY (isEmpty ()))
         return FALSE;
 
     if (keyval >= IBUS_0 && keyval <= IBUS_9) {
@@ -149,7 +153,7 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
     return TRUE;
 }
 
-void
+inline void
 PinyinEngine::pageUp (void)
 {
     if (ibus_lookup_table_page_up (m_lookup_table)) {
@@ -157,7 +161,7 @@ PinyinEngine::pageUp (void)
     }
 }
 
-void
+inline void
 PinyinEngine::pageDown (void)
 {
     if (ibus_lookup_table_page_down (m_lookup_table)) {
@@ -165,7 +169,7 @@ PinyinEngine::pageDown (void)
     }
 }
 
-void
+inline void
 PinyinEngine::cursorUp (void)
 {
     if (ibus_lookup_table_cursor_up (m_lookup_table)) {
@@ -173,7 +177,7 @@ PinyinEngine::cursorUp (void)
     }
 }
 
-void
+inline void
 PinyinEngine::cursorDown (void)
 {
     if (ibus_lookup_table_cursor_down (m_lookup_table)) {
@@ -184,19 +188,17 @@ PinyinEngine::cursorDown (void)
 void
 PinyinEngine::updatePreeditText (void)
 {
-    if (G_UNLIKELY ((!m_phrase_editor.string1 ()) && (!m_phrase_editor.string2 ()))) {
+    if (G_UNLIKELY (m_phrase_editor.isEmpty () && m_pinyin_editor.isEmpty ())) {
         ibus_engine_hide_preedit_text (m_engine);
         return;
     }
 
     m_buffer.truncate (0);
-    m_buffer << m_phrase_editor.string1 ();
+    if (G_UNLIKELY (m_phrase_editor.string1 ()))
+        m_buffer << m_phrase_editor.string1 () << ' ';
 
-    if (m_phrase_editor.string1 () && m_phrase_editor.string2 ())
-        m_buffer << ' ';
-
-    m_buffer << m_phrase_editor.string2 ();
-    m_buffer << m_pinyin_editor.textAfterPinyin ();
+    m_buffer << m_phrase_editor.string2 ()
+             << m_pinyin_editor.textAfterPinyin ();
 
     Pointer<IBusText> preedit_text = ibus_text_new_from_static_string ((const gchar *) m_buffer);
     ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
@@ -208,7 +210,7 @@ PinyinEngine::updateAuxiliaryText (void)
 {
 
     /* clear pinyin array */
-    if (G_UNLIKELY (m_pinyin_editor.isEmpty ())) {
+    if (G_UNLIKELY (isEmpty ())) {
         ibus_engine_hide_auxiliary_text (m_engine);
         return;
     }
@@ -218,7 +220,7 @@ PinyinEngine::updateAuxiliaryText (void)
 
     m_buffer.truncate (0);
     if (G_UNLIKELY (m_phrase_editor.string1 ())) {
-        m_buffer << m_phrase_editor.string1 () << ' ';
+        m_buffer << m_phrase_editor.string1 ();
     }
 
     for (guint i = m_phrase_editor.cursor (); i < m_pinyin_editor.pinyin().length (); ++i) {
@@ -277,20 +279,21 @@ PinyinEngine::updatePhraseEditor (void)
     m_phrase_editor.update (m_pinyin_editor.pinyin ());
 }
 
-void
+inline void
 PinyinEngine::commit (void)
 {
-    if (m_phrase_editor.string1 () || m_phrase_editor.string2 ()) {
-        m_buffer.truncate (0);
-        m_buffer << m_phrase_editor.string1 () << m_phrase_editor.string2 () << m_pinyin_editor.textAfterPinyin ();
-        Pointer<IBusText> text = ibus_text_new_from_static_string (m_buffer);
-        ibus_engine_commit_text (m_engine, text);
-        m_phrase_editor.commit ();
-        reset ();
-    }
+    if (G_UNLIKELY (m_pinyin_editor.isEmpty ()))
+        return;
+
+    m_buffer.truncate (0);
+    m_buffer << m_phrase_editor.string1 () << m_phrase_editor.string2 () << m_pinyin_editor.textAfterPinyin ();
+    Pointer<IBusText> text = ibus_text_new_from_static_string (m_buffer);
+    ibus_engine_commit_text (m_engine, text);
+    m_phrase_editor.commit ();
+    reset ();
 }
 
-gboolean
+inline gboolean
 PinyinEngine::selectCandidate (guint i)
 {
     guint page_size = ibus_lookup_table_get_page_size (m_lookup_table);
