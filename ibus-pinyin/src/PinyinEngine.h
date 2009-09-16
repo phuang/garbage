@@ -50,6 +50,7 @@ private:
     gboolean processPinyin (guint keyval, guint keycode, guint modifiers);
     gboolean processNumber (guint keyval, guint keycode, guint modifiers);
     gboolean processPunct (guint keyval, guint keycode, guint modifiers);
+    gboolean processOthers (guint keyval, guint keycode, guint modifiers);
 
 private:
     gboolean isEmpty (void) { return m_pinyin_editor.isEmpty (); }

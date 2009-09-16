@@ -131,48 +131,15 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
     return TRUE;
 }
 
-gboolean
-PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
+inline gboolean
+PinyinEngine::processOthers (guint keyval, guint keycode, guint modifiers)
 {
-
-    // ignore release event
-    if (modifiers & IBUS_RELEASE_MASK) {
-        return TRUE;
-    }
-
-    modifiers &= (IBUS_SHIFT_MASK |
-                  IBUS_CONTROL_MASK |
-                  IBUS_MOD1_MASK |
-                  IBUS_SUPER_MASK |
-                  IBUS_HYPER_MASK |
-                  IBUS_META_MASK |
-                  IBUS_LOCK_MASK);
-
-    switch (keyval) {
-    case IBUS_a ... IBUS_z:
-    case IBUS_A ... IBUS_Z:
-        return processPinyin (keyval, keycode, modifiers);
-    case IBUS_0 ... IBUS_9:
-        return processNumber (keyval, keycode, modifiers);
-    case IBUS_space ... IBUS_slash:
-    case IBUS_colon ... IBUS_at:
-    case IBUS_bracketleft ... IBUS_quoteleft:
-    case IBUS_braceleft ... IBUS_asciitilde:
-        return processPunct (keyval, keycode, modifiers);
-    default:
-        break;
-    }
-
-
     if (G_UNLIKELY (isEmpty ()))
         return FALSE;
 
     /* process some cursor control keys */
     gboolean _update = FALSE;
     switch (keyval) {
-    case IBUS_space:
-        commit ();
-        break;
     case IBUS_BackSpace:
         if (G_LIKELY (modifiers == 0))
             _update = m_pinyin_editor.removeCharBefore ();
@@ -233,11 +200,45 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
         pageDown (); break;
     case IBUS_Escape:
         reset (); break;
-    default:
-        return TRUE;
     }
     if (G_LIKELY (_update))
         update (FALSE);
+    return TRUE;
+}
+
+gboolean
+PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
+{
+
+    // ignore release event
+    if (modifiers & IBUS_RELEASE_MASK) {
+        return TRUE;
+    }
+
+    modifiers &= (IBUS_SHIFT_MASK |
+                  IBUS_CONTROL_MASK |
+                  IBUS_MOD1_MASK |
+                  IBUS_SUPER_MASK |
+                  IBUS_HYPER_MASK |
+                  IBUS_META_MASK |
+                  IBUS_LOCK_MASK);
+
+    switch (keyval) {
+    case IBUS_a ... IBUS_z:
+    case IBUS_A ... IBUS_Z:
+        return processPinyin (keyval, keycode, modifiers);
+    case IBUS_0 ... IBUS_9:
+        return processNumber (keyval, keycode, modifiers);
+    case IBUS_space ... IBUS_slash:
+    case IBUS_colon ... IBUS_at:
+    case IBUS_bracketleft ... IBUS_quoteleft:
+    case IBUS_braceleft ... IBUS_asciitilde:
+        return processPunct (keyval, keycode, modifiers);
+    default:
+        return processOthers (keyval, keycode, modifiers);
+    }
+
+
     return TRUE;
 }
 
