@@ -47,13 +47,17 @@ public:
     }
 
 private:
-    gboolean processLetter (gint ch);
-    gboolean processPunct (gint ch);
+    gboolean processLetter (guint keyval, guint keycode, guint modifiers);
+    gboolean processPunct (guint keyval, guint keycode, guint modifiers);
 
 private:
     gboolean isEmpty (void) { return m_pinyin_editor.isEmpty (); }
 
     void commit (void);
+    void commit (gchar ch);
+    void commit (gunichar ch);
+    void commit (const gchar *str);
+
     gboolean selectCandidate (guint i);
     void updatePreeditText (void);
     void updateAuxiliaryText (void);

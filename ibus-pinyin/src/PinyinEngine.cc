@@ -30,6 +30,34 @@ PinyinEngine::~PinyinEngine (void)
 {
 }
 
+#define MASK_FILTER(modifiers) (modifiers & (IBUS_CONTROL_MASK | IBUS_MOD1_MASK | IBUS_SUPER_MASK | IBUS_HYPER_MASK | IBUS_META_MASK))
+
+/**
+ * process ascii letters
+ */
+inline gboolean
+PinyinEngine::processLetter (guint keyval, guint keycode, guint modifiers)
+{
+    if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
+        return FALSE;
+
+    if (G_UNLIKELY (m_mode_chinese == FALSE ||
+                    modifiers & (IBUS_SHIFT_MASK | IBUS_LOCK_MASK))) {
+        if (G_LIKELY (m_pinyin_editor.isEmpty ())) {
+            if (m_mode_full_letter)
+                commit (HalfFullConverter::toFull (keyval));
+            else
+                commit ((gchar) keyval);
+            return TRUE;
+        }
+    }
+
+    if (m_pinyin_editor.insert (keyval)) {
+        update (FALSE);
+    }
+    return TRUE;
+}
+
 gboolean
 PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 {
@@ -44,17 +72,13 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
                   IBUS_MOD1_MASK |
                   IBUS_SUPER_MASK |
                   IBUS_HYPER_MASK |
-                  IBUS_META_MASK );
+                  IBUS_META_MASK |
+                  IBUS_LOCK_MASK);
 
     /* process letter at first */
-    if (G_LIKELY (keyval >= IBUS_a && keyval <= IBUS_z)) {
-        if (G_LIKELY (modifiers == 0)) {
-            if (m_pinyin_editor.insert (keyval)) {
-                update (FALSE);
-            }
-        }
-        return !isEmpty ();
-    }
+    if (G_LIKELY ((keyval >= IBUS_a && keyval <= IBUS_z) ||
+                  (keyval >= IBUS_A && keyval <= IBUS_Z)))
+        return processLetter (keyval, keycode, modifiers);
 
     /* process ' */
     if (keyval == IBUS_apostrophe) {
@@ -280,6 +304,28 @@ PinyinEngine::updatePhraseEditor (void)
 }
 
 inline void
+PinyinEngine::commit (gchar ch)
+{
+    gchar str[2] = {ch, 0};
+    Pointer<IBusText> text = ibus_text_new_from_static_string (str);
+    ibus_engine_commit_text (m_engine, text);
+}
+
+inline void
+PinyinEngine::commit (gunichar ch)
+{
+    Pointer<IBusText> text = ibus_text_new_from_unichar (ch);
+    ibus_engine_commit_text (m_engine, text);
+}
+
+inline void
+PinyinEngine::commit (const gchar *str)
+{
+    Pointer<IBusText> text = ibus_text_new_from_static_string (str);
+    ibus_engine_commit_text (m_engine, text);
+}
+
+inline void
 PinyinEngine::commit (void)
 {
     if (G_UNLIKELY (m_pinyin_editor.isEmpty ()))
@@ -287,8 +333,7 @@ PinyinEngine::commit (void)
 
     m_buffer.truncate (0);
     m_buffer << m_phrase_editor.string1 () << m_phrase_editor.string2 () << m_pinyin_editor.textAfterPinyin ();
-    Pointer<IBusText> text = ibus_text_new_from_static_string (m_buffer);
-    ibus_engine_commit_text (m_engine, text);
+    commit ((const gchar *)m_buffer);
     m_phrase_editor.commit ();
     reset ();
 }

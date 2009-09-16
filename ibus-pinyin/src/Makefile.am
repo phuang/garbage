@@ -25,7 +25,6 @@ AM_CFLAGS = \
 	@IBUS_CFLAGS@ \
 	@SQLITE_CFLAGS@ \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
-	-Winline \
 	$(NULL)
 AM_LDFLAGS = \
 	@IBUS_LIBS@ \
