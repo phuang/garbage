@@ -17,8 +17,9 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
       m_props (NULL),
       m_mode_chinese (TRUE),
       m_mode_full_letter (TRUE),
-      m_mode_full_punct (TRUE)
-
+      m_mode_full_punct (TRUE),
+      m_quote (TRUE),
+      m_double_quote (TRUE)
 {
     m_lookup_table = ibus_lookup_table_new (10, 0, TRUE, FALSE);
 }
@@ -103,11 +104,13 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
             case '>':
                 commit ("》"); break;
             case '"':
-                /* FIXME */
-                commit ("“"); break;
+                commit (m_double_quote ? "“" : "”");
+                m_double_quote = !m_double_quote;
+                break;
             case '\'':
-                /* FIXME */
-                commit ("‘"); break;
+                commit (m_quote ? "‘" : "’");
+                m_quote = !m_quote;
+                break;
             default:
                 commit (HalfFullConverter::toFull (keyval));
                 break;
@@ -125,8 +128,10 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
         case IBUS_apostrophe:
             return processPinyin (keyval, keycode, modifiers);
         case IBUS_comma:
+        case IBUS_minus:
             pageUp (); return TRUE;
         case IBUS_period:
+        case IBUS_equal:
             pageDown (); return TRUE;
         }
     }

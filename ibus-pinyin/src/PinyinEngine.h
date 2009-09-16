@@ -16,12 +16,17 @@ public:
     ~PinyinEngine (void);
 
     gboolean processKeyEvent (guint keyval, guint keycode, guint modifiers);
-    void focusIn (void) {}
+    void focusIn (void) { resetQuote (); }
     void focusOut (void) {}
 
     void reset (gboolean need_update = TRUE) {
         m_pinyin_editor.reset ();
         update (need_update);
+    }
+
+    void resetQuote (void) {
+        m_quote = TRUE;
+        m_double_quote = TRUE;
     }
 
     void enable (void) {}
@@ -89,6 +94,9 @@ private:
     gboolean m_mode_chinese;
     gboolean m_mode_full_letter;
     gboolean m_mode_full_punct;
+
+    gboolean m_quote;
+    gboolean m_double_quote;
 
 };
 
