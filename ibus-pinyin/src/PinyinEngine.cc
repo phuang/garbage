@@ -58,6 +58,69 @@ PinyinEngine::processLetter (guint keyval, guint keycode, guint modifiers)
     return TRUE;
 }
 
+inline gboolean
+PinyinEngine::processNumber (guint keyval, guint keycode, guint modifiers)
+{
+    if (G_UNLIKELY (m_pinyin_editor.isEmpty ())) {
+        if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
+            return FALSE;
+        commit ((gunichar) m_mode_full_letter ? HalfFullConverter::toFull (keyval) : keyval);
+        return TRUE;
+    }
+
+    if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
+        return TRUE;
+
+    guint i;
+    if (G_UNLIKELY (keyval == IBUS_0))
+        i = 10;
+    else
+        i = keyval - IBUS_1;
+    selectCandidate (i);
+    return TRUE;
+}
+
+inline gboolean
+PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
+{
+    if (G_UNLIKELY (m_pinyin_editor.isEmpty ())) {
+        if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
+            return FALSE;
+        if (m_mode_full_punct) {
+            switch (keyval) {
+            case '.':
+                commit ("。"); break;
+            case '\\':
+                commit ("、"); break;
+            case '^':
+                commit ("……"); break;
+            case '_':
+                commit ("——"); break;
+            case '$':
+                commit ("￥"); break;
+            case '<':
+                commit ("《"); break;
+            case '>':
+                commit ("》"); break;
+            case '"':
+                /* FIXME */
+                commit ("“"); break;
+            case '\'':
+                /* FIXME */
+                commit ("‘"); break;
+            default:
+                commit (HalfFullConverter::toFull (keyval));
+                break;
+            }
+        }
+        else {
+            commit (keyval);
+        }
+        return TRUE;
+    }
+    return TRUE;
+}
+
 gboolean
 PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 {
@@ -76,9 +139,22 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
                   IBUS_LOCK_MASK);
 
     /* process letter at first */
-    if (G_LIKELY ((keyval >= IBUS_a && keyval <= IBUS_z) ||
-                  (keyval >= IBUS_A && keyval <= IBUS_Z)))
+    switch (keyval) {
+    case IBUS_a ... IBUS_z:
+    case IBUS_A ... IBUS_Z:
         return processLetter (keyval, keycode, modifiers);
+    case IBUS_0 ... IBUS_9:
+        return processNumber (keyval, keycode, modifiers);
+    case IBUS_exclam ... IBUS_slash:
+    case IBUS_colon ... IBUS_at:
+    case IBUS_bracketleft ... IBUS_quoteleft:
+    case IBUS_braceleft ... IBUS_asciitilde:
+        return processPunct (keyval, keycode, modifiers);
+    default:
+        break;
+    }
+
+    /* process punct */
 
     /* process ' */
     if (keyval == IBUS_apostrophe) {
@@ -92,16 +168,6 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 
     if (G_UNLIKELY (isEmpty ()))
         return FALSE;
-
-    if (keyval >= IBUS_0 && keyval <= IBUS_9) {
-        guint i;
-        if (G_UNLIKELY (keyval == IBUS_0))
-            i = 10;
-        else
-            i = keyval - IBUS_1;
-        selectCandidate (i);
-        return TRUE;
-    }
 
     /* process some cursor control keys */
     gboolean _update = FALSE;
