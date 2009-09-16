@@ -179,10 +179,10 @@ PinyinParser::parse (const String   &pinyin,
 
     if (G_UNLIKELY (p == (const gchar *)pinyin))
         return 0;
-
+#if 0
     if (G_UNLIKELY (*(p - 1) == '\''))
         p --;
-
+#endif
     return p - (const gchar *)pinyin;
 }
 

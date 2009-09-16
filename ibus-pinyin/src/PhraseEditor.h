@@ -39,6 +39,7 @@ public:
 
     void update (const PinyinArray &pinyin);
     gboolean selectCandidate (guint i);
+    gboolean resetCandidate (guint i);
     void commit (void) {
         m_phrases1 << m_phrases2;
         m_database.commit (m_phrases1);

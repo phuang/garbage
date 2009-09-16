@@ -33,10 +33,10 @@ PinyinEngine::~PinyinEngine (void)
 #define MASK_FILTER(modifiers) (modifiers & (IBUS_CONTROL_MASK | IBUS_MOD1_MASK | IBUS_SUPER_MASK | IBUS_HYPER_MASK | IBUS_META_MASK))
 
 /**
- * process ascii letters
+ * process ascii letter
  */
 inline gboolean
-PinyinEngine::processLetter (guint keyval, guint keycode, guint modifiers)
+PinyinEngine::processPinyin (guint keyval, guint keycode, guint modifiers)
 {
     if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
         return FALSE;
@@ -68,24 +68,26 @@ PinyinEngine::processNumber (guint keyval, guint keycode, guint modifiers)
         return TRUE;
     }
 
-    if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
-        return TRUE;
-
     guint i;
     if (G_UNLIKELY (keyval == IBUS_0))
         i = 10;
     else
         i = keyval - IBUS_1;
-    selectCandidate (i);
+
+    if (modifiers == 0) 
+        selectCandidate (i);
+    else if ((modifiers & ~ IBUS_LOCK_MASK) == IBUS_CONTROL_MASK) 
+        resetCandidate (i);
     return TRUE;
 }
 
 inline gboolean
 PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
 {
-    if (G_UNLIKELY (m_pinyin_editor.isEmpty ())) {
-        if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
-            return FALSE;
+    if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
+        return FALSE;
+
+    if (G_UNLIKELY (isEmpty ())) {
         if (m_mode_full_punct) {
             switch (keyval) {
             case '.':
@@ -118,6 +120,14 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
         }
         return TRUE;
     }
+    else {
+        switch (keyval) {
+        case IBUS_space:
+            commit (); return TRUE;
+        case IBUS_apostrophe:
+            return processPinyin (keyval, keycode, modifiers);
+        }
+    }
     return TRUE;
 }
 
@@ -138,14 +148,13 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
                   IBUS_META_MASK |
                   IBUS_LOCK_MASK);
 
-    /* process letter at first */
     switch (keyval) {
     case IBUS_a ... IBUS_z:
     case IBUS_A ... IBUS_Z:
-        return processLetter (keyval, keycode, modifiers);
+        return processPinyin (keyval, keycode, modifiers);
     case IBUS_0 ... IBUS_9:
         return processNumber (keyval, keycode, modifiers);
-    case IBUS_exclam ... IBUS_slash:
+    case IBUS_space ... IBUS_slash:
     case IBUS_colon ... IBUS_at:
     case IBUS_bracketleft ... IBUS_quoteleft:
     case IBUS_braceleft ... IBUS_asciitilde:
@@ -154,17 +163,6 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
         break;
     }
 
-    /* process punct */
-
-    /* process ' */
-    if (keyval == IBUS_apostrophe) {
-        if (G_UNLIKELY (isEmpty ()))
-            return FALSE;
-        if (G_LIKELY (modifiers == 0))
-            if (m_pinyin_editor.insert (IBUS_apostrophe))
-                update (FALSE);
-        return TRUE;
-    }
 
     if (G_UNLIKELY (isEmpty ()))
         return FALSE;
@@ -433,6 +431,25 @@ PinyinEngine::selectCandidate (guint i)
         }
     }
     return TRUE;
+}
+
+inline gboolean
+PinyinEngine::resetCandidate (guint i)
+{
+    guint page_size = ibus_lookup_table_get_page_size (m_lookup_table);
+    guint cursor_pos = ibus_lookup_table_get_cursor_pos (m_lookup_table);
+    i += (cursor_pos / page_size) * page_size;
+
+    if (G_LIKELY (i == 0)) {
+
+    }
+    if (m_phrase_editor.resetCandidate (i)) {
+        updatePreeditText ();
+        updateAuxiliaryText ();
+        updateLookupTable ();
+    }
+    return TRUE;
+
 }
 
 };

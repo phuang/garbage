@@ -428,8 +428,22 @@ Database::query (const PinyinArray &pinyin,
     return row;
 }
 
-void
-Database::phraseSql (const Phrase &p, String &sql)
+inline void
+Database::phraseWhereSql (const Phrase & p, String & sql)
+{
+    sql << " WHERE";
+    sql << " s0=" << p.pinyin_id[0][0]
+        << " AND y0=" << p.pinyin_id[0][1];
+    for (guint i = 1; i < p.len; i++) {
+        sql << " AND s" << i << '=' << p.pinyin_id[i][0]
+            << " AND y" << i << '=' << p.pinyin_id[i][1];
+    }
+    sql << " AND phrase=\"" << p.phrase << "\"";
+
+}
+
+inline void
+Database::phraseSql (const Phrase & p, String & sql)
 {
     sql << "INSERT OR IGNORE INTO userdb.py_phrase_" << p.len - 1
         << " VALUES(" << 0                  /* user_freq */
@@ -441,15 +455,10 @@ Database::phraseSql (const Phrase &p, String &sql)
     sql << ");\n";
 
     sql << "UPDATE userdb.py_phrase_" << p.len - 1
-        << " SET user_freq=user_freq+1 WHERE ";
+        << " SET user_freq=user_freq+1";
 
-    sql << "s0=" << p.pinyin_id[0][0]
-        << " AND y0=" << p.pinyin_id[0][1];
-    for (guint i = 1; i < p.len; i++) {
-        sql << " AND s" << i << '=' << p.pinyin_id[i][0]
-            << " AND y" << i << '=' << p.pinyin_id[i][1];
-    }
-    sql << " AND phrase=\"" << p.phrase << "\";\n";
+    phraseWhereSql (p, sql);
+    sql << "\n;";
 }
 
 void
@@ -476,6 +485,23 @@ Database::commit (const PhraseArray  &phrases)
         g_debug ("%s", errmsg);
         sqlite3_free (errmsg);
     }
+}
+
+void
+Database::remove (const Phrase & phrase)
+{
+    gchar *errmsg;
+    m_sql = "BEGIN TRANSACTION;\n";
+    m_sql << "DELETE FROM userdb.py_phrase_" << phrase.len - 1;
+    phraseWhereSql (phrase, m_sql);
+    m_sql << ";\n";
+    m_sql << "COMMIT;\n";
+
+    if (sqlite3_exec (m_db, m_sql, NULL, NULL, &errmsg) != SQLITE_OK) {
+        g_debug ("%s", errmsg);
+        sqlite3_free (errmsg);
+    }
+
 }
 
 };

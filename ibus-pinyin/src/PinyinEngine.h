@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    gboolean processLetter (guint keyval, guint keycode, guint modifiers);
+    gboolean processPinyin (guint keyval, guint keycode, guint modifiers);
     gboolean processNumber (guint keyval, guint keycode, guint modifiers);
     gboolean processPunct (guint keyval, guint keycode, guint modifiers);
 
@@ -60,6 +60,7 @@ private:
     void commit (const gchar *str);
 
     gboolean selectCandidate (guint i);
+    gboolean resetCandidate (guint i);
     void updatePreeditText (void);
     void updateAuxiliaryText (void);
     void updateLookupTable (void);

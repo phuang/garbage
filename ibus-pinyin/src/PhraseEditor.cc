@@ -52,6 +52,22 @@ PhraseEditor::update (const PinyinArray &pinyin)
 }
 
 gboolean
+PhraseEditor::resetCandidate (guint i)
+{
+    if (G_UNLIKELY (i >= m_candidates.length ()))
+        return FALSE;
+
+    if (G_UNLIKELY (i == 0 && m_phrases2.length () > 1))
+        return FALSE;
+
+    m_database.remove (m_phrases2[i]);
+
+    updateCandidates ();
+    updatePhrases ();
+    return TRUE;
+}
+
+gboolean
 PhraseEditor::selectCandidate (guint i)
 {
     if (G_LIKELY (i == 0)) {
