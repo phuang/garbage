@@ -33,5 +33,12 @@ private:
     struct utsname m_buf;
 };
 
+class Hostname : public Uname {
+public:
+    operator const gchar * (void) const {
+        return hostname ();
+    }
+};
+
 };
 #endif

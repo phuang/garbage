@@ -4,11 +4,9 @@
 #include <string.h>
 #include "PinyinEngine.h"
 #include "HalfFullConverter.h"
+#include "Config.h"
 
 namespace PY {
-
-/* init static members */
-guint PinyinEngine::m_option = 0x0;
 
 /* constructor */
 PinyinEngine::PinyinEngine (IBusEngine *engine)

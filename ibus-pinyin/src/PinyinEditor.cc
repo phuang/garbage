@@ -1,3 +1,4 @@
+#include "Config.h"
 #include "PinyinEditor.h"
 
 namespace PY {
@@ -5,7 +6,6 @@ namespace PY {
 #define MAX_PINYIN_LEN 64
 
 
-guint PinyinEditor::m_option = 0x0;
 PinyinParser PinyinEditor::m_parser;
 
 PinyinEditor::PinyinEditor (void)
@@ -26,7 +26,7 @@ PinyinEditor::insert (gint ch)
 
     m_text.insert (m_cursor++, ch);
 
-    if (G_UNLIKELY ((m_option & PINYIN_SIMPLE_PINYIN) == 0)) {
+    if (G_UNLIKELY ((Config::option () & PINYIN_SIMPLE_PINYIN) == 0)) {
         updatePinyin ();
     }
     else {
@@ -179,7 +179,7 @@ PinyinEditor::updatePinyin (void)
     else {
         m_pinyin_len = m_parser.parse (m_text,
                                        m_cursor,
-                                       m_option,
+                                       Config::option (),
                                        m_pinyin,
                                        MAX_PHRASE_LEN);
     }

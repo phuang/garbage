@@ -90,10 +90,6 @@ private:
     gboolean m_mode_full_letter;
     gboolean m_mode_full_punct;
 
-private:
-    // static members
-    static Database m_db;           // phrases database
-    static guint m_option;          // option
 };
 
 };

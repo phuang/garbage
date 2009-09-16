@@ -40,6 +40,7 @@ ibus_engine_built_h_sources = \
 	$(NULL)
 
 ibus_engine_c_sources = \
+	Config.cc \
 	Database.cc \
 	PinyinParser.cc \
 	PinyinEditor.cc \
@@ -52,6 +53,7 @@ ibus_engine_c_sources = \
 ibus_engine_h_sources = \
 	PinyinArray.h \
 	PhraseArray.h \
+	Config.h \
 	Database.h \
 	PinyinParser.h \
 	PinyinEditor.h \
