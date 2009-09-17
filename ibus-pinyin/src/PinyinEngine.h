@@ -70,6 +70,10 @@ private:
     void commit (gunichar ch);
     void commit (const gchar *str);
 
+    void toggleModeChinese (void);
+    void toggleModeFullLetter (void);
+    void toggleModeFullPunct (void);
+
     gboolean selectCandidate (guint i);
     gboolean resetCandidate (guint i);
     void updatePreeditText (void);
@@ -104,6 +108,8 @@ private:
 
     gboolean m_quote;
     gboolean m_double_quote;
+
+    guint    m_prev_pressed_key;
 
 };
 

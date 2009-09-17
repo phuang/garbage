@@ -23,7 +23,8 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
       m_mode_full_letter (TRUE),
       m_mode_full_punct (TRUE),
       m_quote (TRUE),
-      m_double_quote (TRUE)
+      m_double_quote (TRUE),
+      m_prev_pressed_key (0)
 {
     /* create lookup table */
     m_lookup_table = ibus_lookup_table_new (10, 0, TRUE, FALSE);
@@ -257,10 +258,23 @@ PinyinEngine::processOthers (guint keyval, guint keycode, guint modifiers)
 gboolean
 PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 {
+    gboolean retval = FALSE;
 
     // ignore release event
-    if (modifiers & IBUS_RELEASE_MASK)
-        return TRUE;
+    if (modifiers & IBUS_RELEASE_MASK) {
+        if (m_prev_pressed_key != keyval)
+            return TRUE;
+
+        switch (keyval) {
+        case IBUS_Shift_L:
+        case IBUS_Shift_R:
+            if (isEmpty ())
+                toggleModeChinese ();
+            return TRUE;
+        default:
+            return TRUE;
+        }
+    }
 
     modifiers &= (IBUS_SHIFT_MASK |
                   IBUS_CONTROL_MASK |
@@ -273,19 +287,24 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
     switch (keyval) {
     case IBUS_a ... IBUS_z:
     case IBUS_A ... IBUS_Z:
-        return processPinyin (keyval, keycode, modifiers);
+        retval = processPinyin (keyval, keycode, modifiers);
+        break;
     case IBUS_0 ... IBUS_9:
-        return processNumber (keyval, keycode, modifiers);
+        retval = processNumber (keyval, keycode, modifiers);
+        break;
     case IBUS_space ... IBUS_slash:
     case IBUS_colon ... IBUS_at:
     case IBUS_bracketleft ... IBUS_quoteleft:
     case IBUS_braceleft ... IBUS_asciitilde:
-        return processPunct (keyval, keycode, modifiers);
+        retval = processPunct (keyval, keycode, modifiers);
+        break;
     default:
-        return processOthers (keyval, keycode, modifiers);
+        retval = processOthers (keyval, keycode, modifiers);
+        break;
     }
 
-    return TRUE;
+    m_prev_pressed_key = keyval;
+    return retval;
 }
 
 inline void
@@ -320,6 +339,33 @@ PinyinEngine::cursorDown (void)
     }
 }
 
+inline void
+PinyinEngine::toggleModeChinese (void)
+{
+    m_mode_chinese = ! m_mode_chinese;
+    ibus_property_set_label (m_prop_chinese,
+                             Text (m_mode_chinese ? "CN" : "EN"));
+    ibus_engine_update_property (m_engine, m_prop_chinese);
+}
+
+inline void
+PinyinEngine::toggleModeFullLetter (void)
+{
+    m_mode_full_letter = !m_mode_full_letter;
+    ibus_property_set_label (m_prop_full_letter,
+                             Text (m_mode_full_letter ? "Ａａ" : "Aa"));
+    ibus_engine_update_property (m_engine, m_prop_full_letter);
+}
+
+inline void
+PinyinEngine::toggleModeFullPunct (void)
+{
+    m_mode_full_punct = !m_mode_full_punct;
+    ibus_property_set_label (m_prop_full_punct,
+                             Text (m_mode_full_punct ? "，。" : ",."));
+    ibus_engine_update_property (m_engine, m_prop_full_punct);
+}
+
 void
 PinyinEngine::propertyActivate (const gchar *prop_name, guint prop_state)
 {
@@ -328,22 +374,13 @@ PinyinEngine::propertyActivate (const gchar *prop_name, guint prop_state)
     const static StaticString mode_full_punct ("mode.full_punct");
 
     if (mode_chinese == prop_name) {
-        m_mode_chinese = ! m_mode_chinese;
-        ibus_property_set_label (m_prop_chinese,
-                                 Text (m_mode_chinese ? "CN" : "EN"));
-        ibus_engine_update_property (m_engine, m_prop_chinese);
+        toggleModeChinese ();
     }
     else if (mode_full_letter == prop_name) {
-        m_mode_full_letter = !m_mode_full_letter;
-        ibus_property_set_label (m_prop_full_letter,
-                                 Text (m_mode_full_letter ? "Ａａ" : "Aa"));
-        ibus_engine_update_property (m_engine, m_prop_full_letter);
+        toggleModeFullLetter ();
     }
     else if (mode_full_punct == prop_name) {
-        m_mode_full_punct = !m_mode_full_punct;
-        ibus_property_set_label (m_prop_full_punct,
-                                 Text (m_mode_full_punct ? "，。" : ",."));
-        ibus_engine_update_property (m_engine, m_prop_full_punct);
+        toggleModeFullPunct ();
     }
 }
 
@@ -408,8 +445,10 @@ PinyinEngine::updateAuxiliaryText (void)
     }
 
     Pointer<IBusText> aux_text = ibus_text_new_from_static_string (m_buffer);
-    ibus_text_append_attribute (aux_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, len, cursor_pos);
-    ibus_text_append_attribute (aux_text, IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, cursor_pos + 1, -1);
+    ibus_text_append_attribute (aux_text,
+            IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, len, cursor_pos);
+    ibus_text_append_attribute (aux_text,
+            IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, cursor_pos + 1, -1);
     ibus_engine_update_auxiliary_text (m_engine, aux_text, TRUE);
 }
 
