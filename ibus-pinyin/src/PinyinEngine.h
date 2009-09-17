@@ -16,7 +16,10 @@ public:
     ~PinyinEngine (void);
 
     gboolean processKeyEvent (guint keyval, guint keycode, guint modifiers);
-    void focusIn (void) { resetQuote (); }
+    void focusIn (void) {
+        resetQuote ();
+        ibus_engine_register_properties (m_engine, m_props);
+    }
     void focusOut (void) {}
 
     void reset (gboolean need_update = TRUE) {
@@ -35,6 +38,8 @@ public:
     void pageDown (void);
     void cursorUp (void);
     void cursorDown (void);
+
+    void propertyActivate (const gchar *prop_name, guint prop_state);
 
     void update (gboolean now = TRUE) {
         if (G_UNLIKELY (now || m_need_update >= 4)) {
@@ -88,7 +93,9 @@ private:
     gint m_need_update;             // need update preedit, aux, or lookup table
 
     Pointer<IBusLookupTable> m_lookup_table;
-    Pointer<IBusProperty>    m_mode_prop;
+    Pointer<IBusProperty>    m_prop_chinese;
+    Pointer<IBusProperty>    m_prop_full_letter;
+    Pointer<IBusProperty>    m_prop_full_punct;
     Pointer<IBusPropList>    m_props;
 
     gboolean m_mode_chinese;

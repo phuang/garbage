@@ -62,10 +62,11 @@ static void     ibus_pinyin_engine_page_up      (IBusEngine             *engine)
 static void     ibus_pinyin_engine_page_down    (IBusEngine             *engine);
 static void     ibus_pinyin_engine_cursor_up    (IBusEngine             *engine);
 static void     ibus_pinyin_engine_cursor_down  (IBusEngine             *engine);
-#if 0
-static void ibus_pinyin_property_activate       (IBusEngine             *engine,
+static void     ibus_pinyin_engine_property_activate
+                                                (IBusEngine             *engine,
                                                  const gchar            *prop_name,
-                                                 gint                    prop_state);
+                                                 guint                   prop_state);
+#if 0
 static void ibus_pinyin_engine_property_show    (IBusEngine             *engine,
                                                  const gchar            *prop_name);
 static void ibus_pinyin_engine_property_hide    (IBusEngine             *engine,
@@ -131,6 +132,8 @@ ibus_pinyin_engine_class_init (IBusPinyinEngineClass *klass)
 
     engine_class->cursor_up = ibus_pinyin_engine_cursor_up;
     engine_class->cursor_down = ibus_pinyin_engine_cursor_down;
+
+    engine_class->property_activate = ibus_pinyin_engine_property_activate;
 }
 
 static void
@@ -161,6 +164,14 @@ ibus_pinyin_engine_process_key_event (IBusEngine     *engine,
     return pinyin->engine->processKeyEvent (keyval, keycode, modifiers);
 }
 
+static void
+ibus_pinyin_engine_property_activate (IBusEngine    *engine,
+                                      const gchar   *prop_name,
+                                      guint          prop_state)
+{
+    IBusPinyinEngine *pinyin = (IBusPinyinEngine *) engine;
+    pinyin->engine->propertyActivate (prop_name, prop_state);
+}
 #define FUNCTION(name, Name)                                        \
     static void                                                     \
     ibus_pinyin_engine_##name (IBusEngine *engine)                  \

@@ -5,6 +5,8 @@
 #include "PinyinEngine.h"
 #include "HalfFullConverter.h"
 #include "Config.h"
+#include "Text.h"
+#include "Util.h"
 
 namespace PY {
 
@@ -13,7 +15,9 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
     : m_engine (engine),
       m_need_update (0),
       m_lookup_table (NULL),
-      m_mode_prop (NULL),
+      m_prop_chinese (NULL),
+      m_prop_full_letter (NULL),
+      m_prop_full_punct (NULL),
       m_props (NULL),
       m_mode_chinese (TRUE),
       m_mode_full_letter (TRUE),
@@ -21,7 +25,43 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
       m_quote (TRUE),
       m_double_quote (TRUE)
 {
+    /* create lookup table */
     m_lookup_table = ibus_lookup_table_new (10, 0, TRUE, FALSE);
+
+    /* create properties */
+    m_props = ibus_prop_list_new ();
+    m_prop_chinese = ibus_property_new ("mode.chinese",
+                                        PROP_TYPE_NORMAL,
+                                        Text ("CH"),
+                                        NULL,
+                                        Text ("Chinese"),
+                                        TRUE,
+                                        TRUE,
+                                        PROP_STATE_UNCHECKED,
+                                        NULL);
+    ibus_prop_list_append (m_props, m_prop_chinese);
+
+    m_prop_full_letter = ibus_property_new ("mode.full_letter",
+                                            PROP_TYPE_NORMAL,
+                                            Text ("Aa"),
+                                            NULL,
+                                            Text ("Full/Half width letter"),
+                                            TRUE,
+                                            TRUE,
+                                            PROP_STATE_UNCHECKED,
+                                            NULL);
+    ibus_prop_list_append (m_props, m_prop_full_letter);
+
+    m_prop_full_punct = ibus_property_new ("mode.full_punct",
+                                           PROP_TYPE_NORMAL,
+                                           Text (",."),
+                                           NULL,
+                                           Text ("Full/Half width punctuation"),
+                                           TRUE,
+                                           TRUE,
+                                           PROP_STATE_UNCHECKED,
+                                           NULL);
+    ibus_prop_list_append (m_props, m_prop_full_punct);
 }
 
 /* destructor */
@@ -73,9 +113,9 @@ PinyinEngine::processNumber (guint keyval, guint keycode, guint modifiers)
     else
         i = keyval - IBUS_1;
 
-    if (modifiers == 0) 
+    if (modifiers == 0)
         selectCandidate (i);
-    else if ((modifiers & ~ IBUS_LOCK_MASK) == IBUS_CONTROL_MASK) 
+    else if ((modifiers & ~ IBUS_LOCK_MASK) == IBUS_CONTROL_MASK)
         resetCandidate (i);
     return TRUE;
 }
@@ -276,6 +316,21 @@ PinyinEngine::cursorDown (void)
 {
     if (ibus_lookup_table_cursor_down (m_lookup_table)) {
         ibus_engine_update_lookup_table_fast (m_engine, m_lookup_table, TRUE);
+    }
+}
+
+void
+PinyinEngine::propertyActivate (const gchar *prop_name, guint prop_state)
+{
+    const static StaticString mode_chinese ("mode.chinese");
+    const static StaticString mode_full_letter ("mode.full_letter");
+    const static StaticString mode_full_punct ("mode.full_punct");
+
+    if (mode_chinese == prop_name) {
+    }
+    else if (mode_full_letter == prop_name) {
+    }
+    else if (mode_full_punct == prop_name) {
     }
 }
 

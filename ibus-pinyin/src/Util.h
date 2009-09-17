@@ -40,5 +40,17 @@ public:
     }
 };
 
+class StaticString {
+public:
+    StaticString (const gchar *str) : m_string (str) {}
+    gboolean operator == (const gchar *str) const {
+        if (G_UNLIKELY (m_string == str))
+            return TRUE;
+        return g_strcmp0 (m_string, str) == 0;
+    }
+private:
+    const gchar *m_string;
+};
+
 };
 #endif
