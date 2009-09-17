@@ -32,7 +32,7 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
     m_props = ibus_prop_list_new ();
     m_prop_chinese = ibus_property_new ("mode.chinese",
                                         PROP_TYPE_NORMAL,
-                                        Text ("CH"),
+                                        Text ("CN"),
                                         NULL,
                                         Text ("Chinese"),
                                         TRUE,
@@ -43,7 +43,7 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
 
     m_prop_full_letter = ibus_property_new ("mode.full_letter",
                                             PROP_TYPE_NORMAL,
-                                            Text ("Aa"),
+                                            Text (m_mode_full_letter ? "Ａａ" : "Aa"),
                                             NULL,
                                             Text ("Full/Half width letter"),
                                             TRUE,
@@ -54,13 +54,14 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
 
     m_prop_full_punct = ibus_property_new ("mode.full_punct",
                                            PROP_TYPE_NORMAL,
-                                           Text (",."),
+                                           Text (m_mode_full_punct ? "，。" : ",."),
                                            NULL,
                                            Text ("Full/Half width punctuation"),
                                            TRUE,
                                            TRUE,
                                            PROP_STATE_UNCHECKED,
                                            NULL);
+
     ibus_prop_list_append (m_props, m_prop_full_punct);
 }
 
@@ -327,10 +328,22 @@ PinyinEngine::propertyActivate (const gchar *prop_name, guint prop_state)
     const static StaticString mode_full_punct ("mode.full_punct");
 
     if (mode_chinese == prop_name) {
+        m_mode_chinese = ! m_mode_chinese;
+        ibus_property_set_label (m_prop_chinese,
+                                 Text (m_mode_chinese ? "CN" : "EN"));
+        ibus_engine_update_property (m_engine, m_prop_chinese);
     }
     else if (mode_full_letter == prop_name) {
+        m_mode_full_letter = !m_mode_full_letter;
+        ibus_property_set_label (m_prop_full_letter,
+                                 Text (m_mode_full_letter ? "Ａａ" : "Aa"));
+        ibus_engine_update_property (m_engine, m_prop_full_letter);
     }
     else if (mode_full_punct == prop_name) {
+        m_mode_full_punct = !m_mode_full_punct;
+        ibus_property_set_label (m_prop_full_punct,
+                                 Text (m_mode_full_punct ? "，。" : ",."));
+        ibus_engine_update_property (m_engine, m_prop_full_punct);
     }
 }
 
