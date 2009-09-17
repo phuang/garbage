@@ -3,14 +3,25 @@
 
 #include <ibus.h>
 #include "Pointer.h"
+#include "Text.h"
 
 namespace PY {
 
-typedef Pointer<IBusProperty> Property;
-/* 
- class Property : public Pointer<IBusProperty> {
- };
- */
+class Property : public Pointer<IBusProperty> {
+public:
+    Property & operator= (IBusProperty *p) {
+        set (p);
+        return *this;
+    }
+
+    void setLabel (const Text & text) {
+        ibus_property_set_label (*this, text);
+    }
+    void setLabel (const gchar *text) {
+        setLabel (Text (text));
+    }
+};
+
 
 class PropList : public Pointer<IBusPropList> {
 public:

@@ -62,7 +62,12 @@ PinyinEngine::~PinyinEngine (void)
 {
 }
 
-#define MASK_FILTER(modifiers) (modifiers & (IBUS_CONTROL_MASK | IBUS_MOD1_MASK | IBUS_SUPER_MASK | IBUS_HYPER_MASK | IBUS_META_MASK))
+#define MASK_FILTER(modifiers)          \
+    (modifiers & (IBUS_CONTROL_MASK |   \
+                  IBUS_MOD1_MASK |      \
+                  IBUS_SUPER_MASK |     \
+                  IBUS_HYPER_MASK |     \
+                  IBUS_META_MASK))
 
 /**
  * process ascii letter
@@ -338,8 +343,7 @@ inline void
 PinyinEngine::toggleModeChinese (void)
 {
     m_mode_chinese = ! m_mode_chinese;
-    ibus_property_set_label (m_prop_chinese,
-                             Text (m_mode_chinese ? "CN" : "EN"));
+    m_prop_chinese.setLabel (m_mode_chinese ? "CN" : "EN");
     ibus_engine_update_property (m_engine, m_prop_chinese);
 }
 
@@ -347,8 +351,7 @@ inline void
 PinyinEngine::toggleModeFullLetter (void)
 {
     m_mode_full_letter = !m_mode_full_letter;
-    ibus_property_set_label (m_prop_full_letter,
-                             Text (m_mode_full_letter ? "Ａａ" : "Aa"));
+    m_prop_full_letter.setLabel (m_mode_full_letter ? "Ａａ" : "Aa");
     ibus_engine_update_property (m_engine, m_prop_full_letter);
 }
 
@@ -356,8 +359,7 @@ inline void
 PinyinEngine::toggleModeFullPunct (void)
 {
     m_mode_full_punct = !m_mode_full_punct;
-    ibus_property_set_label (m_prop_full_punct,
-                             Text (m_mode_full_punct ? "，。" : ",."));
+    m_prop_full_punct.setLabel (m_mode_full_punct ? "，。" : ",.");
     ibus_engine_update_property (m_engine, m_prop_full_punct);
 }
 

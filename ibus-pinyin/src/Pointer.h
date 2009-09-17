@@ -38,11 +38,7 @@ public:
         return *this;
     }
 
-    operator T * (void) {
-        return m_p;
-    }
-    
-    operator const T * (void) const {
+    operator T * (void) const {
         return m_p;
     }
     
