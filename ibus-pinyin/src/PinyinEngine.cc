@@ -14,10 +14,6 @@ namespace PY {
 PinyinEngine::PinyinEngine (IBusEngine *engine)
     : m_engine (engine),
       m_need_update (0),
-      m_prop_chinese (NULL),
-      m_prop_full_letter (NULL),
-      m_prop_full_punct (NULL),
-      m_props (NULL),
       m_mode_chinese (TRUE),
       m_mode_full_letter (TRUE),
       m_mode_full_punct (TRUE),
@@ -26,7 +22,6 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
       m_prev_pressed_key (0)
 {
     /* create properties */
-    m_props = ibus_prop_list_new ();
     m_prop_chinese = ibus_property_new ("mode.chinese",
                                         PROP_TYPE_NORMAL,
                                         Text ("CN"),
@@ -36,7 +31,7 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
                                         TRUE,
                                         PROP_STATE_UNCHECKED,
                                         NULL);
-    ibus_prop_list_append (m_props, m_prop_chinese);
+    m_props.append (m_prop_chinese);
 
     m_prop_full_letter = ibus_property_new ("mode.full_letter",
                                             PROP_TYPE_NORMAL,
@@ -47,7 +42,7 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
                                             TRUE,
                                             PROP_STATE_UNCHECKED,
                                             NULL);
-    ibus_prop_list_append (m_props, m_prop_full_letter);
+    m_props.append (m_prop_full_letter);
 
     m_prop_full_punct = ibus_property_new ("mode.full_punct",
                                            PROP_TYPE_NORMAL,
@@ -59,7 +54,7 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
                                            PROP_STATE_UNCHECKED,
                                            NULL);
 
-    ibus_prop_list_append (m_props, m_prop_full_punct);
+    m_props.append (m_prop_full_punct);
 }
 
 /* destructor */

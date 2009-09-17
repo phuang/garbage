@@ -8,6 +8,7 @@
 #include "PinyinEditor.h"
 #include "PhraseEditor.h"
 #include "LookupTable.h"
+#include "Property.h"
 
 namespace PY {
 
@@ -97,11 +98,11 @@ private:
 
     gint m_need_update;             // need update preedit, aux, or lookup table
 
-    LookupTable              m_lookup_table;
-    Pointer<IBusProperty>    m_prop_chinese;
-    Pointer<IBusProperty>    m_prop_full_letter;
-    Pointer<IBusProperty>    m_prop_full_punct;
-    Pointer<IBusPropList>    m_props;
+    LookupTable m_lookup_table;
+    Property    m_prop_chinese;
+    Property    m_prop_full_letter;
+    Property    m_prop_full_punct;
+    PropList    m_props;
 
     gboolean m_mode_chinese;
     gboolean m_mode_full_letter;
