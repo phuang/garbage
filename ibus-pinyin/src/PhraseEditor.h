@@ -33,7 +33,10 @@ public:
     void reset (void) {
         m_candidates.removeAll ();
         m_phrases1.removeAll ();
+        m_string1.truncate (0);
         m_phrases2.removeAll ();
+        m_string2.truncate (0);
+        m_pinyin.removeAll ();
         m_cursor = 0;
     }
 
@@ -43,6 +46,7 @@ public:
     void commit (void) {
         m_phrases1 << m_phrases2;
         m_database.commit (m_phrases1);
+        reset ();
     }
 
     gboolean isEmpty (void) {

@@ -529,6 +529,7 @@ Database::commit (const PhraseArray  &phrases)
 
     if (sqlite3_exec (m_db, m_sql, NULL, NULL, &errmsg) != SQLITE_OK) {
         g_debug ("%s", errmsg);
+        g_debug ("m_sql = %s", (const gchar *)m_sql);
         sqlite3_free (errmsg);
     }
 }

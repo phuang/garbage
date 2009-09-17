@@ -403,8 +403,8 @@ PinyinEngine::updatePreeditText (void)
     m_buffer << m_phrase_editor.string2 ()
              << m_pinyin_editor.textAfterPinyin ();
 
-    Pointer<IBusText> preedit_text = ibus_text_new_from_static_string ((const gchar *) m_buffer);
-    ibus_text_append_attribute (preedit_text, IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
+    Text preedit_text (m_buffer);
+    preedit_text.appendAttribute (IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
     ibus_engine_update_preedit_text (m_engine, preedit_text, m_buffer.length (), TRUE);
 }
 
@@ -448,11 +448,9 @@ PinyinEngine::updateAuxiliaryText (void)
         m_buffer  << '|' << m_pinyin_editor.textAfterCursor ();
     }
 
-    Pointer<IBusText> aux_text = ibus_text_new_from_static_string (m_buffer);
-    ibus_text_append_attribute (aux_text,
-            IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, len, cursor_pos);
-    ibus_text_append_attribute (aux_text,
-            IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, cursor_pos + 1, -1);
+    Text aux_text (m_buffer);
+    aux_text.appendAttribute (IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, len, cursor_pos);
+    aux_text.appendAttribute (IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, cursor_pos + 1, -1);
     ibus_engine_update_auxiliary_text (m_engine, aux_text, TRUE);
 }
 
@@ -467,9 +465,8 @@ PinyinEngine::updateLookupTable (void)
         return;
     }
 
-    Pointer<IBusText> text;
     for (guint i = 0; i < candidate_nr; i++) {
-        text = ibus_text_new_from_static_string (m_phrase_editor.candidate (i));
+        Text text (m_phrase_editor.candidate (i));
         ibus_lookup_table_append_candidate (m_lookup_table, text);
     }
 
@@ -488,22 +485,19 @@ inline void
 PinyinEngine::commit (gchar ch)
 {
     gchar str[2] = {ch, 0};
-    Pointer<IBusText> text = ibus_text_new_from_static_string (str);
-    ibus_engine_commit_text (m_engine, text);
+    ibus_engine_commit_text (m_engine, Text (str));
 }
 
 inline void
 PinyinEngine::commit (gunichar ch)
 {
-    Pointer<IBusText> text = ibus_text_new_from_unichar (ch);
-    ibus_engine_commit_text (m_engine, text);
+    ibus_engine_commit_text (m_engine, Text (ch));
 }
 
 inline void
 PinyinEngine::commit (const gchar *str)
 {
-    Pointer<IBusText> text = ibus_text_new_from_static_string (str);
-    ibus_engine_commit_text (m_engine, text);
+    ibus_engine_commit_text (m_engine, Text (str));
 }
 
 inline void
