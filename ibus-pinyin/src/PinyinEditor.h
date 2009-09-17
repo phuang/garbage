@@ -21,9 +21,6 @@ public:
 
     gboolean insert (gint ch);
 
-    static void setOption (guint option) { m_option = option; }
-    static guint option (void) { return m_option; }
-
     gboolean removeCharBefore (void);
     gboolean removeCharAfter (void);
     gboolean removeWordBefore (void);
@@ -64,7 +61,6 @@ private:
     guint       m_pinyin_len;   // pinyin length in char
 
 private:
-    static guint m_option;
     static PinyinParser m_parser; 
 };
 

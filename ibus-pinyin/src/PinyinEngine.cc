@@ -4,11 +4,9 @@
 #include <string.h>
 #include "PinyinEngine.h"
 #include "HalfFullConverter.h"
+#include "Config.h"
 
 namespace PY {
-
-/* init static members */
-guint PinyinEngine::m_option = 0x0;
 
 /* constructor */
 PinyinEngine::PinyinEngine (IBusEngine *engine)
@@ -19,8 +17,9 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
       m_props (NULL),
       m_mode_chinese (TRUE),
       m_mode_full_letter (TRUE),
-      m_mode_full_punct (TRUE)
-
+      m_mode_full_punct (TRUE),
+      m_quote (TRUE),
+      m_double_quote (TRUE)
 {
     m_lookup_table = ibus_lookup_table_new (10, 0, TRUE, FALSE);
 }
@@ -105,11 +104,13 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
             case '>':
                 commit ("》"); break;
             case '"':
-                /* FIXME */
-                commit ("“"); break;
+                commit (m_double_quote ? "“" : "”");
+                m_double_quote = !m_double_quote;
+                break;
             case '\'':
-                /* FIXME */
-                commit ("‘"); break;
+                commit (m_quote ? "‘" : "’");
+                m_quote = !m_quote;
+                break;
             default:
                 commit (HalfFullConverter::toFull (keyval));
                 break;
@@ -126,6 +127,12 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
             commit (); return TRUE;
         case IBUS_apostrophe:
             return processPinyin (keyval, keycode, modifiers);
+        case IBUS_comma:
+        case IBUS_minus:
+            pageUp (); return TRUE;
+        case IBUS_period:
+        case IBUS_equal:
+            pageDown (); return TRUE;
         }
     }
     return TRUE;
@@ -416,9 +423,6 @@ PinyinEngine::selectCandidate (guint i)
     guint cursor_pos = ibus_lookup_table_get_cursor_pos (m_lookup_table);
     i += (cursor_pos / page_size) * page_size;
 
-    if (G_LIKELY (i == 0)) {
-
-    }
     if (m_phrase_editor.selectCandidate (i)) {
         if (G_UNLIKELY (m_phrase_editor.cursor () == m_pinyin_editor.pinyin ().length ())) {
             commit ();
@@ -439,9 +443,6 @@ PinyinEngine::resetCandidate (guint i)
     guint cursor_pos = ibus_lookup_table_get_cursor_pos (m_lookup_table);
     i += (cursor_pos / page_size) * page_size;
 
-    if (G_LIKELY (i == 0)) {
-
-    }
     if (m_phrase_editor.resetCandidate (i)) {
         updatePreeditText ();
         updateAuxiliaryText ();

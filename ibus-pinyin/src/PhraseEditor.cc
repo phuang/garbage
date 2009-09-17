@@ -1,10 +1,10 @@
+#include "Config.h"
 #include "PhraseEditor.h"
 
 namespace PY {
 
 /* init static members */
 Database PhraseEditor::m_database;
-guint PhraseEditor::m_option = 0;
 
 PhraseEditor::PhraseEditor (void)
     : m_candidates (32),
@@ -104,7 +104,7 @@ PhraseEditor::updateCandidates (void)
                                    m_cursor,
                                    len,
                                    -1,
-                                   m_option,
+                                   Config::option (),
                                    m_candidates);
     }
 }
@@ -134,13 +134,15 @@ PhraseEditor::updatePhrases (void)
                                            begin,
                                            i - begin,
                                            1,
-                                           m_option,
+                                           Config::option (),
                                            m_phrases2);
                 if (G_LIKELY (retval > 0)) {
                     begin += m_phrases2[m_phrases2.length () - 1].len;
                     break;
                 }
             }
+            if (retval <= 0)
+                g_debug ("%s", m_pinyin[begin]->text);
             g_assert (retval > 0);
         }
     }

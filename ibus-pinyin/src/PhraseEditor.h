@@ -64,7 +64,6 @@ private:
 
 private:
     static Database m_database;
-    static guint m_option;
 };
 
 };
