@@ -96,12 +96,12 @@ Database::initUserDatabase (const gchar *userdb)
     m_sql = "BEGIN TRANSACTION;\n";
     /* create desc table*/
     m_sql << "CREATE TABLE IF NOT EXISTS userdb.desc (name PRIMARY KEY, value TEXT);\n";
-    m_sql << "INSERT OR IGNORE INTO userdb.desc VALUES ('version', '1.2.0');\n"
-          << "INSERT OR IGNORE INTO userdb.desc VALUES ('uuid', '" << UUID () << "');\n"
-          << "INSERT OR IGNORE INTO userdb.desc VALUES ('hostname', '" << Hostname () << "');\n"
-          << "INSERT OR IGNORE INTO userdb.desc VALUES ('username', '" << getenv ("USERNAME") << "');\n"
-          << "INSERT OR IGNORE INTO userdb.desc VALUES ('create-time', datetime ());\n"
-          << "INSERT OR IGNORE INTO userdb.desc VALUES ('attach-time', datetime ());\n";
+    m_sql << "INSERT OR IGNORE INTO userdb.desc VALUES " << "('version', '1.2.0');\n"
+          << "INSERT OR IGNORE INTO userdb.desc VALUES " << "('uuid', '" << UUID () << "');\n"
+          << "INSERT OR IGNORE INTO userdb.desc VALUES " << "('hostname', '" << Hostname () << "');\n"
+          << "INSERT OR IGNORE INTO userdb.desc VALUES " << "('username', '" << getenv ("USERNAME") << "');\n"
+          << "INSERT OR IGNORE INTO userdb.desc VALUES " << "('create-time', datetime ());\n"
+          << "INSERT OR IGNORE INTO userdb.desc VALUES " << "('attach-time', datetime ());\n";
 
     /* create phrase tables */
     for (guint i = 0; i < MAX_PHRASE_LEN; i++) {
