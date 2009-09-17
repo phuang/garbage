@@ -423,9 +423,6 @@ PinyinEngine::selectCandidate (guint i)
     guint cursor_pos = ibus_lookup_table_get_cursor_pos (m_lookup_table);
     i += (cursor_pos / page_size) * page_size;
 
-    if (G_LIKELY (i == 0)) {
-
-    }
     if (m_phrase_editor.selectCandidate (i)) {
         if (G_UNLIKELY (m_phrase_editor.cursor () == m_pinyin_editor.pinyin ().length ())) {
             commit ();
@@ -446,9 +443,6 @@ PinyinEngine::resetCandidate (guint i)
     guint cursor_pos = ibus_lookup_table_get_cursor_pos (m_lookup_table);
     i += (cursor_pos / page_size) * page_size;
 
-    if (G_LIKELY (i == 0)) {
-
-    }
     if (m_phrase_editor.resetCandidate (i)) {
         updatePreeditText ();
         updateAuxiliaryText ();
