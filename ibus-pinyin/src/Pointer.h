@@ -45,7 +45,7 @@ public:
     operator const T * (void) const {
         return m_p;
     }
-
+    
     operator gboolean (void) const {
         return m_p != NULL;
     }

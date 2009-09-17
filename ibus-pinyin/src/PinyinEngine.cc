@@ -14,7 +14,6 @@ namespace PY {
 PinyinEngine::PinyinEngine (IBusEngine *engine)
     : m_engine (engine),
       m_need_update (0),
-      m_lookup_table (NULL),
       m_prop_chinese (NULL),
       m_prop_full_letter (NULL),
       m_prop_full_punct (NULL),
@@ -26,9 +25,6 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
       m_double_quote (TRUE),
       m_prev_pressed_key (0)
 {
-    /* create lookup table */
-    m_lookup_table = ibus_lookup_table_new (10, 0, TRUE, FALSE);
-
     /* create properties */
     m_props = ibus_prop_list_new ();
     m_prop_chinese = ibus_property_new ("mode.chinese",
@@ -314,7 +310,7 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
 inline void
 PinyinEngine::pageUp (void)
 {
-    if (ibus_lookup_table_page_up (m_lookup_table)) {
+    if (m_lookup_table.pageUp ()) {
         ibus_engine_update_lookup_table_fast (m_engine, m_lookup_table, TRUE);
     }
 }
@@ -322,7 +318,7 @@ PinyinEngine::pageUp (void)
 inline void
 PinyinEngine::pageDown (void)
 {
-    if (ibus_lookup_table_page_down (m_lookup_table)) {
+    if (m_lookup_table.pageDown ()) {
         ibus_engine_update_lookup_table_fast (m_engine, m_lookup_table, TRUE);
     }
 }
@@ -330,7 +326,7 @@ PinyinEngine::pageDown (void)
 inline void
 PinyinEngine::cursorUp (void)
 {
-    if (ibus_lookup_table_cursor_up (m_lookup_table)) {
+    if (m_lookup_table.cursorUp ()) {
         ibus_engine_update_lookup_table_fast (m_engine, m_lookup_table, TRUE);
     }
 }
@@ -338,7 +334,7 @@ PinyinEngine::cursorUp (void)
 inline void
 PinyinEngine::cursorDown (void)
 {
-    if (ibus_lookup_table_cursor_down (m_lookup_table)) {
+    if (m_lookup_table.cursorDown ()) {
         ibus_engine_update_lookup_table_fast (m_engine, m_lookup_table, TRUE);
     }
 }
@@ -457,7 +453,7 @@ PinyinEngine::updateAuxiliaryText (void)
 void
 PinyinEngine::updateLookupTable (void)
 {
-    ibus_lookup_table_clear (m_lookup_table);
+    m_lookup_table.clear ();
     guint candidate_nr = m_phrase_editor.candidateNumber ();
 
     if (G_UNLIKELY (candidate_nr == 0)) {
@@ -467,7 +463,7 @@ PinyinEngine::updateLookupTable (void)
 
     for (guint i = 0; i < candidate_nr; i++) {
         Text text (m_phrase_editor.candidate (i));
-        ibus_lookup_table_append_candidate (m_lookup_table, text);
+        m_lookup_table.appendCandidate (text);
     }
 
     ibus_engine_update_lookup_table_fast (m_engine,
@@ -524,8 +520,8 @@ PinyinEngine::commit (void)
 inline gboolean
 PinyinEngine::selectCandidate (guint i)
 {
-    guint page_size = ibus_lookup_table_get_page_size (m_lookup_table);
-    guint cursor_pos = ibus_lookup_table_get_cursor_pos (m_lookup_table);
+    guint page_size = m_lookup_table.pageSize ();
+    guint cursor_pos = m_lookup_table.cursorPos ();
     i += (cursor_pos / page_size) * page_size;
 
     if (m_phrase_editor.selectCandidate (i)) {
@@ -544,8 +540,8 @@ PinyinEngine::selectCandidate (guint i)
 inline gboolean
 PinyinEngine::resetCandidate (guint i)
 {
-    guint page_size = ibus_lookup_table_get_page_size (m_lookup_table);
-    guint cursor_pos = ibus_lookup_table_get_cursor_pos (m_lookup_table);
+    guint page_size = m_lookup_table.pageSize ();
+    guint cursor_pos = m_lookup_table.cursorPos ();
     i += (cursor_pos / page_size) * page_size;
 
     if (m_phrase_editor.resetCandidate (i)) {

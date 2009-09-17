@@ -53,6 +53,10 @@ ibus_engine_c_sources = \
 ibus_engine_h_sources = \
 	PinyinArray.h \
 	PhraseArray.h \
+	Pointer.h \
+	Text.h \
+	LookupTable.h \
+	Property.h \
 	Config.h \
 	Database.h \
 	PinyinParser.h \
