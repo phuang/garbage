@@ -80,7 +80,7 @@ PinyinEngine::processPinyin (guint keyval, guint keycode, guint modifiers)
 
     if (G_UNLIKELY (m_mode_chinese == FALSE ||
                     modifiers & (IBUS_SHIFT_MASK | IBUS_LOCK_MASK))) {
-        if (G_LIKELY (m_pinyin_editor.isEmpty ())) {
+        if (G_LIKELY (!m_pinyin_editor)) {
             if (m_mode_full_letter)
                 commit (HalfFullConverter::toFull (keyval));
             else
@@ -98,7 +98,7 @@ PinyinEngine::processPinyin (guint keyval, guint keycode, guint modifiers)
 inline gboolean
 PinyinEngine::processNumber (guint keyval, guint keycode, guint modifiers)
 {
-    if (G_UNLIKELY (m_pinyin_editor.isEmpty ())) {
+    if (G_UNLIKELY (!m_pinyin_editor)) {
         if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
             return FALSE;
         commit ((gunichar) m_mode_full_letter ? HalfFullConverter::toFull (keyval) : keyval);
@@ -384,7 +384,7 @@ PinyinEngine::propertyActivate (const gchar *prop_name, guint prop_state)
 void
 PinyinEngine::updatePreeditText (void)
 {
-    if (G_UNLIKELY (m_phrase_editor.isEmpty () && m_pinyin_editor.isEmpty ())) {
+    if (G_UNLIKELY (!m_phrase_editor && !m_pinyin_editor)) {
         ibus_engine_hide_preedit_text (m_engine);
         return;
     }
@@ -496,7 +496,7 @@ PinyinEngine::commit (const gchar *str)
 inline void
 PinyinEngine::commit (void)
 {
-    if (G_UNLIKELY (m_pinyin_editor.isEmpty ()))
+    if (G_UNLIKELY (!m_pinyin_editor))
         return;
 
     m_buffer.truncate (0);

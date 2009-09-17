@@ -51,6 +51,10 @@ public:
         return retval;
     }
 
+    operator gboolean (void) const {
+        return !isEmpty ();
+    }
+
 private:
     void updatePinyin (void);
 

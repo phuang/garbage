@@ -49,8 +49,12 @@ public:
         reset ();
     }
 
-    gboolean isEmpty (void) {
+    gboolean isEmpty (void) const {
         return m_string1.isEmpty () && m_string2.isEmpty ();
+    }
+
+    operator gboolean (void) const {
+        return !isEmpty ();
     }
 
 private:
