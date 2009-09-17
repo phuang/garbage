@@ -285,19 +285,23 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
                   IBUS_LOCK_MASK);
 
     switch (keyval) {
+    /* letters */
     case IBUS_a ... IBUS_z:
     case IBUS_A ... IBUS_Z:
         retval = processPinyin (keyval, keycode, modifiers);
         break;
+    /* numbers */
     case IBUS_0 ... IBUS_9:
         retval = processNumber (keyval, keycode, modifiers);
         break;
+    /* punct */
     case IBUS_space ... IBUS_slash:
     case IBUS_colon ... IBUS_at:
     case IBUS_bracketleft ... IBUS_quoteleft:
     case IBUS_braceleft ... IBUS_asciitilde:
         retval = processPunct (keyval, keycode, modifiers);
         break;
+    /* others */
     default:
         retval = processOthers (keyval, keycode, modifiers);
         break;
