@@ -47,6 +47,7 @@ ibus_engine_c_sources = \
 	PhraseEditor.cc \
 	PinyinEngine.cc \
 	HalfFullConverter.cc \
+	SpecialTable.cc \
 	Engine.cc \
 	Main.cc \
 	$(NULL)
@@ -64,6 +65,7 @@ ibus_engine_h_sources = \
 	PhraseEditor.h \
 	PinyinEngine.h \
 	HalfFullConverter.h \
+	SpecialTable.h \
 	Engine.h \
 	$(NULL)
 ibus_engine_pinyin_SOURCES = \
