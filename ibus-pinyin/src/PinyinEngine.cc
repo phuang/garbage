@@ -303,7 +303,7 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
     return retval;
 }
 
-inline void
+void
 PinyinEngine::pageUp (void)
 {
     if (m_lookup_table.pageUp ()) {
@@ -311,7 +311,7 @@ PinyinEngine::pageUp (void)
     }
 }
 
-inline void
+void
 PinyinEngine::pageDown (void)
 {
     if (m_lookup_table.pageDown ()) {
@@ -319,7 +319,7 @@ PinyinEngine::pageDown (void)
     }
 }
 
-inline void
+void
 PinyinEngine::cursorUp (void)
 {
     if (m_lookup_table.cursorUp ()) {
@@ -327,7 +327,7 @@ PinyinEngine::cursorUp (void)
     }
 }
 
-inline void
+void
 PinyinEngine::cursorDown (void)
 {
     if (m_lookup_table.cursorDown ()) {

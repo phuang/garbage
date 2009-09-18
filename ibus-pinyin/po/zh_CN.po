@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/ibus/issues/entry\n"
-"POT-Creation-Date: 2009-03-10 15:46+0800\n"
+"POT-Creation-Date: 2009-09-18 21:22+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,10 +15,10 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/main.c:45
+#: src/Main.cc:48
 msgid "PinYin input method"
 msgstr ""
 
-#: src/main.c:54 src/main.c:55
+#: src/Main.cc:57 src/Main.cc:58
 msgid "PinYin Input Method"
 msgstr ""

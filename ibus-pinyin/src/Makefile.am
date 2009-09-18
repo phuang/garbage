@@ -52,6 +52,11 @@ ibus_engine_c_sources = \
 	Main.cc \
 	$(NULL)
 ibus_engine_h_sources = \
+	Types.h \
+	Table.h \
+	Util.h \
+	String.h \
+	Array.h \
 	PinyinArray.h \
 	PhraseArray.h \
 	Pointer.h \
@@ -105,16 +110,16 @@ CLEANFILES = \
 
 check_PROGRAMS =
 
-check_PROGRAMS += test-parser
-test_parser_SOURCES = \
-	PinyinParser.cc \
-	Table.h \
-	$(NULL)
-test_parser_CFLAGS = \
-	$(AM_CFLAGS) \
-	-DTEST \
-	$(NULL)
-
+# check_PROGRAMS += test-parser
+# test_parser_SOURCES = \
+# 	PinyinParser.cc \
+# 	Table.h \
+# 	$(NULL)
+# test_parser_CFLAGS = \
+# 	$(AM_CFLAGS) \
+# 	-DTEST \
+# 	$(NULL)
+# 
 # check_PROGRAMS += test-pydatabase
 # test_pydatabase_SOURCES = \
 # 	Database.cc \
