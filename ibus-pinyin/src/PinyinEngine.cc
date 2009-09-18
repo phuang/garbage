@@ -78,20 +78,16 @@ PinyinEngine::processPinyin (guint keyval, guint keycode, guint modifiers)
     if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
         return FALSE;
 
-    if (G_UNLIKELY (m_mode_chinese == FALSE ||
-                    modifiers & (IBUS_SHIFT_MASK | IBUS_LOCK_MASK))) {
-        if (G_LIKELY (!m_pinyin_editor)) {
-            if (m_mode_full_letter)
-                commit (HalfFullConverter::toFull (keyval));
-            else
-                commit ((gchar) keyval);
-            return TRUE;
-        }
+    if (G_UNLIKELY (m_mode_chinese == FALSE)) {
+        if (G_UNLIKELY (m_mode_full_letter))
+            commit (HalfFullConverter::toFull (keyval));
+        else
+            commit ((gchar) keyval);
+        return TRUE;
     }
 
-    if (m_pinyin_editor.insert (keyval)) {
+    if (m_pinyin_editor.insert (keyval))
         update (FALSE);
-    }
     return TRUE;
 }
 
@@ -442,8 +438,10 @@ PinyinEngine::updateAuxiliaryText (void)
     }
 
     Text aux_text (m_buffer);
+    /*
     aux_text.appendAttribute (IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, len, cursor_pos);
     aux_text.appendAttribute (IBUS_ATTR_TYPE_FOREGROUND, 0x00afafaf, cursor_pos + 1, -1);
+    */
     ibus_engine_update_auxiliary_text (m_engine, aux_text, TRUE);
 }
 
