@@ -42,37 +42,37 @@ ibus_engine_built_h_sources = \
 ibus_engine_c_sources = \
 	Config.cc \
 	Database.cc \
-	PinyinParser.cc \
-	PinyinEditor.cc \
-	PhraseEditor.cc \
-	PinyinEngine.cc \
-	HalfFullConverter.cc \
-	SpecialTable.cc \
 	Engine.cc \
+	HalfFullConverter.cc \
 	Main.cc \
+	PhraseEditor.cc \
+	PinyinEditor.cc \
+	PinyinEngine.cc \
+	PinyinParser.cc \
+	SpecialTable.cc \
 	$(NULL)
 ibus_engine_h_sources = \
-	Bus.h \
-	Types.h \
-	Table.h \
-	Util.h \
-	String.h \
 	Array.h \
-	PinyinArray.h \
-	PhraseArray.h \
-	Pointer.h \
-	Text.h \
-	LookupTable.h \
-	Property.h \
+	Bus.h \
 	Config.h \
 	Database.h \
-	PinyinParser.h \
-	PinyinEditor.h \
-	PhraseEditor.h \
-	PinyinEngine.h \
-	HalfFullConverter.h \
-	SpecialTable.h \
 	Engine.h \
+	HalfFullConverter.h \
+	LookupTable.h \
+	PhraseArray.h \
+	PhraseEditor.h \
+	PinyinArray.h \
+	PinyinEditor.h \
+	PinyinEngine.h \
+	PinyinParser.h \
+	Pointer.h \
+	Property.h \
+	SpecialTable.h \
+	String.h \
+	Table.h \
+	Text.h \
+	Types.h \
+	Util.h \
 	$(NULL)
 ibus_engine_pinyin_SOURCES = \
 	$(ibus_engine_c_sources) \
