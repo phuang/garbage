@@ -65,12 +65,14 @@ namespace PY {
 #define PINYIN_ID_V     (56)
 
 #define PINYIN_SIMPLE_PINYIN        (1 << 0)
+
 #define PINYIN_CORRECT_GN_TO_NG     (1 << 1)
 #define PINYIN_CORRECT_MG_TO_NG     (1 << 2)
 #define PINYIN_CORRECT_IOU_TO_IU    (1 << 3)
 #define PINYIN_CORRECT_UEI_TO_UI    (1 << 4)
 #define PINYIN_CORRECT_UEN_TO_UN    (1 << 5)
 #define PINYIN_CORRECT_VE_TO_UE     (1 << 6)
+#define PINYIN_CORRECT_ALL          (0x0000007e)
 
 #define PINYIN_FUZZY_C_CH           (1 << 7)
 #define PINYIN_FUZZY_CH_C           (1 << 8)
@@ -95,6 +97,7 @@ namespace PY {
 #define PINYIN_FUZZY_ING_IN         (1 << 26)
 #define PINYIN_FUZZY_UAN_UANG       (1 << 27)
 #define PINYIN_FUZZY_UANG_UAN       (1 << 28)
+#define PINYIN_FUZZY_ALL            (0x1fffff10)
 
 typedef struct _Pinyin Pinyin;
 struct _Pinyin {
