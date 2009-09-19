@@ -6,6 +6,7 @@
 #include "Engine.h"
 #include "Pointer.h"
 #include "Bus.h"
+#include "Config.h"
 
 using namespace PY;
 
@@ -41,6 +42,7 @@ start_component (void)
 
     ibus_init ();
     Bus bus;
+    Config config (bus);
 
     g_signal_connect (bus, "disconnected", G_CALLBACK (ibus_disconnected_cb), NULL);
 
