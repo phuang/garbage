@@ -203,7 +203,7 @@ Database::query (const PinyinArray &pinyin,
 
 
 
-static void
+inline static void
 _conditions_append_vprintf (Array<String *> &array,
                             gint             begin,
                             gint             end,
@@ -218,7 +218,7 @@ _conditions_append_vprintf (Array<String *> &array,
     }
 }
 
-static void
+inline static void
 _conditions_append_printf (Array<String *> &array,
                            gint             begin,
                            gint             end,
@@ -233,7 +233,7 @@ _conditions_append_printf (Array<String *> &array,
 
 #define CONDITION_INIT_SIZE (256)
 
-void
+inline void
 Database::conditionsDouble (void)
 {
     gint i, len;
@@ -248,7 +248,7 @@ Database::conditionsDouble (void)
     }
 }
 
-void
+inline void
 Database::conditionsTriple (void)
 {
     gint i, len;
@@ -266,7 +266,7 @@ Database::conditionsTriple (void)
     }
 }
 
-static gboolean
+inline static gboolean
 pinyin_option_check_sheng (guint option, gint id, gint fid)
 {
     switch ((id << 16) | fid) {
@@ -302,7 +302,7 @@ pinyin_option_check_sheng (guint option, gint id, gint fid)
     }
 }
 
-static gboolean
+inline static gboolean
 pinyin_option_check_yun (guint option, gint id, gint fid)
 {
     switch ((id << 16) | fid) {
