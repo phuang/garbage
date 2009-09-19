@@ -4,7 +4,8 @@
 
 namespace PY {
 
-guint Config::m_option = 0xffffffff;
+guint Config::m_option = PINYIN_SIMPLE_PINYIN | PINYIN_CORRECT_ALL;
+guint Config::m_option_mask = PINYIN_SIMPLE_PINYIN | PINYIN_CORRECT_ALL;
 
 void
 Config::value_changed_cb (IBusConfig    *config,
@@ -14,7 +15,9 @@ Config::value_changed_cb (IBusConfig    *config,
                           Config        *self)
 {
     static const StaticString engine_pinyin ("engine/PinYin");
-    static const StaticString simple_pinyin ("SimplePinyin");
+    static const StaticString correct_pinyin ("CORRECT_PINYIN");
+    static const StaticString fuzzy_pinyin ("FUZZY_PINYIN");
+
     static const struct {
         StaticString name;
         guint option;
@@ -54,16 +57,40 @@ Config::value_changed_cb (IBusConfig    *config,
         { StaticString ("FUZZY_UANG_UAN"),  PINYIN_FUZZY_UANG_UAN,  FALSE },
     };
 
+    if (engine_pinyin != section)
+        return;
+
+    if (correct_pinyin == name) {
+        gboolean v = TRUE;
+        if (G_LIKELY (value != NULL || G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
+            v = g_value_get_boolean (value);
+        if (v)
+            m_option_mask |= PINYIN_CORRECT_ALL;
+        else
+            m_option_mask ^= PINYIN_CORRECT_ALL;
+    }
+
+    if (fuzzy_pinyin == name) {
+        gboolean v = TRUE;
+        if (G_LIKELY (value != NULL || G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
+            v = g_value_get_boolean (value);
+        if (v)
+            m_option_mask |= PINYIN_FUZZY_ALL;
+        else
+            m_option_mask ^= PINYIN_FUZZY_ALL;
+    }
+
     for (guint i = 0;i < sizeof (options) / sizeof (options[0]); i++) {
-        if (G_UNLIKELY (options[i].name == name)) {
-            gboolean v = options[i]._default;
-            if (G_LIKELY (value != NULL || G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
-                v = g_value_get_boolean (value);
-            if (v)
-                m_option |= options[i].option;
-            else
-                m_option ^= options[i].option;
-        }
+        if (G_LIKELY (options[i].name != name))
+            continue;
+
+        gboolean v = options[i]._default;
+        if (G_LIKELY (value != NULL || G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
+            v = g_value_get_boolean (value);
+        if (v)
+            m_option |= options[i].option;
+        else
+            m_option ^= options[i].option;
     }
 }
 

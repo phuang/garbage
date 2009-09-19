@@ -48,6 +48,11 @@ public:
             return TRUE;
         return g_strcmp0 (m_string, str) == 0;
     }
+    gboolean operator != (const gchar *str) const {
+        if (G_UNLIKELY (m_string == str))
+            return FALSE;
+        return g_strcmp0 (m_string, str) != 0;
+    }
 private:
     const gchar *m_string;
 };

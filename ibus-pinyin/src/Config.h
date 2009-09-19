@@ -15,7 +15,7 @@ public:
         g_signal_connect ((IBusConfig *) m_config, "value-changed", G_CALLBACK (value_changed_cb), this);
     }
 
-    static guint option (void) { return m_option; }
+    static guint option (void) { return m_option & m_option_mask; }
 
 private:
     static void value_changed_cb (IBusConfig    *config,
@@ -29,6 +29,7 @@ private:
 
 private:
     static guint m_option;
+    static guint m_option_mask;
 };
 
 };
