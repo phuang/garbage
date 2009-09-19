@@ -40,6 +40,7 @@ ibus_engine_built_h_sources = \
 	$(NULL)
 
 ibus_engine_c_sources = \
+	Bus.cc \
 	Config.cc \
 	Database.cc \
 	PinyinParser.cc \
@@ -52,6 +53,7 @@ ibus_engine_c_sources = \
 	Main.cc \
 	$(NULL)
 ibus_engine_h_sources = \
+	Bus.h \
 	Types.h \
 	Table.h \
 	Util.h \
