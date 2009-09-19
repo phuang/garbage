@@ -40,7 +40,6 @@ ibus_engine_built_h_sources = \
 	$(NULL)
 
 ibus_engine_c_sources = \
-	Bus.cc \
 	Config.cc \
 	Database.cc \
 	PinyinParser.cc \
