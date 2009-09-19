@@ -95,9 +95,11 @@ namespace PY {
 #define PINYIN_FUZZY_ENG_EN         (1 << 24)
 #define PINYIN_FUZZY_IN_ING         (1 << 25)
 #define PINYIN_FUZZY_ING_IN         (1 << 26)
-#define PINYIN_FUZZY_UAN_UANG       (1 << 27)
-#define PINYIN_FUZZY_UANG_UAN       (1 << 28)
-#define PINYIN_FUZZY_ALL            (0x1fffff10)
+#define PINYIN_FUZZY_IAN_IANG       (1 << 27)
+#define PINYIN_FUZZY_IANG_IAN       (1 << 28)
+#define PINYIN_FUZZY_UAN_UANG       (1 << 29)
+#define PINYIN_FUZZY_UANG_UAN       (1 << 30)
+#define PINYIN_FUZZY_ALL            (0x7fffff10)
 
 typedef struct _Pinyin Pinyin;
 struct _Pinyin {

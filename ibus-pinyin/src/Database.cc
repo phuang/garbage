@@ -318,6 +318,10 @@ pinyin_option_check_yun (guint option, gint id, gint fid)
         return (option & PINYIN_FUZZY_IN_ING);
     case (PINYIN_ID_ING << 16) | PINYIN_ID_IN:
         return (option & PINYIN_FUZZY_ING_IN);
+    case (PINYIN_ID_IAN << 16) | PINYIN_ID_IANG:
+        return (option & PINYIN_FUZZY_IAN_IANG);
+    case (PINYIN_ID_IANG << 16) | PINYIN_ID_IAN:
+        return (option & PINYIN_FUZZY_IANG_IAN);
     case (PINYIN_ID_UAN << 16) | PINYIN_ID_UANG:
         return (option & PINYIN_FUZZY_UAN_UANG);
     case (PINYIN_ID_UANG << 16) | PINYIN_ID_UAN:

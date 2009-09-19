@@ -47,6 +47,8 @@ fuzzy_yunmu = [
     ("eng", "en"),
     ("in", "ing"),
     ("ing", "in"),
+    ("ian", "iang"),
+    ("iang", "ian"),
     ("uan", "uang"),
     ("uang", "uan"),
     ]
