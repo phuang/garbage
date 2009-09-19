@@ -91,6 +91,7 @@
                                 <child>
                                   <object class="GtkComboBox" id="combobox1">
                                     <property name="visible">True</property>
+                                    <property name="button_sensitivity">on</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -913,6 +914,7 @@
             <child>
               <object class="GtkAlignment" id="alignment9">
                 <property name="visible">True</property>
+                <property name="yscale">0.30000001192092896</property>
                 <property name="top_padding">12</property>
                 <property name="bottom_padding">12</property>
                 <property name="left_padding">12</property>
@@ -921,14 +923,6 @@
                   <object class="GtkVBox" id="vbox6">
                     <property name="visible">True</property>
                     <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkLayout" id="layout1">
-                        <property name="visible">True</property>
-                      </object>
-                      <packing>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
                     <child>
                       <object class="GtkVBox" id="vbox7">
                         <property name="visible">True</property>
@@ -949,6 +943,7 @@
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">&lt;big&gt;&lt;b&gt;IBus Pinyin 1.3.0&lt;/b&gt;&lt;/big&gt;</property>
                             <property name="use_markup">True</property>
+                            <property name="selectable">True</property>
                           </object>
                           <packing>
                             <property name="position">1</property>
@@ -958,6 +953,7 @@
                           <object class="GtkLabel" id="label14">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">Pinyin input method for IBus</property>
+                            <property name="selectable">True</property>
                           </object>
                           <packing>
                             <property name="position">2</property>
@@ -966,8 +962,9 @@
                         <child>
                           <object class="GtkLabel" id="label15">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">Copyright (c) 2009-2009 Huang Peng &lt;shawn.p.huang@gmail.com&gt;</property>
+                            <property name="label" translatable="yes">&lt;small&gt;Copyright (c) 2009 Huang Peng &amp;lt;shawn.p.huang@gmail.com&amp;gt;&lt;/small&gt;</property>
                             <property name="use_markup">True</property>
+                            <property name="selectable">True</property>
                           </object>
                           <packing>
                             <property name="position">3</property>
@@ -984,21 +981,15 @@
                             <property name="uri">http://ibus.googlecode.com</property>
                           </object>
                           <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
                             <property name="position">4</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLayout" id="layout2">
-                        <property name="visible">True</property>
-                      </object>
-                      <packing>
-                        <property name="position">2</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                   </object>
