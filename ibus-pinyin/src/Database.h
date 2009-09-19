@@ -43,6 +43,7 @@ public:
 private:
     gboolean init (void);
     gboolean initUserDatabase (const gchar *userdb);
+    void prefetch (void);
     void phraseSql (const Phrase & p, String & sql);
     void phraseWhereSql (const Phrase & p, String & sql);
 

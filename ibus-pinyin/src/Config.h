@@ -7,9 +7,9 @@
 
 namespace PY {
 
-class Config : public Pointer <IBusConfig > {
+class Config : public Pointer<IBusConfig > {
 public:
-    Config (Pointer <IBusBus> bus) {
+    Config (Pointer<IBusBus> & bus) {
         set (ibus_bus_get_config (bus));
     }
     static guint option (void) { return m_option; }

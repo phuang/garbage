@@ -2,7 +2,5 @@
 
 namespace PY {
 
-Bus Bus::m_bus;
-
 };
 

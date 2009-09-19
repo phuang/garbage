@@ -5,12 +5,12 @@
 #include <locale.h>
 #include "Engine.h"
 #include "Pointer.h"
+#include "Bus.h"
 
 using namespace PY;
 
 #define N_(text) text
 
-static Pointer<IBusBus> bus;
 static Pointer<IBusFactory> factory;
 
 /* options */
@@ -40,8 +40,8 @@ start_component (void)
     Pointer<IBusComponent> component;
 
     ibus_init ();
+    Bus bus;
 
-    bus = ibus_bus_new ();
     g_signal_connect (bus, "disconnected", G_CALLBACK (ibus_disconnected_cb), NULL);
 
     component = ibus_component_new ("org.freedesktop.IBus.PinYin",

@@ -18,6 +18,8 @@ namespace PY {
 #define DB_COLUMN_FREQ      (2)
 #define DB_COLUMN_S0        (3)
 
+#define DB_PREFETCH_LEN     (6)
+
 Database::Database (void)
     : m_db (NULL),
       m_sql (1024),
@@ -71,6 +73,9 @@ Database::init (void)
             goto _failed;
     }
     g_free (userdb);
+
+    // prefetch ();
+
     return TRUE;
 
 _failed:
@@ -147,6 +152,20 @@ _failed:
         sqlite3_free (errmsg);
     }
     return FALSE;
+}
+
+void
+Database::prefetch (void)
+{
+    for (guint i = 0; i < DB_PREFETCH_LEN; i++) {
+        gchar *errmsg;
+        m_sql = "SELECT * FROM py_phrase_";
+        m_sql << i;
+        if (sqlite3_exec (m_db, m_sql, NULL, NULL, &errmsg) != SQLITE_OK) {
+            g_debug ("%s", errmsg);
+            sqlite3_free (errmsg);
+        }
+    }
 }
 
 gint
