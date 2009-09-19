@@ -66,7 +66,6 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -81,6 +80,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -91,6 +91,7 @@
                                 <child>
                                   <object class="GtkComboBox" id="combobox1">
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="button_sensitivity">on</property>
                                   </object>
                                   <packing>
@@ -167,8 +168,9 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <property name="group">radiobutton2</property>
+                                    <property name="group">radiobuttonInitEnglish</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -181,7 +183,6 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -191,12 +192,13 @@
                                 </child>
                                 <child>
                                   <object class="GtkRadioButton" id="radiobuttonInitFull">
-                                    <property name="label" translatable="yes">Full width</property>
+                                    <property name="label" translatable="yes">Full</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <property name="group">radiobutton4</property>
+                                    <property name="group">radiobuttonInitHalf</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -207,11 +209,10 @@
                                 </child>
                                 <child>
                                   <object class="GtkRadioButton" id="radiobuttonInitHalf">
-                                    <property name="label" translatable="yes">Half width</property>
+                                    <property name="label" translatable="yes">Half</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -223,12 +224,12 @@
                                 </child>
                                 <child>
                                   <object class="GtkRadioButton" id="radiobuttonInitPunctFull">
-                                    <property name="label" translatable="yes">Full width</property>
+                                    <property name="label" translatable="yes">Full</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
-                                    <property name="group">radiobutton6</property>
+                                    <property name="group">radiobuttonInitHalfPunct</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -239,7 +240,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkRadioButton" id="radiobuttonInitHalfPunct">
-                                    <property name="label" translatable="yes">Half width</property>
+                                    <property name="label" translatable="yes">Half</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -327,6 +328,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -341,6 +343,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -436,6 +439,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
+                        <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                       </object>
                       <packing>
@@ -464,6 +468,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -476,6 +481,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -488,6 +494,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -500,6 +507,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -512,6 +520,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -524,6 +533,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -611,8 +621,10 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyC_CH">
                                     <property name="label" translatable="yes">c =&gt; ch</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                 </child>
@@ -620,8 +632,10 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyZ_ZH">
                                     <property name="label" translatable="yes">z =&gt; zh</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -633,8 +647,10 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyS_SH">
                                     <property name="label" translatable="yes">s =&gt; sh</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -646,8 +662,10 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyL_N">
                                     <property name="label" translatable="yes">l =&gt; n</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -659,8 +677,10 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyF_H">
                                     <property name="label" translatable="yes">f =&gt; h</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -672,6 +692,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyL_R">
                                     <property name="label" translatable="yes">l =&gt; r</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
@@ -685,8 +706,10 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyK_G">
                                     <property name="label" translatable="yes">k =&gt; g</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -698,8 +721,10 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyAN_ANG">
                                     <property name="label" translatable="yes">an =&gt; ang</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -711,8 +736,10 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyEN_ENG">
                                     <property name="label" translatable="yes">en =&gt; eng</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -724,8 +751,10 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyIN_ING">
                                     <property name="label" translatable="yes">in =&gt; ing</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -737,6 +766,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyCH_C">
                                     <property name="label" translatable="yes">ch =&gt; c</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
@@ -750,6 +780,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyZH_Z">
                                     <property name="label" translatable="yes">zh =&gt; z</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
@@ -765,6 +796,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzySH_S">
                                     <property name="label" translatable="yes">sh =&gt; s</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
@@ -780,6 +812,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyN_L">
                                     <property name="label" translatable="yes">n =&gt; l</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
@@ -795,6 +828,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyH_F">
                                     <property name="label" translatable="yes">h =&gt; f</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
@@ -810,6 +844,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyR_L">
                                     <property name="label" translatable="yes">r =&gt; l</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
@@ -825,6 +860,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyG_K">
                                     <property name="label" translatable="yes">g =&gt; k</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
@@ -840,6 +876,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzy_ANG_AN">
                                     <property name="label" translatable="yes">ang =&gt; an</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
@@ -855,6 +892,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyENG_EN">
                                     <property name="label" translatable="yes">eng =&gt; en</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
@@ -870,6 +908,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyING_IN">
                                     <property name="label" translatable="yes">ing =&gt; in</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
@@ -885,8 +924,10 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyUAN_UANG">
                                     <property name="label" translatable="yes">uan =&gt; uang</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -898,6 +939,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyUANG_UAN">
                                     <property name="label" translatable="yes">uang =&gt; uan</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
@@ -913,8 +955,10 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyIAN_IANG">
                                     <property name="label" translatable="yes">ian =&gt; iang</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -926,6 +970,7 @@
                                   <object class="GtkCheckButton" id="checkbuttonFuzzyIANG_IAN">
                                     <property name="label" translatable="yes">iang =&gt; ian</property>
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
