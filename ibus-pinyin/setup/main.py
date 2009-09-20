@@ -17,6 +17,13 @@ class PreferencesDialog:
         self.__builder.add_from_file("ibus-pinyin-preferences.glade")
         self.__dialog = self.__builder.get_object("dialog")
 
+        self.__init_pinyin()
+        self.__init_init_state()
+        self.__init_others()
+        self.__init_correct_pinyin()
+        self.__init_fuzzy_pinyin()
+
+    def __init_pinyin(self):
         # pinyin
         self.__full_pinyin = self.__builder.get_object("FullPinyin")
         self.__simple_pinyin = self.__builder.get_object("SimplePinyin")
@@ -27,12 +34,31 @@ class PreferencesDialog:
         self.__double_pinyin_schema.pack_start(renderer)
         self.__double_pinyin_schema.set_attributes(renderer, text=0)
 
-        self.__full_pinyin.set_active(True)
-        self.__full_pinyin.connect("toggled",
-            lambda w: self.__simple_pinyin.set_sensitive(w.get_active()))
-        self.__double_pinyin.connect("toggled",
-            lambda w: self.__double_pinyin_schema.set_sensitive(w.get_active()))
+        # read value
+        self.__full_pinyin.set_active(not self.__get_value("DoublePinyin", False))
+        if self.__full_pinyin.get_active():
+            self.__simple_pinyin.set_sensitive(True)
+            self.__double_pinyin_schema.set_sensitive(False)
+        else:
+            self.__simple_pinyin.set_sensitive(False)
+            self.__double_pinyin_schema.set_sensitive(True)
 
+        def __full_pinyin_toggled(widget):
+            val = widget.get_active()
+            self.__set_value("DoublePinyin", not val)
+            self.__simple_pinyin.set_sensitive(val)
+
+        def __double_pinyin_toggled(widget):
+            val = widget.get_active()
+            self.__double_pinyin_schema.set_sensitive(val)
+
+        # connect signals
+        self.__full_pinyin.connect("toggled", __full_pinyin_toggled)
+        self.__double_pinyin.connect("toggled", __double_pinyin_toggled)
+        self.__simple_pinyin.connect("toggled", self.__toggled_cb, "SimplePinyin")
+        self.__double_pinyin_schema.connect("changed", self.__changed_cb, "DoublePinyinSchema")
+
+    def __init_init_state(self):
         # init state
         self.__init_chinese = self.__builder.get_object("InitChinese")
         self.__init_english = self.__builder.get_object("InitEnglish")
@@ -41,10 +67,17 @@ class PreferencesDialog:
         self.__init_punct_full = self.__builder.get_object("InitPunctFull")
         self.__init_punct_half = self.__builder.get_object("InitPunctHalf")
 
-        self.__init_chinese.set_active(True)
-        self.__init_full.set_active(False)
-        self.__init_punct_full.set_active(True)
+        # read values
+        self.__init_chinese.set_active(self.__get_value("InitChinese", True))
+        self.__init_full.set_active(self.__get_value("InitFull", False))
+        self.__init_punct_full.set_active(self.__get_value("InitPunctFull", True))
 
+        # connect signals
+        self.__init_chinese.connect("toggled", self.__toggled_cb, "InitChinese")
+        self.__init_full.connect("toggled", self.__toggled_cb, "InitFull")
+        self.__init_punct_full.connect("toggled", self.__toggled_cb, "InitPunctFull")
+
+    def __init_others(self):
         #others
         self.__lookup_table_page_size = self.__builder.get_object("LookupTablePageSize")
         renderer = gtk.CellRendererText()
@@ -57,8 +90,23 @@ class PreferencesDialog:
         self.__auto_commit = self.__builder.get_object("AutoCommit")
         self.__half_width_puncts = self.__builder.get_object("HalfWidthPuncts")
 
-        self.__init_correct_pinyin()
-        self.__init_fuzzy_pinyin()
+        # read values
+        self.__lookup_table_page_size.set_active(self.__get_value("LookupTablePageSize", 5) - 1)
+        self.__shift_select_candidate.set_active(self.__get_value("ShiftSelectCandidate", False))
+        self.__minus_equal_page.set_active(self.__get_value("MinusEqualPage", True))
+        self.__comma_period_page.set_active(self.__get_value("CommaPeriodPage", True))
+        self.__half_width_puncts.set_text(self.__get_value("HalfWidthPuncts", "+-*/=%"))
+
+        # connect signals
+        self.__shift_select_candidate.connect("toggled", self.__toggled_cb, "ShiftSelectCandidate")
+        self.__minus_equal_page.connect("toggled", self.__toggled_cb, "MinusEqualPage")
+        self.__comma_period_page.connect("toggled", self.__toggled_cb, "CommaPeriodPage")
+        self.__lookup_table_page_size.connect("changed", self.__changed_cb, "LookupTablePageSize")
+
+        def __entry_activate_cb(widget, name):
+            text = widget.get_text()
+            self.__set_value(name, text)
+        self.__half_width_puncts.connect("activate", __entry_activate_cb, "HalfWidthPuncts")
 
     def __init_correct_pinyin(self):
         # auto correct
@@ -84,13 +132,10 @@ class PreferencesDialog:
             widget = self.__builder.get_object(name)
             widget.set_active(self.__get_value(name, defval))
 
-        def __toggled_cb(widget, name):
-            self.__set_value(name, widget.get_active ())
-
-        self.__correct_pinyin.connect("toggled", __toggled_cb, "CorrectPinyin")
+        self.__correct_pinyin.connect("toggled", self.__toggled_cb, "CorrectPinyin")
         for name, defval in self.__correct_pinyin_widgets:
             widget = self.__builder.get_object(name)
-            widget.connect("toggled", __toggled_cb, name)
+            widget.connect("toggled", self.__toggled_cb, name)
 
     def __init_fuzzy_pinyin(self):
         # fuzzy pinyin
@@ -134,16 +179,23 @@ class PreferencesDialog:
             widget = self.__builder.get_object(name)
             widget.set_active(self.__get_value(name, defval))
 
-        def __toggled_cb(widget, name):
-            self.__set_value(name, widget.get_active ())
-
-        self.__fuzzy_pinyin.connect("toggled", __toggled_cb, "FuzzyPinyin")
+        self.__fuzzy_pinyin.connect("toggled", self.__toggled_cb, "FuzzyPinyin")
         for name, defval in self.__fuzzy_pinyin_widgets:
             widget = self.__builder.get_object(name)
-            widget.connect("toggled", __toggled_cb, name)
+            widget.connect("toggled", self.__toggled_cb, name)
+
+    def __changed_cb(self, widget, name):
+        print widget.get_active_text()
+
+    def __toggled_cb(self, widget, name):
+        self.__set_value(name, widget.get_active ())
 
     def __get_value(self, name, defval):
-        return self.__config.get_value("engine/Pinyin", name, defval)
+        value = self.__config.get_value("engine/Pinyin", name, "test_default_value_9898")
+        if value != "test_default_value_9898":
+            return value
+        self.__set_value(name, defval)
+        return defval
 
     def __set_value(self, name, val):
         self.__config.set_value("engine/Pinyin", name, val)
