@@ -1,8 +1,16 @@
 import gtk
 import ibus
+import locale
+import os
+import gettext
 
 class PreferencesDialog:
     def __init__(self):
+        locale.setlocale(locale.LC_ALL, "")
+        localedir = os.getenv("IBUS_LOCALEDIR")
+        gettext.bindtextdomain("ibus-pinyin", localedir)
+        gettext.bind_textdomain_codeset("ibus-pinyin", "UTF-8")
+
         self.__bus = ibus.Bus()
         self.__config = self.__bus.get_config()
         self.__builder = gtk.Builder()
@@ -29,6 +37,7 @@ class PreferencesDialog:
 
         # read value
         self.__full_pinyin.set_active(not self.__get_value("DoublePinyin", False))
+        self.__double_pinyin_schema.set_active(self.__get_value("DoublePinyinSchema", 0))
         if self.__full_pinyin.get_active():
             self.__simple_pinyin.set_sensitive(True)
             self.__double_pinyin_schema.set_sensitive(False)

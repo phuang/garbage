@@ -1,6 +1,6 @@
 # vim:set noet ts=4:
 #
-# ibus-pinyin - The Chinese PinYin engine for IBus
+# ibus-pinyin - The PinYin engine for IBus
 #
 # Copyright (c) 2007-2008 Huang Peng <shawn.p.huang@gmail.com>
 #
@@ -18,48 +18,25 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-SUBDIRS = \
-	src \
-	setup \
-	icons \
-	m4 \
-	po \
+setup_pinyin_PYTHON = \
+	main.py \
+	ibus-pinyin-preferences.glade \
 	$(NULL)
+setup_pinyindir = $(datadir)/ibus-pinyin/setup
 
-ACLOCAL_AMFLAGS = -I m4
+libexec_SCRIPTS = ibus-setup-pinyin
+
+CLEANFILES = \
+	*.pyc \
+	$(NULL)
 
 EXTRA_DIST = \
-	autogen.sh \
-	ibus-pinyin.spec.in \
+	ibus-setup-pinyin.in \
 	$(NULL)
 
-noinst_DIST = \
-	$(NULL)
+test:
+	$(ENV) DBUS_DEBUG=true \
+		   IBUS_LOCALEDIR=@localedir@ \
+		   PYTHONPATH=$(abs_top_srcdir):$(pyexecdir) \
+		   $(PYTHON) $(srcdir)/main.py
 
-
-DISTCLEANFILES = \
-	po/stamp-it \
-	$(NULL)
-
-rpm: dist @PACKAGE_NAME@.spec
-	rpmbuild -bb \
-			--define "_sourcedir `pwd`" \
-			--define "_builddir `pwd`" \
-			--define "_srcrpmdir `pwd`" \
-			--define "_rpmdir `pwd`" \
-			--define "_specdir `pwd`" \
-			@PACKAGE_NAME@.spec
-
-srpm: dist @PACKAGE_NAME@.spec
-	rpmbuild -bs \
-			--define "_sourcedir `pwd`" \
-			--define "_builddir `pwd`" \
-			--define "_srcrpmdir `pwd`" \
-			--define "_rpmdir `pwd`" \
-			--define "_specdir `pwd`" \
-			@PACKAGE_NAME@.spec
-
-clean-rpm:
-	$(RM) -r "`uname -i`"
-
-clean-local: clean-rpm

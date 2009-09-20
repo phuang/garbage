@@ -81,6 +81,8 @@ Makefile
 ibus-pinyin.spec
 src/Makefile
 src/pinyin.xml.in
+setup/Makefile
+setup/ibus-setup-pinyin
 icons/Makefile
 m4/Makefile
 ])
