@@ -1,14 +1,6 @@
 import gtk
 import ibus
 
-DOUBLE_PINYIN_SCHEMA = [
-    "MS Pinyin",
-    "ZRM",
-    "ZN ABC",
-    "ZG Pinyin",
-    "Pinyin JJ",
-]
-
 class PreferencesDialog:
     def __init__(self):
         self.__bus = ibus.Bus()
@@ -43,20 +35,23 @@ class PreferencesDialog:
             self.__simple_pinyin.set_sensitive(False)
             self.__double_pinyin_schema.set_sensitive(True)
 
-        def __full_pinyin_toggled(widget):
+        def __full_pinyin_toggled_cb(widget):
             val = widget.get_active()
             self.__set_value("DoublePinyin", not val)
             self.__simple_pinyin.set_sensitive(val)
 
-        def __double_pinyin_toggled(widget):
+        def __double_pinyin_toggled_cb(widget):
             val = widget.get_active()
             self.__double_pinyin_schema.set_sensitive(val)
 
+        def __double_pinyin_schema_changed_cb(widget):
+            self.__set_value("DoublePinyinSchema", widget.get_active())
+
         # connect signals
-        self.__full_pinyin.connect("toggled", __full_pinyin_toggled)
-        self.__double_pinyin.connect("toggled", __double_pinyin_toggled)
+        self.__full_pinyin.connect("toggled", __full_pinyin_toggled_cb)
+        self.__double_pinyin.connect("toggled", __double_pinyin_toggled_cb)
         self.__simple_pinyin.connect("toggled", self.__toggled_cb, "SimplePinyin")
-        self.__double_pinyin_schema.connect("changed", self.__changed_cb, "DoublePinyinSchema")
+        self.__double_pinyin_schema.connect("changed", __double_pinyin_schema_changed_cb)
 
     def __init_init_state(self):
         # init state
@@ -98,10 +93,13 @@ class PreferencesDialog:
         self.__half_width_puncts.set_text(self.__get_value("HalfWidthPuncts", "+-*/=%"))
 
         # connect signals
+        def __lookup_table_page_size_changed_cb(widget):
+            self.__set_value("LookupTablePageSize", widget.get_active() + 1)
+
         self.__shift_select_candidate.connect("toggled", self.__toggled_cb, "ShiftSelectCandidate")
         self.__minus_equal_page.connect("toggled", self.__toggled_cb, "MinusEqualPage")
         self.__comma_period_page.connect("toggled", self.__toggled_cb, "CommaPeriodPage")
-        self.__lookup_table_page_size.connect("changed", self.__changed_cb, "LookupTablePageSize")
+        self.__lookup_table_page_size.connect("changed", __lookup_table_page_size_changed_cb)
 
         def __entry_activate_cb(widget, name):
             text = widget.get_text()
@@ -185,7 +183,7 @@ class PreferencesDialog:
             widget.connect("toggled", self.__toggled_cb, name)
 
     def __changed_cb(self, widget, name):
-        print widget.get_active_text()
+        self.__set_value(name, widget.get_active())
 
     def __toggled_cb(self, widget, name):
         self.__set_value(name, widget.get_active ())
