@@ -47,21 +47,21 @@
                                 <property name="column_spacing">6</property>
                                 <property name="row_spacing">6</property>
                                 <child>
-                                  <object class="GtkRadioButton" id="radiobuttonFullPinyin">
+                                  <object class="GtkRadioButton" id="FullPinyin">
                                     <property name="label" translatable="yes">Full pinyin:</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <property name="group">radiobuttonDoublePinyin</property>
+                                    <property name="group">DoublePinyin</property>
                                   </object>
                                   <packing>
                                     <property name="x_options">GTK_FILL</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkRadioButton" id="radiobuttonDoublePinyin">
+                                  <object class="GtkRadioButton" id="DoublePinyin">
                                     <property name="label" translatable="yes">Double pinyin:</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -75,7 +75,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbuttonSimplePinyin">
+                                  <object class="GtkCheckButton" id="SimplePinyin">
                                     <property name="label" translatable="yes">Enable simple pinyin</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -89,9 +89,10 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="combobox1">
+                                  <object class="GtkComboBox" id="DoublePinyinSchema">
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
+                                    <property name="model">liststoreDoublePinyin</property>
                                     <property name="button_sensitivity">on</property>
                                   </object>
                                   <packing>
@@ -163,14 +164,14 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkRadioButton" id="radiobuttonInitChinese">
+                                  <object class="GtkRadioButton" id="InitChinese">
                                     <property name="label" translatable="yes">Chinese</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <property name="group">radiobuttonInitEnglish</property>
+                                    <property name="group">InitEnglish</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -178,7 +179,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkRadioButton" id="radiobuttonInitEnglish">
+                                  <object class="GtkRadioButton" id="InitEnglish">
                                     <property name="label" translatable="yes">English</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -191,14 +192,14 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkRadioButton" id="radiobuttonInitFull">
+                                  <object class="GtkRadioButton" id="InitFull">
                                     <property name="label" translatable="yes">Full</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <property name="group">radiobuttonInitHalf</property>
+                                    <property name="group">InitHalf</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -208,7 +209,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkRadioButton" id="radiobuttonInitHalf">
+                                  <object class="GtkRadioButton" id="InitHalf">
                                     <property name="label" translatable="yes">Half</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -223,13 +224,13 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkRadioButton" id="radiobuttonInitPunctFull">
+                                  <object class="GtkRadioButton" id="InitPunctFull">
                                     <property name="label" translatable="yes">Full</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
-                                    <property name="group">radiobuttonInitHalfPunct</property>
+                                    <property name="group">InitPunctHalf</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -239,7 +240,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkRadioButton" id="radiobuttonInitHalfPunct">
+                                  <object class="GtkRadioButton" id="InitPunctHalf">
                                     <property name="label" translatable="yes">Half</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -300,8 +301,9 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="comboboxNumberCandidates">
+                                  <object class="GtkComboBox" id="LookupTablePageSize">
                                     <property name="visible">True</property>
+                                    <property name="model">liststoreCandidate</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -309,7 +311,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbuttonShiftSelectCandidate">
+                                  <object class="GtkCheckButton" id="ShiftSelectCandidate">
                                     <property name="label" translatable="yes">Press [Shift] key to select candidate</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -323,7 +325,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbuttonMinusEqualPage">
+                                  <object class="GtkCheckButton" id="MinusEqualPage">
                                     <property name="label" translatable="yes">Press [-] [=] key to flip page</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -338,7 +340,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbuttonCommaPeriodPage">
+                                  <object class="GtkCheckButton" id="CommaPeriodPage">
                                     <property name="label" translatable="yes">Press [,] [.] key to flip page</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -353,7 +355,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbuttonAutoCommit">
+                                  <object class="GtkCheckButton" id="AutoCommit">
                                     <property name="label" translatable="yes">Auto commit phrase</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -378,8 +380,9 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkEntry" id="entryHalfWidthPunct">
+                                  <object class="GtkEntry" id="HalfWidthPuncts">
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="invisible_char">&#x25CF;</property>
                                     <property name="text" translatable="yes">+-*/=%</property>
@@ -434,8 +437,8 @@
                     <property name="orientation">vertical</property>
                     <property name="spacing">12</property>
                     <child>
-                      <object class="GtkCheckButton" id="checkbuttonCorrect">
-                        <property name="label" translatable="yes">Enable auto correct</property>
+                      <object class="GtkCheckButton" id="CorrectPinyin">
+                        <property name="label" translatable="yes">Auto correct pinyin</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -463,7 +466,7 @@
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbuttonCorrectGN_NG">
+                                  <object class="GtkCheckButton" id="CorrectPinyinGN_NG">
                                     <property name="label" translatable="yes">gn =&gt; ng</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -476,7 +479,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbuttonCorrectMG_NG">
+                                  <object class="GtkCheckButton" id="CorrectPinyinMG_NG">
                                     <property name="label" translatable="yes">mg =&gt; ng</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -489,7 +492,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbuttonCurrectIOU_IU">
+                                  <object class="GtkCheckButton" id="CorrectPinyinIOU_IU">
                                     <property name="label" translatable="yes">iou =&gt; iu</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -502,7 +505,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbuttonCorrectUEI_UI">
+                                  <object class="GtkCheckButton" id="CorrectPinyinUEI_UI">
                                     <property name="label" translatable="yes">uei =&gt; ui</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -515,7 +518,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbuttonCorrectUEN_UN">
+                                  <object class="GtkCheckButton" id="CorrectPinyinUEN_UN">
                                     <property name="label" translatable="yes">uen =&gt; un</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -528,7 +531,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbuttonCorrectVE_UE">
+                                  <object class="GtkCheckButton" id="CorrectPinyinVE_UE">
                                     <property name="label" translatable="yes">ve =&gt; ue</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -587,8 +590,8 @@
                     <property name="orientation">vertical</property>
                     <property name="spacing">12</property>
                     <child>
-                      <object class="GtkCheckButton" id="checkbuttonFuzzy">
-                        <property name="label" translatable="yes">Enable fuzzy pinyin</property>
+                      <object class="GtkCheckButton" id="FuzzyPinyin">
+                        <property name="label" translatable="yes">Fuzzy pinyin</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -618,7 +621,7 @@
                                 <property name="row_spacing">6</property>
                                 <property name="homogeneous">True</property>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbuttonFuzzyC_CH">
+                                  <object class="GtkCheckButton" id="FuzzyPinyinC_CH">
                                     <property name="label" translatable="yes">c =&gt; ch</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -1124,7 +1127,7 @@
             <property name="visible">True</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="button1">
+              <object class="GtkButton" id="buttonClose">
                 <property name="label" translatable="yes">gtk-close</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -1147,7 +1150,68 @@
       </object>
     </child>
     <action-widgets>
-      <action-widget response="0">button1</action-widget>
+      <action-widget response="0">buttonClose</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkListStore" id="liststoreDoublePinyin">
+    <columns>
+      <!-- column-name schema -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">MS Pinyin</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">ZRM</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">ZN ABC</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">ZG Pinyin</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Pinyin JJ</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="liststoreCandidate">
+    <columns>
+      <!-- column-name candidates -->
+      <column type="gint"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">1</col>
+      </row>
+      <row>
+        <col id="0">2</col>
+      </row>
+      <row>
+        <col id="0">3</col>
+      </row>
+      <row>
+        <col id="0">4</col>
+      </row>
+      <row>
+        <col id="0">5</col>
+      </row>
+      <row>
+        <col id="0">6</col>
+      </row>
+      <row>
+        <col id="0">7</col>
+      </row>
+      <row>
+        <col id="0">8</col>
+      </row>
+      <row>
+        <col id="0">9</col>
+      </row>
+      <row>
+        <col id="0">10</col>
+      </row>
+    </data>
   </object>
 </interface>
