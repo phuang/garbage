@@ -23,6 +23,7 @@ public:
     gboolean cursorUp (void) { return ibus_lookup_table_cursor_up (*this); }
     gboolean cursorDown (void) { return ibus_lookup_table_cursor_down (*this); }
 
+    void setPageSize (guint size) { ibus_lookup_table_set_page_size (*this, size); }
     void clear (void) { ibus_lookup_table_clear (*this); }
 
     void appendCandidate (Text & text) {

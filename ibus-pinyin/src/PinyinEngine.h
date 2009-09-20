@@ -9,6 +9,7 @@
 #include "PhraseEditor.h"
 #include "LookupTable.h"
 #include "Property.h"
+#include "Config.h"
 
 namespace PY {
 
@@ -21,6 +22,7 @@ public:
     void focusIn (void) {
         resetQuote ();
         ibus_engine_register_properties (m_engine, m_props);
+        m_lookup_table.setPageSize (Config::pageSize ());
     }
     void focusOut (void) {}
 

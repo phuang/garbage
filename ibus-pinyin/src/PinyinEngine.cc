@@ -14,6 +14,7 @@ namespace PY {
 PinyinEngine::PinyinEngine (IBusEngine *engine)
     : m_engine (engine),
       m_need_update (0),
+      m_lookup_table (Config::pageSize ()),
       m_mode_chinese (TRUE),
       m_mode_full_letter (TRUE),
       m_mode_full_punct (TRUE),

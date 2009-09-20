@@ -17,9 +17,11 @@ public:
     }
 
     static guint option (void) { return m_option & m_option_mask; }
+    static guint pageSize (void) { return m_page_size; }
 
 private:
-    gboolean read (const gchar *section, const gchar *name, gboolean defval);
+    bool read (const gchar *section, const gchar *name, bool defval);
+    int read (const gchar *section, const gchar *name, int defval);
     void readDefaultValues (void);
     static void valueChangedCallback (IBusConfig    *config,
                                       const gchar   *section,
@@ -33,6 +35,7 @@ private:
 private:
     static guint m_option;
     static guint m_option_mask;
+    static guint m_page_size;
 };
 
 };

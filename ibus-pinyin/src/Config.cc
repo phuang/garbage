@@ -6,15 +6,17 @@ namespace PY {
 
 guint Config::m_option = PINYIN_SIMPLE_PINYIN | PINYIN_CORRECT_ALL;
 guint Config::m_option_mask = PINYIN_SIMPLE_PINYIN | PINYIN_CORRECT_ALL;
+guint Config::m_page_size = 5;
 
 static const StaticString engine_pinyin ("engine/Pinyin");
 static const StaticString correct_pinyin ("CorrectPinyin");
 static const StaticString fuzzy_pinyin ("FuzzyPinyin");
+static const StaticString page_size ("LookupTablePageSize");
 
 static const struct {
     StaticString name;
     guint option;
-    gboolean defval;
+    bool defval;
 } options [] = {
     { StaticString ("SimplePinyin"),       PINYIN_SIMPLE_PINYIN,       TRUE },
     /* correct */
@@ -53,12 +55,12 @@ static const struct {
 void
 Config::readDefaultValues (void)
 {
-    if (read (engine_pinyin, correct_pinyin, TRUE))
+    if (read (engine_pinyin, correct_pinyin, true))
         m_option_mask |= PINYIN_CORRECT_ALL;
     else
         m_option_mask ^= PINYIN_CORRECT_ALL;
 
-    if (read (engine_pinyin, fuzzy_pinyin, TRUE))
+    if (read (engine_pinyin, fuzzy_pinyin, false))
         m_option_mask |= PINYIN_FUZZY_ALL;
     else
         m_option_mask ^= PINYIN_FUZZY_ALL;
@@ -70,15 +72,28 @@ Config::readDefaultValues (void)
         else
             m_option ^= options[i].option;
     }
+
+    m_page_size = read (engine_pinyin, page_size, 5);
 }
 
-inline gboolean
-Config::read (const gchar *section, const gchar *name, gboolean defval)
+inline bool
+Config::read (const gchar *section, const gchar *name, bool defval)
 {
     GValue value = {0};
     if (ibus_config_get_value (m_config, section, name, &value)) {
         if (G_VALUE_TYPE (&value) == G_TYPE_BOOLEAN)
             return g_value_get_boolean (&value);
+    }
+    return defval;
+}
+
+inline gint
+Config::read (const gchar *section, const gchar *name, gint defval)
+{
+    GValue value = {0};
+    if (ibus_config_get_value (m_config, section, name, &value)) {
+        if (G_VALUE_TYPE (&value) == G_TYPE_INT)
+            return g_value_get_int (&value);
     }
     return defval;
 }
@@ -93,9 +108,10 @@ Config::valueChangedCallback (IBusConfig    *config,
     if (engine_pinyin != section)
         return;
 
+    /* correct pinyin */
     if (correct_pinyin == name) {
         gboolean v = TRUE;
-        if (G_LIKELY (value != NULL || G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
+        if (G_LIKELY (value != NULL && G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
             v = g_value_get_boolean (value);
         if (v)
             m_option_mask |= PINYIN_CORRECT_ALL;
@@ -103,9 +119,10 @@ Config::valueChangedCallback (IBusConfig    *config,
             m_option_mask ^= PINYIN_CORRECT_ALL;
     }
 
+    /* fuzzy pinyin */
     if (fuzzy_pinyin == name) {
         gboolean v = TRUE;
-        if (G_LIKELY (value != NULL || G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
+        if (G_LIKELY (value != NULL && G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
             v = g_value_get_boolean (value);
         if (v)
             m_option_mask |= PINYIN_FUZZY_ALL;
@@ -118,12 +135,18 @@ Config::valueChangedCallback (IBusConfig    *config,
             continue;
 
         gboolean v = options[i].defval;
-        if (G_LIKELY (value != NULL || G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
+        if (G_LIKELY (value != NULL && G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
             v = g_value_get_boolean (value);
         if (v)
             m_option |= options[i].option;
         else
             m_option ^= options[i].option;
+    }
+
+    /* lookup table page size */
+    if (page_size == name) {
+        if (value != NULL && G_VALUE_TYPE (value) == G_TYPE_INT)
+            m_page_size = g_value_get_int (value);
     }
 }
 
