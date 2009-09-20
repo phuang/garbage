@@ -12,6 +12,7 @@ DOUBLE_PINYIN_SCHEMA = [
 class PreferencesDialog:
     def __init__(self):
         self.__bus = ibus.Bus()
+        self.__config = self.__bus.get_config()
         self.__builder = gtk.Builder()
         self.__builder.add_from_file("ibus-pinyin-preferences.glade")
         self.__dialog = self.__builder.get_object("dialog")
@@ -55,59 +56,83 @@ class PreferencesDialog:
         self.__comma_period_page = self.__builder.get_object("CommaPeriodPage")
         self.__auto_commit = self.__builder.get_object("AutoCommit")
         self.__half_width_puncts = self.__builder.get_object("HalfWidthPuncts")
-
-        # auto correct
-        self.__correct_pinyin = self.__builder.get_object("CorrectPinyin")
-        self.__correct_pinyin_widgets = [
-            "CorrectPinyin_GN_NG",
-            "CorrectPinyin_MG_NG",
-            "CorrectPinyin_IOU_IU",
-            "CorrectPinyin_UEI_UI",
-            "CorrectPinyin_UEN_UN",
-            "CorrectPinyin_VE_UE",
-        ]
-        def __correct_pinyin_toggled_cb(w):
-            v = w.get_active()
-            for name in self.__correct_pinyin_widgets:
-                self.__builder.get_object(name).set_sensitive(v)
-        self.__correct_pinyin.connect("toggled", __correct_pinyin_toggled_cb)
+        
+        self.__init_correct_pinyin()
+        # self.__init_fuzzy_pinyin()
 
         # fuzzy pinyin
         self.__fuzzy_pinyin = self.__builder.get_object("FuzzyPinyin")
         self.__fuzzy_pinyin_widgets = [
-            "FuzzyPinyin_C_CH",
-            "FuzzyPinyin_C_CH",
-            "FuzzyPinyin_Z_ZH",
-            "FuzzyPinyin_S_SH",
-            "FuzzyPinyin_CH_C",
-            "FuzzyPinyin_ZH_Z",
-            "FuzzyPinyin_SH_S",
-            "FuzzyPinyin_L_N",
-            "FuzzyPinyin_F_H",
-            "FuzzyPinyin_L_R",
-            "FuzzyPinyin_K_G",
-            "FuzzyPinyin_N_L",
-            "FuzzyPinyin_H_F",
-            "FuzzyPinyin_R_L",
-            "FuzzyPinyin_G_K",
-            "FuzzyPinyin_AN_ANG",
-            "FuzzyPinyin_EN_ENG",
-            "FuzzyPinyin_IN_ING",
-            "FuzzyPinyin_ANG_AN",
-            "FuzzyPinyin_ENG_EN",
-            "FuzzyPinyin_ING_IN",
-            "FuzzyPinyin_IAN_IANG",
-            "FuzzyPinyin_UAN_UANG",
-            "FuzzyPinyin_IANG_IAN",
-            "FuzzyPinyin_UANG_UAN"]
+            ("FuzzyPinyin_C_CH", True),
+            ("FuzzyPinyin_Z_ZH", True),
+            ("FuzzyPinyin_S_SH", True),
+            ("FuzzyPinyin_CH_C", False),
+            ("FuzzyPinyin_ZH_Z", False),
+            ("FuzzyPinyin_SH_S", False),
+            ("FuzzyPinyin_L_N", True),
+            ("FuzzyPinyin_F_H", True),
+            ("FuzzyPinyin_L_R", False),
+            ("FuzzyPinyin_K_G", True),
+            ("FuzzyPinyin_N_L", False),
+            ("FuzzyPinyin_H_F", False),
+            ("FuzzyPinyin_R_L", False),
+            ("FuzzyPinyin_G_K", False),
+            ("FuzzyPinyin_AN_ANG", True),
+            ("FuzzyPinyin_EN_ENG", True),
+            ("FuzzyPinyin_IN_ING", True),
+            ("FuzzyPinyin_ANG_AN", True),
+            ("FuzzyPinyin_ENG_EN", True),
+            ("FuzzyPinyin_ING_IN", True),
+            ("FuzzyPinyin_IAN_IANG", False),
+            ("FuzzyPinyin_UAN_UANG", False),
+            ("FuzzyPinyin_IANG_IAN", False),
+            ("FuzzyPinyin_UANG_UAN", False),
+        ]
+        self.__fuzzy_pinyin.connect("toggled", self.__fuzzy_pinyin_toggled_cb)
+    
+    def __init_correct_pinyin(self):
+        # auto correct
+        self.__correct_pinyin = self.__builder.get_object("CorrectPinyin")
+        self.__correct_pinyin_widgets = [
+            ("CorrectPinyin_GN_NG", True),
+            ("CorrectPinyin_MG_NG", True),
+            ("CorrectPinyin_IOU_IU", True),
+            ("CorrectPinyin_UEI_UI", True),
+            ("CorrectPinyin_UEN_UN", True),
+            ("CorrectPinyin_VE_UE", True),
+        ]
+        
+        def __correct_pinyin_toggled_cb(widget):
+            val = widget.get_active()
+            map(lambda w: self.__builder.get_object(w[0]).set_sensitive(val),
+                self.__correct_pinyin_widgets)
+        self.__correct_pinyin.connect("toggled", __correct_pinyin_toggled_cb)
+        
+        # init value
+        self.__correct_pinyin.set_active(self.__get_value("CorrectPinyin", True))
+        for name, defval in self.__correct_pinyin_widgets:
+            widget = self.__builder.get_object(name)
+            widget.set_active(self.__get_value(name, defval))
 
-        def __fuzzy_pinyin_toggled_cb(w):
-            v = w.get_active()
-            for name in self.__fuzzy_pinyin_widgets:
-                self.__builder.get_object(name).set_sensitive(v)
-        self.__fuzzy_pinyin.connect("toggled", __fuzzy_pinyin_toggled_cb)
+        def __toggled_cb(widget, name):
+            self.__set_value(name, widget.get_active ())
 
+        self.__correct_pinyin.connect("toggled", __toggled_cb, "CorrectPinyin")
+        for name, defval in self.__correct_pinyin_widgets:
+            widget = self.__builder.get_object(name)
+            widget.connect("toggled", __toggled_cb, name)
 
+    def __fuzzy_pinyin_toggled_cb(self, widget):
+        val = widget.get_active()
+        self.__set_value("FuzzyPinyin", val)
+        map(lambda w: self.__builder.get_object(w[0]).set_sensitive(val),
+            self.__fuzzy_pinyin_widgets)
+
+    def __get_value(self, name, defval):
+        return self.__config.get_value("engine/Pinyin", name, defval)
+
+    def __set_value(self, name, val):
+        self.__config.set_value("engine/Pinyin", name, val)
 
     def run(self):
         return self.__dialog.run()
