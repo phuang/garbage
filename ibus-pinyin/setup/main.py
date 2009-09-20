@@ -59,12 +59,12 @@ class PreferencesDialog:
         # auto correct
         self.__correct_pinyin = self.__builder.get_object("CorrectPinyin")
         self.__correct_pinyin_widgets = [
-            "CorrectPinyinGN_NG",
-            "CorrectPinyinMG_NG",
-            "CorrectPinyinIOU_IU",
-            "CorrectPinyinUEI_UI",
-            "CorrectPinyinUEN_UN",
-            "CorrectPinyinVE_UE",
+            "CorrectPinyin_GN_NG",
+            "CorrectPinyin_MG_NG",
+            "CorrectPinyin_IOU_IU",
+            "CorrectPinyin_UEI_UI",
+            "CorrectPinyin_UEN_UN",
+            "CorrectPinyin_VE_UE",
         ]
         def __correct_pinyin_toggled_cb(w):
             v = w.get_active()
@@ -75,31 +75,31 @@ class PreferencesDialog:
         # fuzzy pinyin
         self.__fuzzy_pinyin = self.__builder.get_object("FuzzyPinyin")
         self.__fuzzy_pinyin_widgets = [
-            "FuzzyPinyinC_CH",
-            "FuzzyPinyinC_CH",
-            "FuzzyPinyinZ_ZH",
-            "FuzzyPinyinS_SH",
-            "FuzzyPinyinCH_C",
-            "FuzzyPinyinZH_Z",
-            "FuzzyPinyinSH_S",
-            "FuzzyPinyinL_N",
-            "FuzzyPinyinF_H",
-            "FuzzyPinyinL_R",
-            "FuzzyPinyinK_G",
-            "FuzzyPinyinN_L",
-            "FuzzyPinyinH_F",
-            "FuzzyPinyinR_L",
-            "FuzzyPinyinG_K",
-            "FuzzyPinyinAN_ANG",
-            "FuzzyPinyinEN_ENG",
-            "FuzzyPinyinIN_ING",
-            "FuzzyPinyinANG_AN",
-            "FuzzyPinyinENG_EN",
-            "FuzzyPinyinING_IN",
-            "FuzzyPinyinIAN_IANG",
-            "FuzzyPinyinUAN_UANG",
-            "FuzzyPinyinIANG_IAN",
-            "FuzzyPinyinUANG_UAN"]
+            "FuzzyPinyin_C_CH",
+            "FuzzyPinyin_C_CH",
+            "FuzzyPinyin_Z_ZH",
+            "FuzzyPinyin_S_SH",
+            "FuzzyPinyin_CH_C",
+            "FuzzyPinyin_ZH_Z",
+            "FuzzyPinyin_SH_S",
+            "FuzzyPinyin_L_N",
+            "FuzzyPinyin_F_H",
+            "FuzzyPinyin_L_R",
+            "FuzzyPinyin_K_G",
+            "FuzzyPinyin_N_L",
+            "FuzzyPinyin_H_F",
+            "FuzzyPinyin_R_L",
+            "FuzzyPinyin_G_K",
+            "FuzzyPinyin_AN_ANG",
+            "FuzzyPinyin_EN_ENG",
+            "FuzzyPinyin_IN_ING",
+            "FuzzyPinyin_ANG_AN",
+            "FuzzyPinyin_ENG_EN",
+            "FuzzyPinyin_ING_IN",
+            "FuzzyPinyin_IAN_IANG",
+            "FuzzyPinyin_UAN_UANG",
+            "FuzzyPinyin_IANG_IAN",
+            "FuzzyPinyin_UANG_UAN"]
 
         def __fuzzy_pinyin_toggled_cb(w):
             v = w.get_active()

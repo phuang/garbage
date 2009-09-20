@@ -466,7 +466,7 @@
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
-                                  <object class="GtkCheckButton" id="CorrectPinyinGN_NG">
+                                  <object class="GtkCheckButton" id="CorrectPinyin_GN_NG">
                                     <property name="label" translatable="yes">gn =&gt; ng</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -479,7 +479,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="CorrectPinyinMG_NG">
+                                  <object class="GtkCheckButton" id="CorrectPinyin_MG_NG">
                                     <property name="label" translatable="yes">mg =&gt; ng</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -492,7 +492,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="CorrectPinyinIOU_IU">
+                                  <object class="GtkCheckButton" id="CorrectPinyin_IOU_IU">
                                     <property name="label" translatable="yes">iou =&gt; iu</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -505,7 +505,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="CorrectPinyinUEI_UI">
+                                  <object class="GtkCheckButton" id="CorrectPinyin_UEI_UI">
                                     <property name="label" translatable="yes">uei =&gt; ui</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -518,7 +518,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="CorrectPinyinUEN_UN">
+                                  <object class="GtkCheckButton" id="CorrectPinyin_UEN_UN">
                                     <property name="label" translatable="yes">uen =&gt; un</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -531,7 +531,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="CorrectPinyinVE_UE">
+                                  <object class="GtkCheckButton" id="CorrectPinyin_VE_UE">
                                     <property name="label" translatable="yes">ve =&gt; ue</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -621,7 +621,7 @@
                                 <property name="row_spacing">6</property>
                                 <property name="homogeneous">True</property>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinC_CH">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_C_CH">
                                     <property name="label" translatable="yes">c =&gt; ch</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -632,7 +632,7 @@
                                   </object>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinZ_ZH">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_Z_ZH">
                                     <property name="label" translatable="yes">z =&gt; zh</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -647,7 +647,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinS_SH">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_S_SH">
                                     <property name="label" translatable="yes">s =&gt; sh</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -662,7 +662,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinL_N">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_L_N">
                                     <property name="label" translatable="yes">l =&gt; n</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -677,7 +677,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinF_H">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_F_H">
                                     <property name="label" translatable="yes">f =&gt; h</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -692,7 +692,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinL_R">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_L_R">
                                     <property name="label" translatable="yes">l =&gt; r</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -706,7 +706,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinK_G">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_K_G">
                                     <property name="label" translatable="yes">k =&gt; g</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -721,7 +721,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinAN_ANG">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_AN_ANG">
                                     <property name="label" translatable="yes">an =&gt; ang</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -736,7 +736,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinEN_ENG">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_EN_ENG">
                                     <property name="label" translatable="yes">en =&gt; eng</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -751,7 +751,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinIN_ING">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_IN_ING">
                                     <property name="label" translatable="yes">in =&gt; ing</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -766,7 +766,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinCH_C">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_CH_C">
                                     <property name="label" translatable="yes">ch =&gt; c</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -780,7 +780,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinZH_Z">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_ZH_Z">
                                     <property name="label" translatable="yes">zh =&gt; z</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -796,7 +796,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinSH_S">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_SH_S">
                                     <property name="label" translatable="yes">sh =&gt; s</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -812,7 +812,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinN_L">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_N_L">
                                     <property name="label" translatable="yes">n =&gt; l</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -828,7 +828,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinH_F">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_H_F">
                                     <property name="label" translatable="yes">h =&gt; f</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -844,7 +844,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinR_L">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_R_L">
                                     <property name="label" translatable="yes">r =&gt; l</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -860,7 +860,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinG_K">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_G_K">
                                     <property name="label" translatable="yes">g =&gt; k</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -876,7 +876,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinANG_AN">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_ANG_AN">
                                     <property name="label" translatable="yes">ang =&gt; an</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -892,7 +892,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinENG_EN">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_ENG_EN">
                                     <property name="label" translatable="yes">eng =&gt; en</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -908,7 +908,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinING_IN">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_ING_IN">
                                     <property name="label" translatable="yes">ing =&gt; in</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -924,7 +924,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinUAN_UANG">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_UAN_UANG">
                                     <property name="label" translatable="yes">uan =&gt; uang</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -939,7 +939,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinUANG_UAN">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_UANG_UAN">
                                     <property name="label" translatable="yes">uang =&gt; uan</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -955,7 +955,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinIAN_IANG">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_IAN_IANG">
                                     <property name="label" translatable="yes">ian =&gt; iang</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
@@ -970,7 +970,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="FuzzyPinyinIANG_IAN">
+                                  <object class="GtkCheckButton" id="FuzzyPinyin_IANG_IAN">
                                     <property name="label" translatable="yes">iang =&gt; ian</property>
                                     <property name="visible">True</property>
                                     <property name="sensitive">False</property>
