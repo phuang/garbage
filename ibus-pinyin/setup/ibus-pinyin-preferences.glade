@@ -76,7 +76,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkCheckButton" id="SimplePinyin">
-                                    <property name="label" translatable="yes">Enable simple pinyin</property>
+                                    <property name="label" translatable="yes">Simple pinyin</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>

@@ -8,3 +8,4 @@ src/PinyinEditor.cc
 src/PinyinEngine.cc
 src/PinyinParser.cc
 src/SpecialTable.cc
+setup/ibus-pinyin-preferences.glade

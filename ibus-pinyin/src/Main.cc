@@ -46,8 +46,8 @@ start_component (void)
 
     g_signal_connect (bus, "disconnected", G_CALLBACK (ibus_disconnected_cb), NULL);
 
-    component = ibus_component_new ("org.freedesktop.IBus.PinYin",
-                                    N_("PinYin input method"),
+    component = ibus_component_new ("org.freedesktop.IBus.Pinyin",
+                                    N_("Pinyin input method"),
                                     "0.1.0",
                                     "GPL",
                                     "Peng Huang <shawn.p.huang@gmail.com>",
@@ -56,8 +56,8 @@ start_component (void)
                                     "ibus-pinyin");
     ibus_component_add_engine (component,
                                ibus_engine_desc_new ("pinyin",
-                                                     N_("PinYin Input Method"),
-                                                     N_("PinYin Input Method"),
+                                                     N_("Pinyin input method"),
+                                                     N_("Pinyin input method"),
                                                      "zh_CN",
                                                      "GPL",
                                                      "Peng Huang <shawn.p.huang@gmail.com>",
@@ -69,7 +69,7 @@ start_component (void)
     ibus_factory_add_engine (factory, "pinyin", IBUS_TYPE_PINYIN_ENGINE);
 
     if (ibus) {
-        ibus_bus_request_name (bus, "org.freedesktop.IBus.PinYin", 0);
+        ibus_bus_request_name (bus, "org.freedesktop.IBus.Pinyin", 0);
     }
     else {
         ibus_bus_register_component (bus, component);
