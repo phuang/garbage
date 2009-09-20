@@ -53,6 +53,9 @@ public:
             return FALSE;
         return g_strcmp0 (m_string, str) != 0;
     }
+    operator const gchar * (void) const {
+        return m_string;
+    }
 private:
     const gchar *m_string;
 };

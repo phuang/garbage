@@ -12,17 +12,20 @@ class Config {
 public:
     Config (Pointer<IBusBus> & bus) {
         m_config = ibus_bus_get_config (bus);
-        g_signal_connect ((IBusConfig *) m_config, "value-changed", G_CALLBACK (value_changed_cb), this);
+        readDefaultValues ();
+        g_signal_connect ((IBusConfig *) m_config, "value-changed", G_CALLBACK (valueChangedCallback), this);
     }
 
     static guint option (void) { return m_option & m_option_mask; }
 
 private:
-    static void value_changed_cb (IBusConfig    *config,
-                                  const gchar   *section,
-                                  const gchar   *name,
-                                  const GValue  *value,
-                                  Config        *self);
+    gboolean read (const gchar *section, const gchar *name, gboolean defval);
+    void readDefaultValues (void);
+    static void valueChangedCallback (IBusConfig    *config,
+                                      const gchar   *section,
+                                      const gchar   *name,
+                                      const GValue  *value,
+                                      Config        *self);
 
 private:
     Pointer<IBusConfig> m_config;
