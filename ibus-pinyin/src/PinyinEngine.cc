@@ -450,6 +450,8 @@ void
 PinyinEngine::updateLookupTable (void)
 {
     m_lookup_table.clear ();
+    m_lookup_table.setPageSize (Config::pageSize ());
+
     guint candidate_nr = m_phrase_editor.candidateNumber ();
 
     if (G_UNLIKELY (candidate_nr == 0)) {
