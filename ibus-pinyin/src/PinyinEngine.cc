@@ -163,11 +163,21 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
         case IBUS_apostrophe:
             return processPinyin (keyval, keycode, modifiers);
         case IBUS_comma:
+            if (Config::commaPeriodPage ())
+                pageUp ();
+            return TRUE;
         case IBUS_minus:
-            pageUp (); return TRUE;
+            if (Config::minusEqualPage ())
+                pageUp ();
+            return TRUE;
         case IBUS_period:
+            if (Config::commaPeriodPage ())
+                pageDown ();
+            return TRUE;
         case IBUS_equal:
-            pageDown (); return TRUE;
+            if (Config::minusEqualPage ())
+                pageDown ();
+            return TRUE;
         }
     }
     return TRUE;

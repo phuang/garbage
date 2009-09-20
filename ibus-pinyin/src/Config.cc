@@ -7,11 +7,15 @@ namespace PY {
 guint Config::m_option = PINYIN_SIMPLE_PINYIN | PINYIN_CORRECT_ALL;
 guint Config::m_option_mask = PINYIN_SIMPLE_PINYIN | PINYIN_CORRECT_ALL;
 guint Config::m_page_size = 5;
+gboolean Config::m_minus_equal_page = TRUE;
+gboolean Config::m_comma_period_page = TRUE;
 
 static const StaticString engine_pinyin ("engine/Pinyin");
 static const StaticString correct_pinyin ("CorrectPinyin");
 static const StaticString fuzzy_pinyin ("FuzzyPinyin");
 static const StaticString page_size ("LookupTablePageSize");
+static const StaticString minus_equal_page ("MinusEqualPage");
+static const StaticString comma_period_page ("CommaPeriodPage");
 
 static const struct {
     StaticString name;
@@ -74,6 +78,8 @@ Config::readDefaultValues (void)
     }
 
     m_page_size = read (engine_pinyin, page_size, 5);
+    m_minus_equal_page = read (engine_pinyin, minus_equal_page, true);
+    m_comma_period_page = read (engine_pinyin, comma_period_page, true);
 }
 
 inline bool

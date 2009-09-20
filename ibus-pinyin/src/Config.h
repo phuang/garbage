@@ -18,6 +18,8 @@ public:
 
     static guint option (void) { return m_option & m_option_mask; }
     static guint pageSize (void) { return m_page_size; }
+    static gboolean minusEqualPage (void) { return m_minus_equal_page; }
+    static gboolean commaPeriodPage (void) { return m_comma_period_page; }
 
 private:
     bool read (const gchar *section, const gchar *name, bool defval);
@@ -36,6 +38,8 @@ private:
     static guint m_option;
     static guint m_option_mask;
     static guint m_page_size;
+    static gboolean m_minus_equal_page;
+    static gboolean m_comma_period_page;
 };
 
 };
