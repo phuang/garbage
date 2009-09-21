@@ -9,6 +9,8 @@ guint Config::m_option_mask = PINYIN_SIMPLE_PINYIN | PINYIN_CORRECT_ALL;
 guint Config::m_page_size = 5;
 gboolean Config::m_minus_equal_page = TRUE;
 gboolean Config::m_comma_period_page = TRUE;
+gboolean Config::m_double_pinyin = FALSE;
+gint Config::m_double_pinyin_schema = 0;
 
 static const StaticString engine_pinyin ("engine/Pinyin");
 static const StaticString correct_pinyin ("CorrectPinyin");
@@ -16,6 +18,8 @@ static const StaticString fuzzy_pinyin ("FuzzyPinyin");
 static const StaticString page_size ("LookupTablePageSize");
 static const StaticString minus_equal_page ("MinusEqualPage");
 static const StaticString comma_period_page ("CommaPeriodPage");
+static const StaticString double_pinyin ("DoublePinyin");
+static const StaticString double_pinyin_schema ("DoublePinyinSchema");
 
 static const struct {
     StaticString name;
@@ -59,11 +63,22 @@ static const struct {
 void
 Config::readDefaultValues (void)
 {
+    /* double pinyin */
+    m_double_pinyin = read (engine_pinyin, double_pinyin, false);
+    m_double_pinyin_schema = read (engine_pinyin, double_pinyin_schema, 0);
+    
+    /* others */
+    m_page_size = read (engine_pinyin, page_size, 5);
+    m_minus_equal_page = read (engine_pinyin, minus_equal_page, true);
+    m_comma_period_page = read (engine_pinyin, comma_period_page, true);
+
+    /* correct pinyin */
     if (read (engine_pinyin, correct_pinyin, true))
         m_option_mask |= PINYIN_CORRECT_ALL;
     else
         m_option_mask ^= PINYIN_CORRECT_ALL;
 
+    /* fuzzy pinyin */
     if (read (engine_pinyin, fuzzy_pinyin, false))
         m_option_mask |= PINYIN_FUZZY_ALL;
     else
@@ -76,10 +91,6 @@ Config::readDefaultValues (void)
         else
             m_option ^= options[i].option;
     }
-
-    m_page_size = read (engine_pinyin, page_size, 5);
-    m_minus_equal_page = read (engine_pinyin, minus_equal_page, true);
-    m_comma_period_page = read (engine_pinyin, comma_period_page, true);
 }
 
 inline bool
@@ -104,6 +115,22 @@ Config::read (const gchar *section, const gchar *name, gint defval)
     return defval;
 }
 
+static inline bool
+normalizeGValue (const GValue *value, bool defval)
+{
+    if (value == NULL || G_VALUE_TYPE (value) != G_TYPE_BOOLEAN)
+        return defval;
+    return g_value_get_boolean (value);
+}
+
+static inline gint
+normalizeGValue (const GValue *value, gint defval)
+{
+    if (value == NULL || G_VALUE_TYPE (value) != G_TYPE_INT)
+        return defval;
+    return g_value_get_int (value);
+}
+
 void
 Config::valueChangedCallback (IBusConfig    *config,
                               const gchar   *section,
@@ -113,47 +140,45 @@ Config::valueChangedCallback (IBusConfig    *config,
 {
     if (engine_pinyin != section)
         return;
-
+    
+    /* double pinyin */
+    if (double_pinyin == name)
+        m_double_pinyin = normalizeGValue (value, FALSE);
+    else if (double_pinyin_schema == name)
+        m_double_pinyin_schema = normalizeGValue (value, 0);
+    /* lookup table page size */
+    else if (page_size == name)
+        m_page_size = normalizeGValue (value, 5);
+    else if (minus_equal_page == name)
+        m_minus_equal_page = normalizeGValue (value, true);
+    else if (comma_period_page == name)
+        m_comma_period_page = normalizeGValue (value, true);
     /* correct pinyin */
-    if (correct_pinyin == name) {
-        gboolean v = TRUE;
-        if (G_LIKELY (value != NULL && G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
-            v = g_value_get_boolean (value);
-        if (v)
+    else if (correct_pinyin == name) {
+        if (normalizeGValue (value, TRUE))
             m_option_mask |= PINYIN_CORRECT_ALL;
         else
             m_option_mask ^= PINYIN_CORRECT_ALL;
     }
-
     /* fuzzy pinyin */
-    if (fuzzy_pinyin == name) {
-        gboolean v = TRUE;
-        if (G_LIKELY (value != NULL && G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
-            v = g_value_get_boolean (value);
-        if (v)
+    else if (fuzzy_pinyin == name) {
+        if (normalizeGValue (value, TRUE))
             m_option_mask |= PINYIN_FUZZY_ALL;
         else
             m_option_mask ^= PINYIN_FUZZY_ALL;
     }
-
-    for (guint i = 0;i < sizeof (options) / sizeof (options[0]); i++) {
-        if (G_LIKELY (options[i].name != name))
-            continue;
-
-        gboolean v = options[i].defval;
-        if (G_LIKELY (value != NULL && G_VALUE_TYPE (value) == G_TYPE_BOOLEAN))
-            v = g_value_get_boolean (value);
-        if (v)
-            m_option |= options[i].option;
-        else
-            m_option ^= options[i].option;
+    else {
+        for (guint i = 0;i < sizeof (options) / sizeof (options[0]); i++) {
+            if (G_LIKELY (options[i].name != name))
+                continue;
+            if (normalizeGValue (value, options[i].defval))
+                m_option |= options[i].option;
+            else
+                m_option ^= options[i].option;
+            break;
+        }
     }
 
-    /* lookup table page size */
-    if (page_size == name) {
-        if (value != NULL && G_VALUE_TYPE (value) == G_TYPE_INT)
-            m_page_size = g_value_get_int (value);
-    }
 }
 
 
