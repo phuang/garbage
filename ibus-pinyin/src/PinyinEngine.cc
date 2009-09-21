@@ -35,7 +35,9 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
     m_prop_chinese = ibus_property_new ("mode.chinese",
                                         PROP_TYPE_NORMAL,
                                         Text ("CN"),
-                                        NULL,
+                                        m_mode_chinese ?
+                                            PKGDATADIR"/icons/chinese.svg" :
+                                            PKGDATADIR"/icons/english.svg",
                                         Text ("Chinese"),
                                         TRUE,
                                         TRUE,
@@ -46,7 +48,9 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
     m_prop_full = ibus_property_new ("mode.full",
                                      PROP_TYPE_NORMAL,
                                      Text (m_mode_full? "Ａａ" : "Aa"),
-                                     NULL,
+                                     m_mode_full ?
+                                        PKGDATADIR"/icons/full.svg" :
+                                        PKGDATADIR"/icons/half.svg",
                                      Text ("Full/Half width"),
                                      TRUE,
                                      TRUE,
@@ -57,7 +61,9 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
     m_prop_full_punct = ibus_property_new ("mode.full_punct",
                                            PROP_TYPE_NORMAL,
                                            Text (m_mode_full_punct ? "，。" : ",."),
-                                           NULL,
+                                           m_mode_full_punct ?
+                                           PKGDATADIR"/icons/full-punct.svg" :
+                                                PKGDATADIR"/icons/half-punct.svg",
                                            Text ("Full/Half width punctuation"),
                                            TRUE,
                                            TRUE,
@@ -377,6 +383,9 @@ PinyinEngine::toggleModeChinese (void)
 {
     m_mode_chinese = ! m_mode_chinese;
     m_prop_chinese.setLabel (m_mode_chinese ? "CN" : "EN");
+    m_prop_chinese.setIcon (m_mode_chinese ?
+                                PKGDATADIR"/icons/chinese.svg" :
+                                PKGDATADIR"/icons/english.svg");
     ibus_engine_update_property (m_engine, m_prop_chinese);
 
     m_prop_full_punct.setSensitive (m_mode_chinese);
@@ -384,10 +393,13 @@ PinyinEngine::toggleModeChinese (void)
 }
 
 inline void
-PinyinEngine::toggleModeFullLetter (void)
+PinyinEngine::toggleModeFull (void)
 {
     m_mode_full = !m_mode_full;
     m_prop_full.setLabel (m_mode_full ? "Ａａ" : "Aa");
+    m_prop_full.setIcon (m_mode_full ?
+                            PKGDATADIR"/icons/full.svg" :
+                            PKGDATADIR"/icons/half.svg");
     ibus_engine_update_property (m_engine, m_prop_full);
 }
 
@@ -396,6 +408,9 @@ PinyinEngine::toggleModeFullPunct (void)
 {
     m_mode_full_punct = !m_mode_full_punct;
     m_prop_full_punct.setLabel (m_mode_full_punct ? "，。" : ",.");
+    m_prop_full_punct.setIcon (m_mode_full_punct ?
+                                    PKGDATADIR"/icons/full-punct.svg" :
+                                    PKGDATADIR"/icons/half-punct.svg");
     ibus_engine_update_property (m_engine, m_prop_full_punct);
 }
 
@@ -403,14 +418,14 @@ void
 PinyinEngine::propertyActivate (const gchar *prop_name, guint prop_state)
 {
     const static StaticString mode_chinese ("mode.chinese");
-    const static StaticString mode_full_letter ("mode.full_letter");
+    const static StaticString mode_full ("mode.full");
     const static StaticString mode_full_punct ("mode.full_punct");
 
     if (mode_chinese == prop_name) {
         toggleModeChinese ();
     }
-    else if (mode_full_letter == prop_name) {
-        toggleModeFullLetter ();
+    else if (mode_full == prop_name) {
+        toggleModeFull ();
     }
     else if (mode_full_punct == prop_name) {
         toggleModeFullPunct ();

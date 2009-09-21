@@ -71,7 +71,7 @@ private:
     void commit (const gchar *str);
 
     void toggleModeChinese (void);
-    void toggleModeFullLetter (void);
+    void toggleModeFull (void);
     void toggleModeFullPunct (void);
 
     gboolean selectCandidate (guint i);
