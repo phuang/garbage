@@ -26,7 +26,11 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
       m_prev_pressed_key (0)
 {
     /* */
-    m_pinyin_editor = new DoublePinyinEditor ();
+    if (Config::doublePinyin ())
+        m_pinyin_editor = new DoublePinyinEditor ();
+    else
+        m_pinyin_editor = new FullPinyinEditor ();
+
     /* create properties */
     m_prop_chinese = ibus_property_new ("mode.chinese",
                                         PROP_TYPE_NORMAL,
@@ -319,6 +323,25 @@ PinyinEngine::processKeyEvent (guint keyval, guint keycode, guint modifiers)
     m_prev_pressed_key = keyval;
     return retval;
 }
+
+void
+PinyinEngine::focusIn (void)
+{
+    if (Config::doublePinyin ()) {
+        if (dynamic_cast <DoublePinyinEditor *> (m_pinyin_editor) == NULL)
+            delete m_pinyin_editor;
+        m_pinyin_editor = new DoublePinyinEditor ();
+    }
+    else {
+        if (dynamic_cast <FullPinyinEditor *> (m_pinyin_editor) == NULL)
+            delete m_pinyin_editor;
+        m_pinyin_editor = new FullPinyinEditor ();
+    }
+
+    resetQuote ();
+    ibus_engine_register_properties (m_engine, m_props);
+}
+
 
 void
 PinyinEngine::pageUp (void)

@@ -19,10 +19,7 @@ public:
     ~PinyinEngine (void);
 
     gboolean processKeyEvent (guint keyval, guint keycode, guint modifiers);
-    void focusIn (void) {
-        resetQuote ();
-        ibus_engine_register_properties (m_engine, m_props);
-    }
+    void focusIn (void);
     void focusOut (void) {}
 
     void reset (gboolean need_update = TRUE) {

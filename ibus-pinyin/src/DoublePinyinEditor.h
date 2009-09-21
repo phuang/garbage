@@ -27,6 +27,7 @@ public:
     gboolean reset (void);
 private:
     void updatePinyin (void);
+    const Pinyin *isPinyin (gchar i, gchar j);
 
 };
 

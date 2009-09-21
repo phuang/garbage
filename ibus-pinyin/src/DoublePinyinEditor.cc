@@ -22,6 +22,22 @@ char_to_id (gint ch)
     }
 }
 
+inline const Pinyin *
+DoublePinyinEditor::isPinyin (gchar i, gchar j)
+{
+    const Pinyin *pinyin;
+    gint schema = Config::doublePinyinSchema ();
+    gint sheng = double_pinyin_map[schema].sheng[char_to_id(i)];
+    const gint *yun = double_pinyin_map[schema].yun[char_to_id(j)];
+
+    if (sheng == PINYIN_ID_VOID && yun[0] == PINYIN_ID_VOID)
+        return NULL;
+
+    pinyin = m_parser.isPinyin (sheng, yun[0], Config::option () & PINYIN_FUZZY_ALL);
+    if (pinyin == NULL && yun[1] != PINYIN_ID_VOID)
+        pinyin = m_parser.isPinyin (sheng, yun[1], Config::option () & PINYIN_FUZZY_ALL);
+    return pinyin;
+}
 
 gboolean
 DoublePinyinEditor::insert (gint ch)
@@ -39,21 +55,7 @@ DoublePinyinEditor::insert (gint ch)
     if (m_cursor != m_pinyin_len + 2)
         return TRUE;
 
-    const Pinyin *pinyin;
-    gint schema = Config::doublePinyinSchema ();
-    gint prev_ch = m_text[m_cursor - 2];
-    gint j = char_to_id (prev_ch);
-    gint sheng = double_pinyin_map[schema].sheng[j];
-    gint yun = double_pinyin_map[schema].yun[i][0];
-
-    if (sheng == PINYIN_ID_VOID && yun == PINYIN_ID_VOID)
-        return TRUE;
-    pinyin = m_parser.isPinyin (sheng, yun, Config::option () & PINYIN_FUZZY_ALL);
-    if (pinyin == NULL) {
-        yun = double_pinyin_map[schema].yun[i][1];
-        pinyin = m_parser.isPinyin (sheng, yun, Config::option () & PINYIN_FUZZY_ALL);
-    }
-
+    const Pinyin *pinyin = isPinyin (m_text[m_cursor - 2], ch);
     if (pinyin == NULL)
         return TRUE;
     m_pinyin << pinyin;
@@ -70,7 +72,10 @@ DoublePinyinEditor::removeCharBefore (void)
     m_cursor --;
     m_text.erase (m_cursor, 1);
 
-    updatePinyin ();
+    if (m_cursor < m_pinyin_len) {
+        m_pinyin.pop ();
+        m_pinyin_len -= 2;
+    }
 
     return TRUE;
 }
@@ -98,9 +103,9 @@ DoublePinyinEditor::removeWordBefore (void)
         cursor = m_pinyin_len;
     }
     else {
-        const Pinyin * p = m_pinyin.pop ();
-        cursor = m_cursor - p->len;
-        m_pinyin_len -= p->len;
+        m_pinyin.pop ();
+        cursor = m_cursor - 2;
+        m_pinyin_len -= 2;
     }
 
     m_text.erase (cursor, m_cursor - cursor);
@@ -123,10 +128,13 @@ DoublePinyinEditor::moveCursorLeft (void)
 {
     if (G_UNLIKELY (m_cursor == 0))
         return FALSE;
-
     m_cursor --;
-    updatePinyin ();
 
+    if (m_cursor >= m_pinyin_len)
+        return TRUE;
+
+    m_pinyin.pop ();
+    m_pinyin_len -= 2;
     return TRUE;
 }
 
@@ -153,10 +161,9 @@ DoublePinyinEditor::moveCursorLeftByWord (void)
         return TRUE;
     }
 
-    const Pinyin * p = m_pinyin.pop ();
-    m_cursor -= p->len;
-    m_pinyin_len -= p->len;
-
+    m_pinyin.pop ();
+    m_cursor -= 2;
+    m_pinyin_len -= 2;
     return TRUE;
 }
 
@@ -217,13 +224,17 @@ DoublePinyinEditor::updatePinyin (void)
     if (G_UNLIKELY (m_text.isEmpty ())) {
         m_pinyin.removeAll ();
         m_pinyin_len = 0;
+        return;
     }
-    else {
-        m_pinyin_len = m_parser.parse (m_text,
-                                       m_cursor,
-                                       Config::option (),
-                                       m_pinyin,
-                                       MAX_PHRASE_LEN);
+
+    m_pinyin.removeAll ();
+    m_pinyin_len = 0;
+    for (guint i = 0; i + 1 < m_cursor; i+= 2) {
+        const Pinyin *pinyin = isPinyin (m_text[i], m_text[i + 1]);
+        if (pinyin == NULL)
+            break;
+        m_pinyin << pinyin;
+        m_pinyin_len += 2;
     }
 }
 
