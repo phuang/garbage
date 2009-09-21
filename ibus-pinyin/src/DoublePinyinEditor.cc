@@ -16,6 +16,36 @@ DoublePinyinEditor::insert (gint ch)
     /* is full */
     if (G_UNLIKELY (m_text.length () >= MAX_PINYIN_LEN))
         return FALSE;
+    
+    gint i;
+    switch (ch) {
+    case 'a' ... case 'z':
+        i = ch - 'a';
+        break;
+    case ';':
+        i = 26;
+        break;
+    default:
+        return FALSE;
+    }
+   
+    if (m_cursor > m_pinyin_len + 1) {
+        m_text.insert (m_cursor++, ch);
+        return TRUE;
+    }
+
+    gint schema = Config::doublePinyinSchema ();
+    gint sheng, yun;
+    if (m_cursor == m_pinyin_len + 1) {
+        sheng = double_pinyin_map[schema].sheng[i];
+        yun = PINYIN_ID_VOID;
+    }
+    else {
+        sheng = double_pinyin_map[schema].sheng[i];
+        yun = PINYIN_ID_VOID;
+    }
+
+
 
     m_text.insert (m_cursor++, ch);
 
@@ -161,6 +191,26 @@ DoublePinyinEditor::moveCursorToEnd (void)
 
     return TRUE;
 }
+gboolean
+DoublePinyinEditor::reset (void)
+{
+        gboolean retval = FALSE;
+        if (m_cursor != 0) {
+            m_cursor = 0;
+            retval = TRUE;
+        }
+
+        if (m_text.length () != 0) {
+            m_text.truncate (0);
+            retval = TRUE;
+        }
+
+        if (retval)
+            updatePinyin ();
+
+        return retval;
+    }
+
 
 void
 DoublePinyinEditor::updatePinyin (void)

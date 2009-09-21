@@ -26,7 +26,7 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
       m_prev_pressed_key (0)
 {
     /* */
-    m_pinyin_editor = new FullPinyinEditor ();
+    m_pinyin_editor = new DoublePinyinEditor ();
     /* create properties */
     m_prop_chinese = ibus_property_new ("mode.chinese",
                                         PROP_TYPE_NORMAL,
