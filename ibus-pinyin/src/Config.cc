@@ -143,7 +143,7 @@ Config::valueChangedCallback (IBusConfig    *config,
     
     /* double pinyin */
     if (double_pinyin == name)
-        m_double_pinyin = normalizeGValue (value, FALSE);
+        m_double_pinyin = normalizeGValue (value, false);
     else if (double_pinyin_schema == name)
         m_double_pinyin_schema = normalizeGValue (value, 0);
     /* lookup table page size */

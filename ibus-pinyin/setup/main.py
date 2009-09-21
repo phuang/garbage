@@ -53,6 +53,7 @@ class PreferencesDialog:
 
         def __double_pinyin_toggled_cb(widget):
             val = widget.get_active()
+            self.__set_value("DoublePinyin", val)
             self.__double_pinyin_schema.set_sensitive(val)
 
         def __double_pinyin_schema_changed_cb(widget):
