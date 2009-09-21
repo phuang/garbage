@@ -43,6 +43,7 @@ ibus_engine_c_sources = \
 	Config.cc \
 	Database.cc \
 	Engine.cc \
+	FullPinyinEditor.cc \
 	HalfFullConverter.cc \
 	Main.cc \
 	PhraseEditor.cc \
@@ -58,6 +59,7 @@ ibus_engine_h_sources = \
 	Database.h \
 	DoublePinyinTable.h \
 	Engine.h \
+	FullPinyinEditor.h \
 	HalfFullConverter.h \
 	LookupTable.h \
 	PhraseArray.h \
