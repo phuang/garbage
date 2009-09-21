@@ -244,13 +244,13 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkRadioButton" id="InitPunctFull">
+                                  <object class="GtkRadioButton" id="InitFullPunct">
                                     <property name="label" translatable="yes">Full</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
-                                    <property name="group">InitPunctHalf</property>
+                                    <property name="group">InitHalfPunct</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -260,7 +260,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkRadioButton" id="InitPunctHalf">
+                                  <object class="GtkRadioButton" id="InitHalfPunct">
                                     <property name="label" translatable="yes">Half</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>

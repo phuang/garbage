@@ -75,18 +75,18 @@ class PreferencesDialog:
         self.__init_english = self.__builder.get_object("InitEnglish")
         self.__init_full = self.__builder.get_object("InitFull")
         self.__init_half = self.__builder.get_object("InitHalf")
-        self.__init_punct_full = self.__builder.get_object("InitPunctFull")
-        self.__init_punct_half = self.__builder.get_object("InitPunctHalf")
+        self.__init_full_punct = self.__builder.get_object("InitFullPunct")
+        self.__init_half_punct = self.__builder.get_object("InitHalfPunct")
 
         # read values
         self.__init_chinese.set_active(self.__get_value("InitChinese", True))
         self.__init_full.set_active(self.__get_value("InitFull", False))
-        self.__init_punct_full.set_active(self.__get_value("InitPunctFull", True))
+        self.__init_full_punct.set_active(self.__get_value("InitFullPunct", True))
 
         # connect signals
         self.__init_chinese.connect("toggled", self.__toggled_cb, "InitChinese")
         self.__init_full.connect("toggled", self.__toggled_cb, "InitFull")
-        self.__init_punct_full.connect("toggled", self.__toggled_cb, "InitPunctFull")
+        self.__init_full_punct.connect("toggled", self.__toggled_cb, "InitFullPunct")
 
     def __init_others(self):
         #others

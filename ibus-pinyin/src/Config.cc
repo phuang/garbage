@@ -25,7 +25,7 @@ static const StaticString double_pinyin ("DoublePinyin");
 static const StaticString double_pinyin_schema ("DoublePinyinSchema");
 static const StaticString init_chinese ("InitChinese");
 static const StaticString init_full ("InitFull");
-static const StaticString init_full_punct ("InitPunctFull");
+static const StaticString init_full_punct ("InitFullPunct");
 
 static const struct {
     StaticString name;
