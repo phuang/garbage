@@ -461,7 +461,6 @@ PinyinEngine::updateAuxiliaryText (void)
         m_buffer << p->sheng;
         m_buffer << p->yun;
     }
-    m_buffer << ' ';
 
     if (G_UNLIKELY (m_pinyin_editor->pinyinLength () == m_pinyin_editor->cursor ())) {
         /* aux = pinyin + non-pinyin */
