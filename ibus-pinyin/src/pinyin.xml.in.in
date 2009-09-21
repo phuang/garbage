@@ -1,8 +1,8 @@
 <?xml version=\"1.0\" encoding=\"utf-8\"?>
 <!-- filename: pinyin.xml -->
 <component>
-	<name>org.freedesktop.IBus.PinYin</name>
-	<description>Pin Yin Component</description>
+	<name>org.freedesktop.IBus.Pinyin</name>
+	<description>Pinyin Component</description>
 	<exec>${libexecdir}/ibus-engine-pinyin --ibus</exec>
 	<version>@VERSION@</version>
 	<author>Peng Huang &lt;shawn.p.huang@gmail.com&gt;</author>
@@ -13,13 +13,13 @@
 	<engines>
 		<engine>
 			<name>pinyin</name>
-			<language>ko</language>
+			<language>zh</language>
 			<license>GPL</license>
 			<author>Peng Huang &lt;shawn.p.huang@gmail.com&gt;</author>
 			<icon>${pkgdatadir}/icons/ibus-pinyin.png</icon>
 			<layout>us</layout>
-			<longname>Pin Yin</longname>
-			<description>Pin Yin Input Method</description>
+			<longname>Pinyin</longname>
+			<description>Pinyin input method</description>
 			<rank>99</rank>
 		</engine>
 	</engines>

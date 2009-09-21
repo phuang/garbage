@@ -225,6 +225,21 @@ PinyinEngine::processOthers (guint keyval, guint keycode, guint modifiers)
     /* process some cursor control keys */
     gboolean _update = FALSE;
     switch (keyval) {
+    case IBUS_Return:
+        if (G_UNLIKELY (m_mode_full)) {
+            m_buffer.truncate (0);
+            for (const gchar *p = m_pinyin_editor->text (); *p != 0; p++) {
+                m_buffer.appendUnichar (HalfFullConverter::toFull (*p));
+            }
+            commit (m_buffer);
+        }
+        else {
+            commit (m_pinyin_editor->text ());
+        }
+        m_pinyin_editor->reset ();
+        _update = TRUE;
+        break;
+
     case IBUS_BackSpace:
         if (G_LIKELY (modifiers == 0))
             _update = m_pinyin_editor->removeCharBefore ();
@@ -564,6 +579,12 @@ inline void
 PinyinEngine::commit (const gchar *str)
 {
     ibus_engine_commit_text (m_engine, Text (str));
+}
+
+inline void
+PinyinEngine::commit (const String &str)
+{
+    commit ((const gchar *)str);
 }
 
 inline void

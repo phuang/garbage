@@ -69,6 +69,7 @@ private:
     void commit (gchar ch);
     void commit (gunichar ch);
     void commit (const gchar *str);
+    void commit (const String &str);
 
     void toggleModeChinese (void);
     void toggleModeFull (void);

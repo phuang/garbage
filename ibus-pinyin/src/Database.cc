@@ -61,10 +61,10 @@ Database::init (void)
         goto _failed;
     }
 
-    userdb = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (), "ibus", "ibus-pinyin", NULL);
+    userdb = g_build_path (G_DIR_SEPARATOR_S, g_get_home_dir (), ".ibus", "pinyin", NULL);
     g_mkdir_with_parents (userdb, 0750);
     g_free (userdb);
-    userdb = g_build_path (G_DIR_SEPARATOR_S, g_get_user_cache_dir (), "ibus", "ibus-pinyin", "user.db", NULL);
+    userdb = g_build_path (G_DIR_SEPARATOR_S, g_get_home_dir (), ".ibus", "pinyin", "user-1.3.db", NULL);
     retval = initUserDatabase (userdb);
     if (!retval) {
         g_free (userdb);
