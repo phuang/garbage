@@ -96,7 +96,10 @@ PinyinEngine::processPinyin (guint keyval, guint keycode, guint modifiers)
         return FALSE;
 
     if (G_UNLIKELY (m_mode_chinese == FALSE)) {
-        commit ((gchar) keyval);
+        if (G_LIKELY (m_mode_full))
+            commit (HalfFullConverter::toFull (keyval));
+        else
+            commit ((gchar) keyval);
         return TRUE;
     }
 
@@ -108,13 +111,21 @@ PinyinEngine::processPinyin (guint keyval, guint keycode, guint modifiers)
 inline gboolean
 PinyinEngine::processNumber (guint keyval, guint keycode, guint modifiers)
 {
-    if (G_UNLIKELY (!m_pinyin_editor)) {
-        if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
+    /* English mode */
+    if (G_UNLIKELY (!m_mode_chinese)) {
+        commit ((gunichar) m_mode_full ? HalfFullConverter::toFull (keyval) : keyval);
+        return TRUE;
+    }
+
+    /* Chinese mode, if empty */
+    if (G_UNLIKELY (m_pinyin_editor->isEmpty ())) {
+        if (G_UNLIKELY (MASK_FILTER (modifiers) != 0))
             return FALSE;
         commit ((gunichar) m_mode_full ? HalfFullConverter::toFull (keyval) : keyval);
         return TRUE;
     }
 
+    /* Chinese mode, if has candidates */
     guint i;
     if (G_UNLIKELY (keyval == IBUS_0))
         i = 10;
@@ -134,8 +145,18 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
     if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
         return FALSE;
 
+    /* English mode */
+    if (G_UNLIKELY (!m_mode_chinese)) {
+        if (G_UNLIKELY (m_mode_full))
+            commit (HalfFullConverter::toFull (keyval));
+        else
+            commit (keyval);
+        return TRUE;
+    }
+
+    /* Chinese mode */
     if (G_UNLIKELY (isEmpty ())) {
-        if (m_mode_full_punct && m_mode_chinese) {
+        if (m_mode_full_punct) {
             switch (keyval) {
             case '.':
                 commit ("。"); break;
@@ -164,36 +185,35 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
                 break;
             }
         }
-        else {
+        else
             commit (keyval);
-        }
         return TRUE;
     }
-    else {
-        switch (keyval) {
-        case IBUS_space:
-            commit (); return TRUE;
-        case IBUS_apostrophe:
-            return processPinyin (keyval, keycode, modifiers);
-        case IBUS_comma:
-            if (Config::commaPeriodPage ())
-                pageUp ();
-            return TRUE;
-        case IBUS_minus:
-            if (Config::minusEqualPage ())
-                pageUp ();
-            return TRUE;
-        case IBUS_period:
-            if (Config::commaPeriodPage ())
-                pageDown ();
-            return TRUE;
-        case IBUS_equal:
-            if (Config::minusEqualPage ())
-                pageDown ();
-            return TRUE;
-        }
+
+    switch (keyval) {
+    case IBUS_space:
+        commit (); return TRUE;
+    case IBUS_apostrophe:
+        return processPinyin (keyval, keycode, modifiers);
+    case IBUS_comma:
+        if (Config::commaPeriodPage ())
+            pageUp ();
+        return TRUE;
+    case IBUS_minus:
+        if (Config::minusEqualPage ())
+            pageUp ();
+        return TRUE;
+    case IBUS_period:
+        if (Config::commaPeriodPage ())
+            pageDown ();
+        return TRUE;
+    case IBUS_equal:
+        if (Config::minusEqualPage ())
+            pageDown ();
+        return TRUE;
+    default:
+        return TRUE;
     }
-    return TRUE;
 }
 
 inline gboolean
@@ -435,7 +455,7 @@ PinyinEngine::propertyActivate (const gchar *prop_name, guint prop_state)
 void
 PinyinEngine::updatePreeditText (void)
 {
-    if (G_UNLIKELY (!m_phrase_editor && !m_pinyin_editor)) {
+    if (G_UNLIKELY (m_phrase_editor.isEmpty () && m_pinyin_editor->isEmpty ())) {
         ibus_engine_hide_preedit_text (m_engine);
         return;
     }
@@ -549,7 +569,7 @@ PinyinEngine::commit (const gchar *str)
 inline void
 PinyinEngine::commit (void)
 {
-    if (G_UNLIKELY (!m_pinyin_editor))
+    if (G_UNLIKELY (m_pinyin_editor->isEmpty ()))
         return;
 
     m_buffer.truncate (0);
