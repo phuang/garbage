@@ -302,6 +302,23 @@ def compaired_special():
         if a1 < a2:
             yield p1, p2, p3, p4
 
+def gen_full_pinyin_table(pinyins):
+    _dict = {}
+    for i in xrange(0, len(pinyins)):
+        _dict[pinyins[i]] = i
+    full_pinyin = []
+    for i in xrange(0, len(pinyins)):
+        if pinyins[i][0] in pinyin_list:
+            full_pinyin.append (pinyins[i])
+    full_pinyin.sort(lambda a, b: (cmp(a[1], b[1]) << 16) + cmp(a[2],b[4]))
+    print 'static const Pinyin *full_pinyin_table[] = {'
+    for p in full_pinyin:
+        print "    &pinyin_table[%d],    // %s" % (_dict[p], p[0])
+    print '};'
+    print '#define FULL_PINYIN_TABLE_NR (sizeof (full_pinyin_table) / sizeof (full_pinyin_table[0]))'
+    print
+
+
 def gen_special_table(pinyins):
     _dict = {}
     for i in xrange(0, len(pinyins)):
@@ -315,14 +332,15 @@ def gen_special_table(pinyins):
 
         print '    { %s %s %s %s },' % tuple(ids), "/* %s %s => %s %s */" % r
     print '};'
-    print
     print '#define SPECIAL_TABLE_NR (sizeof (special_table) / sizeof (special_table[0]))'
+    print
 
 
 def main():
     gen_header()
     # gen_macros()
     pinyins = gen_tables()
+    gen_full_pinyin_table (pinyins)
     gen_special_table(pinyins)
     # gen_option_check("pinyin_option_check_sheng", fuzzy_shengmu)
     # gen_option_check("pinyin_option_check_yun", fuzzy_yunmu)

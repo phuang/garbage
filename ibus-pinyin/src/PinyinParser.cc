@@ -189,11 +189,10 @@ PinyinParser::parse (const String   &pinyin,
 static int
 py_id_cmp (const void *p1, const void *p2)
 {
-    gint result;
     const gint *id = (const gint *) p1;
     const Pinyin *py = (const Pinyin *) p2;
 
-    return ((id[0] - py->sheng_id) << 16) | (id[1] - py->yun_id);
+    return ((id[0] - py->sheng_id) << 16) + (id[1] - py->yun_id);
 }
 
 const Pinyin *
@@ -204,7 +203,7 @@ PinyinParser::isPinyin (gint sheng, gint yun, guint option)
 
     result = (const Pinyin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR,
                                             sizeof (Pinyin), py_id_cmp);
-    if (result->flags != 0 && (result->flags & option) == 0)
+    if (result != NULL && result->flags != 0 && (result->flags & option) == 0)
         return NULL;
     return result;
 }

@@ -9,6 +9,19 @@ DoublePinyinEditor::DoublePinyinEditor (void)
 {
 }
 
+static inline gint
+char_to_id (gint ch)
+{
+    switch (ch) {
+    case 'a' ... 'z':
+        return ch - 'a';
+    case ';':
+        return 26;
+    default:
+        return -1;
+    }
+}
+
 
 gboolean
 DoublePinyinEditor::insert (gint ch)
@@ -16,49 +29,35 @@ DoublePinyinEditor::insert (gint ch)
     /* is full */
     if (G_UNLIKELY (m_text.length () >= MAX_PINYIN_LEN))
         return FALSE;
-    
-    gint i;
-    switch (ch) {
-    case 'a' ... case 'z':
-        i = ch - 'a';
-        break;
-    case ';':
-        i = 26;
-        break;
-    default:
+
+    gint i = char_to_id (ch);
+    if (i < 0)
         return FALSE;
-    }
-   
-    if (m_cursor > m_pinyin_len + 1) {
-        m_text.insert (m_cursor++, ch);
-        return TRUE;
-    }
-
-    gint schema = Config::doublePinyinSchema ();
-    gint sheng, yun;
-    if (m_cursor == m_pinyin_len + 1) {
-        sheng = double_pinyin_map[schema].sheng[i];
-        yun = PINYIN_ID_VOID;
-    }
-    else {
-        sheng = double_pinyin_map[schema].sheng[i];
-        yun = PINYIN_ID_VOID;
-    }
-
-
 
     m_text.insert (m_cursor++, ch);
 
-    if (G_UNLIKELY ((Config::option () & PINYIN_SIMPLE_PINYIN) == 0)) {
-        updatePinyin ();
+    if (m_cursor != m_pinyin_len + 2)
+        return TRUE;
+
+    const Pinyin *pinyin;
+    gint schema = Config::doublePinyinSchema ();
+    gint prev_ch = m_text[m_cursor - 2];
+    gint j = char_to_id (prev_ch);
+    gint sheng = double_pinyin_map[schema].sheng[j];
+    gint yun = double_pinyin_map[schema].yun[i][0];
+
+    if (sheng == PINYIN_ID_VOID && yun == PINYIN_ID_VOID)
+        return TRUE;
+    pinyin = m_parser.isPinyin (sheng, yun, Config::option () & PINYIN_FUZZY_ALL);
+    if (pinyin == NULL) {
+        yun = double_pinyin_map[schema].yun[i][1];
+        pinyin = m_parser.isPinyin (sheng, yun, Config::option () & PINYIN_FUZZY_ALL);
     }
-    else {
-        if (G_LIKELY ((m_cursor - 1 == m_pinyin_len) ||
-                      (m_cursor - 2 == m_pinyin_len &&
-                       m_text[m_pinyin_len] == '\''))) {
-            updatePinyin ();
-        }
-    }
+
+    if (pinyin == NULL)
+        return TRUE;
+    m_pinyin << pinyin;
+    m_pinyin_len += 2;
     return TRUE;
 }
 

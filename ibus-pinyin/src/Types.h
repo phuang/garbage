@@ -63,6 +63,7 @@ namespace PY {
 #define PINYIN_ID_UN    (54)
 #define PINYIN_ID_UO    (55)
 #define PINYIN_ID_V     (56)
+#define PINYIN_ID_NG    PINYIN_ID_VOID
 
 #define PINYIN_SIMPLE_PINYIN        (1 << 0)
 
