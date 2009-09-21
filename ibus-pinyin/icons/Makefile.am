@@ -20,11 +20,18 @@
 # Boston, MA  02111-1307  USA
 
 icons_DATA = \
-	ibus-pinyin.png \
+	ibus-pinyin.svg \
+	chinese.svg \
+	english.svg \
+	full.svg \
+	full-punct.svg \
+	half.svg \
+	half-punct.svg \
 	$(NULL)
 
 iconsdir = $(pkgdatadir)/icons
 
 EXTRA_DIST = \
-	ibus-pinyin.png \
+	$(icons_DATA) \
 	$(NULL)
+
