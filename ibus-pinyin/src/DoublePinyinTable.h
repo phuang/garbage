@@ -290,12 +290,12 @@ static const gint double_pinyin_pyjj_yun[][2] = {
 };
 
 static const struct {
-    const gint  (*sheng)[27];
-    const gint  (*yun)[27][2];
+    const gint  (&sheng)[27];
+    const gint  (&yun)[27][2];
 } double_pinyin_map [] = {
-    { &double_pinyin_mspy_sheng, &double_pinyin_mspy_yun},
-    { &double_pinyin_zrm_sheng, &double_pinyin_zrm_yun},
-    { &double_pinyin_abc_sheng, &double_pinyin_abc_yun},
-    { &double_pinyin_zgpy_sheng, &double_pinyin_zgpy_yun},
-    { &double_pinyin_pyjj_sheng, &double_pinyin_pyjj_yun},
+    { double_pinyin_mspy_sheng, double_pinyin_mspy_yun},
+    { double_pinyin_zrm_sheng,  double_pinyin_zrm_yun},
+    { double_pinyin_abc_sheng,  double_pinyin_abc_yun},
+    { double_pinyin_zgpy_sheng, double_pinyin_zgpy_yun},
+    { double_pinyin_pyjj_sheng, double_pinyin_pyjj_yun},
 };
