@@ -11,6 +11,9 @@ gboolean Config::m_minus_equal_page = TRUE;
 gboolean Config::m_comma_period_page = TRUE;
 gboolean Config::m_double_pinyin = FALSE;
 gint Config::m_double_pinyin_schema = 0;
+gboolean Config::m_init_chinese = TRUE;
+gboolean Config::m_init_full = FALSE;
+gboolean Config::m_init_full_punct = TRUE;
 
 static const StaticString engine_pinyin ("engine/Pinyin");
 static const StaticString correct_pinyin ("CorrectPinyin");
@@ -20,6 +23,9 @@ static const StaticString minus_equal_page ("MinusEqualPage");
 static const StaticString comma_period_page ("CommaPeriodPage");
 static const StaticString double_pinyin ("DoublePinyin");
 static const StaticString double_pinyin_schema ("DoublePinyinSchema");
+static const StaticString init_chinese ("InitChinese");
+static const StaticString init_full ("InitFull");
+static const StaticString init_full_punct ("InitPunctFull");
 
 static const struct {
     StaticString name;
@@ -66,6 +72,11 @@ Config::readDefaultValues (void)
     /* double pinyin */
     m_double_pinyin = read (engine_pinyin, double_pinyin, false);
     m_double_pinyin_schema = read (engine_pinyin, double_pinyin_schema, 0);
+
+    /* init states */
+    m_init_chinese = read (engine_pinyin, init_chinese, true);
+    m_init_full = read (engine_pinyin, init_full, false);
+    m_init_full_punct = read (engine_pinyin, init_full_punct, true);
     
     /* others */
     m_page_size = read (engine_pinyin, page_size, 5);
@@ -146,6 +157,13 @@ Config::valueChangedCallback (IBusConfig    *config,
         m_double_pinyin = normalizeGValue (value, false);
     else if (double_pinyin_schema == name)
         m_double_pinyin_schema = normalizeGValue (value, 0);
+    /* init states */
+    else if (init_chinese == name)
+        m_init_chinese = normalizeGValue (value, true);
+    else if (init_full == name)
+        m_init_full = normalizeGValue (value, true);
+    else if (init_full_punct == name)
+        m_init_full_punct = normalizeGValue (value, true);
     /* lookup table page size */
     else if (page_size == name)
         m_page_size = normalizeGValue (value, 5);

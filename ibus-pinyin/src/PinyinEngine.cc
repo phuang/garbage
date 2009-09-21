@@ -18,9 +18,9 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
       m_pinyin_editor (NULL),
       m_need_update (0),
       m_lookup_table (Config::pageSize ()),
-      m_mode_chinese (TRUE),
-      m_mode_full_letter (TRUE),
-      m_mode_full_punct (TRUE),
+      m_mode_chinese (Config::initChinese ()),
+      m_mode_full (Config::initFull ()),
+      m_mode_full_punct (Config::initFullPunct ()),
       m_quote (TRUE),
       m_double_quote (TRUE),
       m_prev_pressed_key (0)
@@ -43,16 +43,16 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
                                         NULL);
     m_props.append (m_prop_chinese);
 
-    m_prop_full_letter = ibus_property_new ("mode.full_letter",
-                                            PROP_TYPE_NORMAL,
-                                            Text (m_mode_full_letter ? "Ａａ" : "Aa"),
-                                            NULL,
-                                            Text ("Full/Half width letter"),
-                                            TRUE,
-                                            TRUE,
-                                            PROP_STATE_UNCHECKED,
-                                            NULL);
-    m_props.append (m_prop_full_letter);
+    m_prop_full = ibus_property_new ("mode.full",
+                                     PROP_TYPE_NORMAL,
+                                     Text (m_mode_full? "Ａａ" : "Aa"),
+                                     NULL,
+                                     Text ("Full/Half width"),
+                                     TRUE,
+                                     TRUE,
+                                     PROP_STATE_UNCHECKED,
+                                     NULL);
+    m_props.append (m_prop_full);
 
     m_prop_full_punct = ibus_property_new ("mode.full_punct",
                                            PROP_TYPE_NORMAL,
@@ -90,10 +90,7 @@ PinyinEngine::processPinyin (guint keyval, guint keycode, guint modifiers)
         return FALSE;
 
     if (G_UNLIKELY (m_mode_chinese == FALSE)) {
-        if (G_UNLIKELY (m_mode_full_letter))
-            commit (HalfFullConverter::toFull (keyval));
-        else
-            commit ((gchar) keyval);
+        commit ((gchar) keyval);
         return TRUE;
     }
 
@@ -108,7 +105,7 @@ PinyinEngine::processNumber (guint keyval, guint keycode, guint modifiers)
     if (G_UNLIKELY (!m_pinyin_editor)) {
         if (G_UNLIKELY (MASK_FILTER(modifiers) != 0))
             return FALSE;
-        commit ((gunichar) m_mode_full_letter ? HalfFullConverter::toFull (keyval) : keyval);
+        commit ((gunichar) m_mode_full ? HalfFullConverter::toFull (keyval) : keyval);
         return TRUE;
     }
 
@@ -132,7 +129,7 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
         return FALSE;
 
     if (G_UNLIKELY (isEmpty ())) {
-        if (m_mode_full_punct) {
+        if (m_mode_full_punct && m_mode_chinese) {
             switch (keyval) {
             case '.':
                 commit ("。"); break;
@@ -381,14 +378,17 @@ PinyinEngine::toggleModeChinese (void)
     m_mode_chinese = ! m_mode_chinese;
     m_prop_chinese.setLabel (m_mode_chinese ? "CN" : "EN");
     ibus_engine_update_property (m_engine, m_prop_chinese);
+
+    m_prop_full_punct.setSensitive (m_mode_chinese);
+    ibus_engine_update_property (m_engine, m_prop_full_punct);
 }
 
 inline void
 PinyinEngine::toggleModeFullLetter (void)
 {
-    m_mode_full_letter = !m_mode_full_letter;
-    m_prop_full_letter.setLabel (m_mode_full_letter ? "Ａａ" : "Aa");
-    ibus_engine_update_property (m_engine, m_prop_full_letter);
+    m_mode_full = !m_mode_full;
+    m_prop_full.setLabel (m_mode_full ? "Ａａ" : "Aa");
+    ibus_engine_update_property (m_engine, m_prop_full);
 }
 
 inline void
@@ -540,7 +540,7 @@ PinyinEngine::commit (void)
     m_buffer.truncate (0);
     m_buffer << m_phrase_editor.string1 () << m_phrase_editor.string2 ();
     const gchar *p = m_pinyin_editor->textAfterPinyin ();
-    if (G_UNLIKELY (m_mode_full_letter)) {
+    if (G_UNLIKELY (m_mode_full)) {
         while (*p != 0)
             m_buffer.appendUnichar (HalfFullConverter::toFull (*p++));
     }

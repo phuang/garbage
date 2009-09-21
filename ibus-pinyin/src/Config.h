@@ -22,6 +22,9 @@ public:
     static gboolean commaPeriodPage (void) { return m_comma_period_page; }
     static gboolean doublePinyin (void) { return m_double_pinyin; }
     static gint doublePinyinSchema (void) { return m_double_pinyin_schema; }
+    static gboolean initChinese (void) { return m_init_chinese; }
+    static gboolean initFull (void) { return m_init_full; }
+    static gboolean initFullPunct (void) { return m_init_full_punct; }
 
 private:
     bool read (const gchar *section, const gchar *name, bool defval);
@@ -44,6 +47,9 @@ private:
     static gboolean m_comma_period_page;
     static gboolean m_double_pinyin;
     static gint m_double_pinyin_schema;
+    static gboolean m_init_chinese;
+    static gboolean m_init_full;
+    static gboolean m_init_full_punct;
 };
 
 };

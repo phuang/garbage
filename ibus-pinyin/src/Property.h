@@ -20,6 +20,10 @@ public:
     void setLabel (const gchar *text) {
         setLabel (Text (text));
     }
+
+    void setSensitive (gboolean sensitive) {
+        ibus_property_set_sensitive (*this, sensitive);
+    }
 };
 
 

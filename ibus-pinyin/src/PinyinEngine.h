@@ -98,12 +98,12 @@ private:
 
     LookupTable m_lookup_table;
     Property    m_prop_chinese;
-    Property    m_prop_full_letter;
+    Property    m_prop_full;
     Property    m_prop_full_punct;
     PropList    m_props;
 
     gboolean m_mode_chinese;
-    gboolean m_mode_full_letter;
+    gboolean m_mode_full;
     gboolean m_mode_full_punct;
 
     gboolean m_quote;
