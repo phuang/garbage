@@ -7,8 +7,6 @@
 
 namespace PY {
 
-#include "DoublePinyinTable.h"
-
 static int
 py_cmp (const void *p1, const void *p2)
 {
@@ -186,6 +184,29 @@ PinyinParser::parse (const String   &pinyin,
         p --;
 #endif
     return p - (const gchar *)pinyin;
+}
+
+static int
+py_id_cmp (const void *p1, const void *p2)
+{
+    gint result;
+    const gint *id = (const gint *) p1;
+    const Pinyin *py = (const Pinyin *) p2;
+
+    return ((id[0] - py->sheng_id) << 16) | (id[1] - py->yun_id);
+}
+
+const Pinyin *
+PinyinParser::isPinyin (gint sheng, gint yun, guint option)
+{
+    const Pinyin *result;
+    gint buf[2] = {sheng, yun};
+
+    result = (const Pinyin *) bsearch (buf, pinyin_table, PINYIN_TABLE_NR,
+                                            sizeof (Pinyin), py_id_cmp);
+    if (result->flags != 0 && (result->flags & option) == 0)
+        return NULL;
+    return result;
 }
 
 };

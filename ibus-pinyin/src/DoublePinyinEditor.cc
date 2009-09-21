@@ -3,6 +3,7 @@
 
 namespace PY {
 
+#include "DoublePinyinTable.h"
 
 DoublePinyinEditor::DoublePinyinEditor (void)
 {
