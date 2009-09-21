@@ -1162,19 +1162,19 @@
     </columns>
     <data>
       <row>
-        <col id="0" translatable="yes">MS Pinyin</col>
+        <col id="0" translatable="yes">MSPY</col>
       </row>
       <row>
         <col id="0" translatable="yes">ZRM</col>
       </row>
       <row>
-        <col id="0" translatable="yes">ZN ABC</col>
+        <col id="0" translatable="yes">ABC</col>
       </row>
       <row>
-        <col id="0" translatable="yes">ZG Pinyin</col>
+        <col id="0" translatable="yes">ZGPY</col>
       </row>
       <row>
-        <col id="0" translatable="yes">Pinyin JJ</col>
+        <col id="0" translatable="yes">PYJJ</col>
       </row>
     </data>
   </object>
