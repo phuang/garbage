@@ -1,14 +1,14 @@
-#ifndef __PY_FULL_PINYIN_EDITOR_H_
-#define __PY_FULL_PINYIN_EDITOR_H_
+#ifndef __PY_DOUBLE_PINYIN_EDITOR_H_
+#define __PY_DOUBLE_PINYIN_EDITOR_H_
 
 #include "PinyinEditor.h"
 
 namespace PY {
 
-class FullPinyinEditor : public PinyinEditor {
+class DoublePinyinEditor : public PinyinEditor {
 
 public:
-    FullPinyinEditor (void);
+    DoublePinyinEditor (void);
 
     gboolean insert (gint ch);
 

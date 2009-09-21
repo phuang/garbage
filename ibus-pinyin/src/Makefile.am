@@ -42,6 +42,7 @@ ibus_engine_built_h_sources = \
 ibus_engine_c_sources = \
 	Config.cc \
 	Database.cc \
+	DoublePinyinEditor.cc \
 	Engine.cc \
 	FullPinyinEditor.cc \
 	HalfFullConverter.cc \
@@ -57,6 +58,7 @@ ibus_engine_h_sources = \
 	Bus.h \
 	Config.h \
 	Database.h \
+	DoublePinyinEditor.h \
 	DoublePinyinTable.h \
 	Engine.h \
 	FullPinyinEditor.h \

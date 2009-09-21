@@ -3,6 +3,7 @@
 #include <ibus.h>
 #include <string.h>
 #include "FullPinyinEditor.h"
+#include "DoublePinyinEditor.h"
 #include "PinyinEngine.h"
 #include "HalfFullConverter.h"
 #include "Config.h"
