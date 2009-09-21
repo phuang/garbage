@@ -1,25 +1,9 @@
-#ifndef __PY_PINYIN_EDITOR_H_
-#define __PY_PINYIN_EDITOR_H_
+#ifndef __PY_FULL_PINYIN_EDITOR_H_
+#define __PY_FULL_PINYIN_EDITOR_H_
 
-#include <glib.h>
-#include "String.h"
-#include "PinyinParser.h"
+#include "PinyinEditor.h"
 
 namespace PY {
-
-class PinyinEditor {
-public:
-    PinyinEditor (void);
-protected:
-    String      m_text;         // text buffer
-    guint       m_cursor;       // cursor pos in char
-    PinyinArray m_pinyin;       // pinyin array
-    guint       m_pinyin_len;   // pinyin length in char
-
-protected:
-    static PinyinParser m_parser; 
-
-};
 
 class FullPinyinEditor : public PinyinEditor {
 
@@ -58,7 +42,7 @@ public:
             m_text.truncate (0);
             retval = TRUE;
         }
-        
+
         if (retval)
             updatePinyin ();
 

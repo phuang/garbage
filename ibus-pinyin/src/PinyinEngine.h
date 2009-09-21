@@ -5,7 +5,7 @@
 #include <ibus.h>
 #include "Pointer.h"
 #include "Database.h"
-#include "PinyinEditor.h"
+#include "FullPinyinEditor.h"
 #include "PhraseEditor.h"
 #include "LookupTable.h"
 #include "Property.h"
@@ -26,7 +26,7 @@ public:
     void focusOut (void) {}
 
     void reset (gboolean need_update = TRUE) {
-        m_pinyin_editor.reset ();
+        m_pinyin_editor->reset ();
         update (need_update);
     }
 
@@ -66,7 +66,7 @@ private:
     gboolean processOthers (guint keyval, guint keycode, guint modifiers);
 
 private:
-    gboolean isEmpty (void) { return m_pinyin_editor.isEmpty (); }
+    gboolean isEmpty (void) { return m_pinyin_editor->isEmpty (); }
 
     void commit (void);
     void commit (gchar ch);
@@ -93,7 +93,7 @@ private:
 private:
     Pointer<IBusEngine>  m_engine;      // engine pointer
 
-    FullPinyinEditor m_pinyin_editor;   // pinyin editor
+    PinyinEditor *m_pinyin_editor;      // pinyin editor
     PhraseEditor m_phrase_editor;       // phrase editor
     String m_buffer;                    // string buffer
 

@@ -2,6 +2,7 @@
 
 #include <ibus.h>
 #include <string.h>
+#include "FullPinyinEditor.h"
 #include "PinyinEngine.h"
 #include "HalfFullConverter.h"
 #include "Config.h"
@@ -13,6 +14,7 @@ namespace PY {
 /* constructor */
 PinyinEngine::PinyinEngine (IBusEngine *engine)
     : m_engine (engine),
+      m_pinyin_editor (NULL),
       m_need_update (0),
       m_lookup_table (Config::pageSize ()),
       m_mode_chinese (TRUE),
@@ -22,6 +24,8 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
       m_double_quote (TRUE),
       m_prev_pressed_key (0)
 {
+    /* */
+    m_pinyin_editor = new FullPinyinEditor ();
     /* create properties */
     m_prop_chinese = ibus_property_new ("mode.chinese",
                                         PROP_TYPE_NORMAL,
@@ -61,6 +65,7 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
 /* destructor */
 PinyinEngine::~PinyinEngine (void)
 {
+    delete m_pinyin_editor;
 }
 
 #define MASK_FILTER(modifiers)          \
@@ -87,7 +92,7 @@ PinyinEngine::processPinyin (guint keyval, guint keycode, guint modifiers)
         return TRUE;
     }
 
-    if (m_pinyin_editor.insert (keyval))
+    if (m_pinyin_editor->insert (keyval))
         update (FALSE);
     return TRUE;
 }
@@ -194,51 +199,51 @@ PinyinEngine::processOthers (guint keyval, guint keycode, guint modifiers)
     switch (keyval) {
     case IBUS_BackSpace:
         if (G_LIKELY (modifiers == 0))
-            _update = m_pinyin_editor.removeCharBefore ();
+            _update = m_pinyin_editor->removeCharBefore ();
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK))
-            _update = m_pinyin_editor.removeWordBefore ();
+            _update = m_pinyin_editor->removeWordBefore ();
         break;
 
     case IBUS_Delete:
         if (G_LIKELY (modifiers == 0))
-            _update = m_pinyin_editor.removeCharAfter ();
+            _update = m_pinyin_editor->removeCharAfter ();
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK))
-            _update = m_pinyin_editor.removeWordAfter ();
+            _update = m_pinyin_editor->removeWordAfter ();
         break;
 
     case IBUS_Left:
         if (G_LIKELY (modifiers == 0)) {
             // move left single char
-            _update = m_pinyin_editor.moveCursorLeft ();
+            _update = m_pinyin_editor->moveCursorLeft ();
         }
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
             // move left one pinyin
-            _update = m_pinyin_editor.moveCursorLeftByWord ();
+            _update = m_pinyin_editor->moveCursorLeftByWord ();
         }
         break;
 
     case IBUS_Right:
         if (G_LIKELY (modifiers == 0)) {
             // move right single char
-            _update = m_pinyin_editor.moveCursorRight ();
+            _update = m_pinyin_editor->moveCursorRight ();
         }
         else if (G_LIKELY (modifiers == IBUS_CONTROL_MASK)) {
             // move right to end
-            _update = m_pinyin_editor.moveCursorToEnd ();
+            _update = m_pinyin_editor->moveCursorToEnd ();
         }
         break;
 
     case IBUS_Home:
         if (G_LIKELY (modifiers == 0)) {
             // move to begin
-            _update = m_pinyin_editor.moveCursorToBegin ();
+            _update = m_pinyin_editor->moveCursorToBegin ();
         }
         break;
 
     case IBUS_End:
         if (G_LIKELY (modifiers == 0)) {
             // move to end
-            _update = m_pinyin_editor.moveCursorToEnd ();
+            _update = m_pinyin_editor->moveCursorToEnd ();
         }
         break;
 
@@ -401,7 +406,7 @@ PinyinEngine::updatePreeditText (void)
         m_buffer << m_phrase_editor.string1 () << ' ';
 
     m_buffer << m_phrase_editor.string2 ()
-             << m_pinyin_editor.textAfterPinyin ();
+             << m_pinyin_editor->textAfterPinyin ();
 
     Text preedit_text (m_buffer);
     preedit_text.appendAttribute (IBUS_ATTR_TYPE_UNDERLINE, IBUS_ATTR_UNDERLINE_SINGLE, 0, -1);
@@ -426,26 +431,26 @@ PinyinEngine::updateAuxiliaryText (void)
         m_buffer << m_phrase_editor.string1 ();
     }
 
-    for (guint i = m_phrase_editor.cursor (); i < m_pinyin_editor.pinyin().length (); ++i) {
+    for (guint i = m_phrase_editor.cursor (); i < m_pinyin_editor->pinyin().length (); ++i) {
         if (G_LIKELY (i != m_phrase_editor.cursor ()))
             m_buffer << '\'';
-        const Pinyin *p = m_pinyin_editor.pinyin()[i];
+        const Pinyin *p = m_pinyin_editor->pinyin()[i];
         m_buffer << p->sheng;
         m_buffer << p->yun;
     }
 
     len = m_buffer.length ();
-    if (G_UNLIKELY (m_pinyin_editor.pinyinLength () == m_pinyin_editor.cursor ())) {
+    if (G_UNLIKELY (m_pinyin_editor->pinyinLength () == m_pinyin_editor->cursor ())) {
         /* aux = pinyin + non-pinyin */
         cursor_pos =  m_buffer.utf8Length ();
-        m_buffer << '|' << m_pinyin_editor.textAfterPinyin ();
+        m_buffer << '|' << m_pinyin_editor->textAfterPinyin ();
     }
     else {
         /* aux = pinyin + non-pinyin before cursor + non-pinyin after cursor */
-        m_buffer.append (m_pinyin_editor.textAfterPinyin (),
-                     m_pinyin_editor.cursor () - m_pinyin_editor.pinyinLength ());
+        m_buffer.append (m_pinyin_editor->textAfterPinyin (),
+                     m_pinyin_editor->cursor () - m_pinyin_editor->pinyinLength ());
         cursor_pos =  m_buffer.utf8Length ();
-        m_buffer  << '|' << m_pinyin_editor.textAfterCursor ();
+        m_buffer  << '|' << m_pinyin_editor->textAfterCursor ();
     }
 
     Text aux_text (m_buffer);
@@ -482,7 +487,7 @@ PinyinEngine::updateLookupTable (void)
 void
 PinyinEngine::updatePhraseEditor (void)
 {
-    m_phrase_editor.update (m_pinyin_editor.pinyin ());
+    m_phrase_editor.update (m_pinyin_editor->pinyin ());
 }
 
 inline void
@@ -512,7 +517,7 @@ PinyinEngine::commit (void)
 
     m_buffer.truncate (0);
     m_buffer << m_phrase_editor.string1 () << m_phrase_editor.string2 ();
-    const gchar *p = m_pinyin_editor.textAfterPinyin ();
+    const gchar *p = m_pinyin_editor->textAfterPinyin ();
     if (G_UNLIKELY (m_mode_full_letter)) {
         while (*p != 0)
             m_buffer.appendUnichar (HalfFullConverter::toFull (*p++));
@@ -533,7 +538,7 @@ PinyinEngine::selectCandidate (guint i)
     i += (cursor_pos / page_size) * page_size;
 
     if (m_phrase_editor.selectCandidate (i)) {
-        if (G_UNLIKELY (m_phrase_editor.cursor () == m_pinyin_editor.pinyin ().length ())) {
+        if (G_UNLIKELY (m_phrase_editor.cursor () == m_pinyin_editor->pinyin ().length ())) {
             commit ();
         }
         else {
