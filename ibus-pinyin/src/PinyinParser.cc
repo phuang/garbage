@@ -7,6 +7,65 @@
 
 namespace PY {
 
+static const gint double_pinyin_ms_sheng[] = {
+    PINYIN_ID_VOID,             // A
+    PINYIN_ID_B,                // B
+    PINYIN_ID_C,                // C
+    PINYIN_ID_D,                // D
+    PINYIN_ID_VOID,             // E
+    PINYIN_ID_F,                // F
+    PINYIN_ID_G,                // G
+    PINYIN_ID_H,                // H
+    PINYIN_ID_CH,               // I
+    PINYIN_ID_J,                // J
+    PINYIN_ID_K,                // K
+    PINYIN_ID_L,                // L
+    PINYIN_ID_M,                // M
+    PINYIN_ID_N,                // N
+    PINYIN_ID_VOID,             // O
+    PINYIN_ID_P,                // P
+    PINYIN_ID_Q,                // Q
+    PINYIN_ID_R,                // R
+    PINYIN_ID_S,                // S
+    PINYIN_ID_T,                // T
+    PINYIN_ID_SH,               // U
+    PINYIN_ID_ZH,               // V
+    PINYIN_ID_W,                // W
+    PINYIN_ID_X,                // X
+    PINYIN_ID_Y,                // Y
+    PINYIN_ID_Z,                // Z
+    PINYIN_ID_VOID,             // ;
+};
+static const gint double_pinyin_ms_yun[][2] = {
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // A
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // B
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // C
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // D
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // E
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // F
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // G
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // H
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // I
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // J
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // K
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // L
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // M
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // N
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // O
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // P
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // Q
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // R
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // S
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // T
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // Y
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // V
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // W
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // X
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // W
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // Z
+    { PINYIN_ID_A, PINYIN_ID_VOID },        // ;
+};
+
 static int
 py_cmp (const void *p1, const void *p2)
 {

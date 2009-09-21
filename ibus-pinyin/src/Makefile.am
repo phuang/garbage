@@ -56,6 +56,7 @@ ibus_engine_h_sources = \
 	Bus.h \
 	Config.h \
 	Database.h \
+	DoublePinyinTable.h \
 	Engine.h \
 	HalfFullConverter.h \
 	LookupTable.h \
