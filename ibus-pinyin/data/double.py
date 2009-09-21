@@ -5,7 +5,7 @@ for name, (sheng, yun) in pydict.SHUANGPIN_SCHEMAS.items():
     for c in "abcdefghijklmnopqrstuvwxyz;":
         s = sheng.get(c, "VOID")
         if s == "'":
-            s = "VOID"
+            s = "ZERO"
         else:
             s = s.upper()
         print "    PINYIN_ID_%s // %s" % ((s + ",").ljust(5), c.upper())
@@ -20,9 +20,9 @@ for name, (sheng, yun) in pydict.SHUANGPIN_SCHEMAS.items():
         else:
             s1, s2 = s
         if s1 == "'":
-            s1 = "VOID"
+            s1 = "ZERO"
         if s2 == "'":
-            s2 = "VOID"
+            s2 = "ZERO"
         s1 = s1.upper()
         s2 = s2.upper()
         print "    { PINYIN_ID_%s PINYIN_ID_%s }, // %s" % ((s1 + ",").ljust(5), s2.ljust(4), c.upper())

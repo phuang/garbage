@@ -422,7 +422,7 @@ Database::query (const PinyinArray &pinyin,
                                        "s%d=%d", i, p->sheng_id);
         }
 
-        if (p->yun_id != PINYIN_ID_VOID) {
+        if (p->yun_id != PINYIN_ID_ZERO) {
             if (pinyin_option_check_yun (option, p->yun_id, p->fyun_id)) {
                 if (G_LIKELY (i < DB_INDEX_SIZE)) {
                     conditionsDouble ();

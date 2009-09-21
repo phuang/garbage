@@ -181,7 +181,8 @@ namespace PY {
 '''
 
 def gen_macros():
-    print '#define PINYIN_ID_VOID    (0)'
+    print '#define PINYIN_ID_VOID    (-1)'
+    print '#define PINYIN_ID_ZERO    (0)'
     for y in shengmu_list:
         print '#define PINYIN_ID_%s    (%d)' % (y.upper(), encode_pinyin(y))
 
@@ -226,7 +227,7 @@ def gen_tables():
 
     print 'static const Pinyin pinyin_table[] = {'
     for i, p in enumerate(pinyins):
-        args = (i, ) + tuple(['"%s"' % s for s in p[:3]]) + tuple(["PINYIN_ID_%s" % s.upper() if s else "PINYIN_ID_VOID" for s in p[3:9]]) + p[9:-1] + (str(p[-1]), )
+        args = (i, ) + tuple(['"%s"' % s for s in p[:3]]) + tuple(["PINYIN_ID_%s" % s.upper() if s else "PINYIN_ID_ZERO" for s in p[3:9]]) + p[9:-1] + (str(p[-1]), )
         print '''    {  /* %d */
         text        : %s,
         sheng       : %s,

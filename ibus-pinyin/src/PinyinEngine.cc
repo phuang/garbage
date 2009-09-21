@@ -448,7 +448,6 @@ PinyinEngine::updateAuxiliaryText (void)
     }
 
     guint cursor_pos;
-    guint len;
 
     m_buffer.truncate (0);
     if (G_UNLIKELY (m_phrase_editor.string1 ())) {
@@ -462,8 +461,8 @@ PinyinEngine::updateAuxiliaryText (void)
         m_buffer << p->sheng;
         m_buffer << p->yun;
     }
+    m_buffer << ' ';
 
-    len = m_buffer.length ();
     if (G_UNLIKELY (m_pinyin_editor->pinyinLength () == m_pinyin_editor->cursor ())) {
         /* aux = pinyin + non-pinyin */
         cursor_pos =  m_buffer.utf8Length ();

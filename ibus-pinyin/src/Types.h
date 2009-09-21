@@ -6,7 +6,8 @@
 
 namespace PY {
 
-#define PINYIN_ID_VOID  (0)
+#define PINYIN_ID_VOID  (-1)
+#define PINYIN_ID_ZERO  (0)
 #define PINYIN_ID_B     (1)
 #define PINYIN_ID_C     (2)
 #define PINYIN_ID_CH    (3)

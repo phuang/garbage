@@ -30,11 +30,14 @@ DoublePinyinEditor::isPinyin (gchar i, gchar j)
     gint sheng = double_pinyin_map[schema].sheng[char_to_id(i)];
     const gint *yun = double_pinyin_map[schema].yun[char_to_id(j)];
 
-    if (sheng == PINYIN_ID_VOID && yun[0] == PINYIN_ID_VOID)
+    if (sheng == PINYIN_ID_VOID || yun[0] == PINYIN_ID_VOID)
+        return NULL;
+
+    if (sheng == PINYIN_ID_ZERO && yun[0] == PINYIN_ID_ZERO)
         return NULL;
 
     pinyin = m_parser.isPinyin (sheng, yun[0], Config::option () & PINYIN_FUZZY_ALL);
-    if (pinyin == NULL && yun[1] != PINYIN_ID_VOID)
+    if (pinyin == NULL && yun[1] != PINYIN_ID_ZERO)
         pinyin = m_parser.isPinyin (sheng, yun[1], Config::option () & PINYIN_FUZZY_ALL);
     return pinyin;
 }

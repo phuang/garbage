@@ -13,7 +13,7 @@ static const gint double_pinyin_mspy_sheng[] = {
     PINYIN_ID_L,    // L
     PINYIN_ID_M,    // M
     PINYIN_ID_N,    // N
-    PINYIN_ID_VOID, // O
+    PINYIN_ID_ZERO, // O
     PINYIN_ID_P,    // P
     PINYIN_ID_Q,    // Q
     PINYIN_ID_R,    // R
@@ -71,7 +71,7 @@ static const gint double_pinyin_zrm_sheng[] = {
     PINYIN_ID_L,    // L
     PINYIN_ID_M,    // M
     PINYIN_ID_N,    // N
-    PINYIN_ID_VOID, // O
+    PINYIN_ID_ZERO, // O
     PINYIN_ID_P,    // P
     PINYIN_ID_Q,    // Q
     PINYIN_ID_R,    // R
@@ -129,7 +129,7 @@ static const gint double_pinyin_abc_sheng[] = {
     PINYIN_ID_L,    // L
     PINYIN_ID_M,    // M
     PINYIN_ID_N,    // N
-    PINYIN_ID_VOID, // O
+    PINYIN_ID_ZERO, // O
     PINYIN_ID_P,    // P
     PINYIN_ID_Q,    // Q
     PINYIN_ID_R,    // R
@@ -187,7 +187,7 @@ static const gint double_pinyin_zgpy_sheng[] = {
     PINYIN_ID_L,    // L
     PINYIN_ID_M,    // M
     PINYIN_ID_N,    // N
-    PINYIN_ID_VOID, // O
+    PINYIN_ID_ZERO, // O
     PINYIN_ID_P,    // P
     PINYIN_ID_Q,    // Q
     PINYIN_ID_R,    // R
@@ -231,7 +231,7 @@ static const gint double_pinyin_zgpy_yun[][2] = {
     { PINYIN_ID_ING,  PINYIN_ID_VOID }, // ;
 };
 static const gint double_pinyin_pyjj_sheng[] = {
-    PINYIN_ID_VOID, // A
+    PINYIN_ID_ZERO, // A
     PINYIN_ID_B,    // B
     PINYIN_ID_C,    // C
     PINYIN_ID_D,    // D
@@ -245,7 +245,7 @@ static const gint double_pinyin_pyjj_sheng[] = {
     PINYIN_ID_L,    // L
     PINYIN_ID_M,    // M
     PINYIN_ID_N,    // N
-    PINYIN_ID_VOID, // O
+    PINYIN_ID_ZERO, // O
     PINYIN_ID_P,    // P
     PINYIN_ID_Q,    // Q
     PINYIN_ID_R,    // R
