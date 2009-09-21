@@ -44,11 +44,11 @@
                                 <property name="visible">True</property>
                                 <property name="n_rows">2</property>
                                 <property name="n_columns">2</property>
-                                <property name="column_spacing">6</property>
+                                <property name="column_spacing">12</property>
                                 <property name="row_spacing">6</property>
                                 <child>
                                   <object class="GtkRadioButton" id="FullPinyin">
-                                    <property name="label" translatable="yes">Full pinyin:</property>
+                                    <property name="label" translatable="yes">Full pinyin</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -62,7 +62,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkRadioButton" id="DoublePinyin">
-                                    <property name="label" translatable="yes">Double pinyin:</property>
+                                    <property name="label" translatable="yes">Double pinyin</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -89,11 +89,31 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="DoublePinyinSchema">
+                                  <object class="GtkHBox" id="hbox1">
                                     <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
-                                    <property name="model">liststoreDoublePinyin</property>
-                                    <property name="button_sensitivity">on</property>
+                                    <property name="spacing">6</property>
+                                    <child>
+                                      <object class="GtkLabel" id="labelDoublePinyinSchema">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">0</property>
+                                        <property name="label" translatable="yes">Schema:</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkComboBox" id="DoublePinyinSchema">
+                                        <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
+                                        <property name="model">liststoreDoublePinyin</property>
+                                        <property name="button_sensitivity">on</property>
+                                      </object>
+                                      <packing>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>

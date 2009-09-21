@@ -30,6 +30,7 @@ class PreferencesDialog:
         self.__simple_pinyin = self.__builder.get_object("SimplePinyin")
         self.__double_pinyin = self.__builder.get_object("DoublePinyin")
         self.__double_pinyin_schema = self.__builder.get_object("DoublePinyinSchema")
+        self.__double_pinyin_schema_label = self.__builder.get_object("labelDoublePinyinSchema")
 
         renderer = gtk.CellRendererText()
         self.__double_pinyin_schema.pack_start(renderer)
@@ -42,9 +43,11 @@ class PreferencesDialog:
         if self.__full_pinyin.get_active():
             self.__simple_pinyin.set_sensitive(True)
             self.__double_pinyin_schema.set_sensitive(False)
+            self.__double_pinyin_schema_label.set_sensitive(False)
         else:
             self.__simple_pinyin.set_sensitive(False)
             self.__double_pinyin_schema.set_sensitive(True)
+            self.__double_pinyin_schema_label.set_sensitive(True)
 
         def __full_pinyin_toggled_cb(widget):
             val = widget.get_active()
@@ -55,6 +58,7 @@ class PreferencesDialog:
             val = widget.get_active()
             self.__set_value("DoublePinyin", val)
             self.__double_pinyin_schema.set_sensitive(val)
+            self.__double_pinyin_schema_label.set_sensitive(val)
 
         def __double_pinyin_schema_changed_cb(widget):
             self.__set_value("DoublePinyinSchema", widget.get_active())
