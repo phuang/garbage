@@ -18,7 +18,7 @@ public:
                  gint          len,         // length of pinyin string
                  guint         option,      // option
                  PinyinArray  &result,      // store pinyin in result
-                 guint         max);   // max length of the result
+                 guint         max);        // max length of the result
 };
 
 };

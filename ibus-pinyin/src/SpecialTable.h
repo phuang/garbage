@@ -9,6 +9,7 @@ class SpecialTable {
 public:
     SpecialTable (void) {}
 private:
+    gboolean load (const gchar *file);
 };
 
 };

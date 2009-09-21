@@ -36,6 +36,7 @@ class PreferencesDialog:
         self.__double_pinyin_schema.set_attributes(renderer, text=0)
 
         # read value
+        self.__simple_pinyin.set_active(self.__get_value("SimplePinyin", True))
         self.__full_pinyin.set_active(not self.__get_value("DoublePinyin", False))
         self.__double_pinyin_schema.set_active(self.__get_value("DoublePinyinSchema", 0))
         if self.__full_pinyin.get_active():

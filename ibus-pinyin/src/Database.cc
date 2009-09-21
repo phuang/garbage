@@ -74,7 +74,7 @@ Database::init (void)
     }
     g_free (userdb);
 
-    // prefetch ();
+    prefetch ();
 
     return TRUE;
 
