@@ -101,7 +101,7 @@ BUILT_SOURCES = \
 db_DATA = \
 	py.db \
 	$(NULL)
-dbdir = @pkgdatadir@
+dbdir = $(pkgdatadir)
 
 component_DATA = \
 	pinyin.xml \
