@@ -98,6 +98,11 @@ BUILT_SOURCES = \
 	$(ibus_engine_built_h_sources) \
 	$(NULL)
 
+db_DATA = \
+	py.db \
+	$(NULL)
+dbdir = @pkgdatadir@
+
 component_DATA = \
 	pinyin.xml \
 	$(NULL)
