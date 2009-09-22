@@ -44,10 +44,14 @@ DBTAR = pinyin-database-$(DBVER).tar.bz2
 $(DBTAR):
 	wget http://ibus.googlecode.com/files/$(DBTAR)
 
-db/main.db: ${DBTAR}
-	tar jxvfm ${DBTAR}
+db.stamp: $(DBTAR)
+	tar jxvfm $(DBTAR)
+	touch $@
+
+$(main_db_DATA): db.stamp
 
 CLEANFILES = \
+	db.stamp \
 	db/* \
 	$(NULL)
 

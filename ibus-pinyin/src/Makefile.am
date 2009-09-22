@@ -81,6 +81,8 @@ ibus_engine_pinyin_SOURCES = \
 	$(NULL)
 ibus_engine_pinyin_CXXFLAGS = \
 	@IBUS_CFLAGS@ \
+	@SQLITE_CFLAGS@ \
+	@UUID_CFLAGS@ \
 	-DGETTEXT_PACKAGE=\"@GETTEXT_PACKAGE@\" \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DLIBEXECDIR=\"$(libexecdir)\" \
@@ -88,7 +90,7 @@ ibus_engine_pinyin_CXXFLAGS = \
 ibus_engine_pinyin_LDFLAGS = \
 	@IBUS_LIBS@ \
 	@SQLITE_LIBS@ \
-	-luuid \
+	@UUID_LIBS@ \
 	$(NULL)
 
 BUILT_SOURCES = \

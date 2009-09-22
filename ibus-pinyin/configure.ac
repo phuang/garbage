@@ -59,6 +59,11 @@ PKG_CHECK_MODULES(SQLITE, [
     sqlite3
 ])
 
+# check uuid
+PKG_CHECK_MODULES(UUID, [
+    uuid
+])
+
 # check env
 AC_PATH_PROG(ENV, env)
 AC_SUBST(ENV)
