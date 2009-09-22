@@ -51,10 +51,11 @@ Database::init (void)
 
     sqlite3_initialize ();
 
-    if (sqlite3_open_v2 ("py.db", &m_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) != SQLITE_OK) {
-        goto _failed;
+    if (sqlite3_open_v2 (PKGDATADIR"/py.db", &m_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) != SQLITE_OK) {
+        if (sqlite3_open_v2 ("py.db", &m_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) != SQLITE_OK)
+            goto _failed;
     }
-
+    
     if (sqlite3_exec (m_db, "PRAGMA cache_size=" DB_CACHE_SIZE, NULL, NULL, &errmsg) != SQLITE_OK) {
         g_debug ("%s", errmsg);
         sqlite3_free (errmsg);
