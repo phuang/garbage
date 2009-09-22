@@ -48,6 +48,9 @@ db/main.db: ${DBTAR}
 	tar jxvfm ${DBTAR}
 
 CLEANFILES = \
-	$(DBTAR) \
 	db/* \
+	$(NULL)
+
+DISTCLEANFILES = \
+	$(DBTAR) \
 	$(NULL)
