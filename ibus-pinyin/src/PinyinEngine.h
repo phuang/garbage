@@ -101,6 +101,7 @@ private:
     Property    m_prop_chinese;
     Property    m_prop_full;
     Property    m_prop_full_punct;
+    Property    m_prop_setup;
     PropList    m_props;
 
     gboolean m_mode_chinese;

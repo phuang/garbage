@@ -83,8 +83,9 @@ ibus_engine_pinyin_SOURCES = \
 	$(ibus_engine_c_sources) \
 	$(ibus_engine_h_sources) \
 	$(NULL)
-ibus_engine_pinyin_CFLAGS = \
+ibus_engine_pinyin_CXXFLAGS = \
 	@IBUS_CFLAGS@ \
+	-DGETTEXT_PACKAGE=\"@GETTEXT_PACKAGE@\" \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	$(NULL)
 ibus_engine_pinyin_LDFLAGS = \

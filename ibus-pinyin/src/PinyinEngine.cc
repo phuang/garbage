@@ -2,6 +2,7 @@
 
 #include <ibus.h>
 #include <string.h>
+#include <libintl.h>
 #include "FullPinyinEditor.h"
 #include "DoublePinyinEditor.h"
 #include "PinyinEngine.h"
@@ -9,6 +10,8 @@
 #include "Config.h"
 #include "Text.h"
 #include "Util.h"
+
+#define _(text) (dgettext (GETTEXT_PACKAGE, text))
 
 namespace PY {
 
@@ -38,7 +41,7 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
                                         m_mode_chinese ?
                                             PKGDATADIR"/icons/chinese.svg" :
                                             PKGDATADIR"/icons/english.svg",
-                                        Text ("Chinese"),
+                                        Text (_("Chinese")),
                                         TRUE,
                                         TRUE,
                                         PROP_STATE_UNCHECKED,
@@ -51,7 +54,7 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
                                      m_mode_full ?
                                         PKGDATADIR"/icons/full.svg" :
                                         PKGDATADIR"/icons/half.svg",
-                                     Text ("Full/Half width"),
+                                     Text (_("Full/Half width")),
                                      TRUE,
                                      TRUE,
                                      PROP_STATE_UNCHECKED,
@@ -64,13 +67,24 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
                                            m_mode_full_punct ?
                                            PKGDATADIR"/icons/full-punct.svg" :
                                                 PKGDATADIR"/icons/half-punct.svg",
-                                           Text ("Full/Half width punctuation"),
+                                           Text (_("Full/Half width punctuation")),
                                            TRUE,
                                            TRUE,
                                            PROP_STATE_UNCHECKED,
                                            NULL);
-
     m_props.append (m_prop_full_punct);
+
+    m_prop_setup = ibus_property_new ("setup",
+                                      PROP_TYPE_NORMAL,
+                                      Text (_("Setup")),
+                                      "gtk-perferences",
+                                      Text (_("Pinyin perferences")),
+                                      TRUE,
+                                      TRUE,
+                                      PROP_STATE_UNCHECKED,
+                                      NULL);
+    m_props.append (m_prop_setup);
+
 }
 
 /* destructor */
