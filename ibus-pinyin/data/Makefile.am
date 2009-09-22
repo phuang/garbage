@@ -18,48 +18,35 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+
 SUBDIRS = \
-	src \
-	setup \
-	data \
-	m4 \
-	po \
+	icons \
 	$(NULL)
 
-ACLOCAL_AMFLAGS = -I m4
-
-EXTRA_DIST = \
-	autogen.sh \
-	ibus-pinyin.spec.in \
+main_db_DATA = \
+	db/main.db \
+	db/COPYING \
+	db/create_index.sql \
 	$(NULL)
+main_dbdir = $(pkgdatadir)/db
 
-noinst_DIST = \
+install-data-hook:
+	@( \
+if test "${NO_INDEX}" = ""; then \
+  cd ${DESTDIR}$(main_dbdir); \
+  echo "Create INDEX"; \
+  sqlite3 main.db ".read create_index.sql"; \
+fi)
+
+DBVER = 1.3.0
+DBTAR = pinyin-database-${DBVER}.tar.bz2
+
+${DBTAR}:
+	wget http://ibus.googlecode.com/files/${DBTAR}
+
+db/main.db: ${DBTAR}
+	tar jxvfm ${DBTAR}
+
+CLEANFILES = \
+	db/* \
 	$(NULL)
-
-
-DISTCLEANFILES = \
-	po/stamp-it \
-	$(NULL)
-
-rpm: dist @PACKAGE_NAME@.spec
-	rpmbuild -bb \
-			--define "_sourcedir `pwd`" \
-			--define "_builddir `pwd`" \
-			--define "_srcrpmdir `pwd`" \
-			--define "_rpmdir `pwd`" \
-			--define "_specdir `pwd`" \
-			@PACKAGE_NAME@.spec
-
-srpm: dist @PACKAGE_NAME@.spec
-	rpmbuild -bs \
-			--define "_sourcedir `pwd`" \
-			--define "_builddir `pwd`" \
-			--define "_srcrpmdir `pwd`" \
-			--define "_rpmdir `pwd`" \
-			--define "_specdir `pwd`" \
-			@PACKAGE_NAME@.spec
-
-clean-rpm:
-	$(RM) -r "`uname -i`"
-
-clean-local: clean-rpm

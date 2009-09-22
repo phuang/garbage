@@ -83,7 +83,8 @@ src/Makefile
 src/pinyin.xml.in
 setup/Makefile
 setup/ibus-setup-pinyin
-icons/Makefile
+data/Makefile
+data/icons/Makefile
 m4/Makefile
 ])
 
