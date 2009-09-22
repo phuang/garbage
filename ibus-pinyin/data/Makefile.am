@@ -38,7 +38,7 @@ if test "$(NO_INDEX)" = ""; then \
   sqlite3 main.db ".read create_index.sql"; \
 fi)
 
-DBVER = 1.3.0
+DBVER = 1.2.99
 DBTAR = pinyin-database-$(DBVER).tar.bz2
 
 $(DBTAR):
