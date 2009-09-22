@@ -32,21 +32,22 @@ main_dbdir = $(pkgdatadir)/db
 
 install-data-hook:
 	@( \
-if test "${NO_INDEX}" = ""; then \
-  cd ${DESTDIR}$(main_dbdir); \
+if test "$(NO_INDEX)" = ""; then \
+  cd $(DESTDIR)$(main_dbdir); \
   echo "Create INDEX"; \
   sqlite3 main.db ".read create_index.sql"; \
 fi)
 
 DBVER = 1.3.0
-DBTAR = pinyin-database-${DBVER}.tar.bz2
+DBTAR = pinyin-database-$(DBVER).tar.bz2
 
-${DBTAR}:
-	wget http://ibus.googlecode.com/files/${DBTAR}
+$(DBTAR):
+	wget http://ibus.googlecode.com/files/$(DBTAR)
 
 db/main.db: ${DBTAR}
 	tar jxvfm ${DBTAR}
 
 CLEANFILES = \
+	$(DBTAR) \
 	db/* \
 	$(NULL)
