@@ -83,6 +83,7 @@ ibus_engine_pinyin_CXXFLAGS = \
 	@IBUS_CFLAGS@ \
 	-DGETTEXT_PACKAGE=\"@GETTEXT_PACKAGE@\" \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
+	-DLIBEXECDIR=\"$(libexecdir)\" \
 	$(NULL)
 ibus_engine_pinyin_LDFLAGS = \
 	@IBUS_LIBS@ \
