@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ibus-pinyin 1.3.0\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/ibus/issues/entry\n"
-"POT-Creation-Date: 2009-09-21 17:00+0800\n"
+"POT-Creation-Date: 2009-09-22 14:29+0800\n"
 "PO-Revision-Date: 2009-09-20 16:05+8\n"
 "Last-Translator: Peng Huang <shawn.p.huang@gmail.com>\n"
 "Language-Team: Peng Huang <shawn.p.huang@gmail.com>\n"
@@ -19,6 +19,19 @@ msgstr ""
 msgid "Pinyin input method"
 msgstr "拼音输入法"
 
+#: src/PinyinEngine.cc:44 setup/ibus-pinyin-preferences.glade:188
+msgid "Chinese"
+msgstr "中文"
+
+#: src/PinyinEngine.cc:57
+msgid "Full/Half width"
+msgstr "全角/半角"
+
+#: src/PinyinEngine.cc:70
+msgid "Full/Half width punctuation"
+msgstr "半角符号"
+
+#: src/PinyinEngine.cc:79 src/PinyinEngine.cc:81
 #: setup/ibus-pinyin-preferences.glade:7
 msgid "Pinyin preferences"
 msgstr "拼音设置"
@@ -54,10 +67,6 @@ msgstr "全角/半角:"
 #: setup/ibus-pinyin-preferences.glade:179
 msgid "Half/full punctuation:"
 msgstr "全角/半角标点:"
-
-#: setup/ibus-pinyin-preferences.glade:188
-msgid "Chinese"
-msgstr "中文"
 
 #: setup/ibus-pinyin-preferences.glade:203
 msgid "English"

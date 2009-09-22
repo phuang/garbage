@@ -74,6 +74,7 @@ private:
     void toggleModeChinese (void);
     void toggleModeFull (void);
     void toggleModeFullPunct (void);
+    void showSetupDialog (void);
 
     gboolean selectCandidate (guint i);
     gboolean resetCandidate (guint i);

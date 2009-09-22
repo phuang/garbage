@@ -76,9 +76,9 @@ PinyinEngine::PinyinEngine (IBusEngine *engine)
 
     m_prop_setup = ibus_property_new ("setup",
                                       PROP_TYPE_NORMAL,
-                                      Text (_("Setup")),
-                                      "gtk-perferences",
-                                      Text (_("Pinyin perferences")),
+                                      Text (_("Pinyin preferences")),
+                                      "gtk-preferences",
+                                      Text (_("Pinyin preferences")),
                                       TRUE,
                                       TRUE,
                                       PROP_STATE_UNCHECKED,
@@ -469,12 +469,18 @@ PinyinEngine::toggleModeFullPunct (void)
     ibus_engine_update_property (m_engine, m_prop_full_punct);
 }
 
+inline void
+PinyinEngine::showSetupDialog (void)
+{
+}
+
 void
 PinyinEngine::propertyActivate (const gchar *prop_name, guint prop_state)
 {
     const static StaticString mode_chinese ("mode.chinese");
     const static StaticString mode_full ("mode.full");
     const static StaticString mode_full_punct ("mode.full_punct");
+    const static StaticString setup ("setup");
 
     if (mode_chinese == prop_name) {
         toggleModeChinese ();
@@ -484,6 +490,9 @@ PinyinEngine::propertyActivate (const gchar *prop_name, guint prop_state)
     }
     else if (mode_full_punct == prop_name) {
         toggleModeFullPunct ();
+    }
+    else if (setup == prop_name) {
+        showSetupDialog ();
     }
 }
 
