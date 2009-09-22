@@ -35,10 +35,6 @@ AM_CXXFLAGS = $(AM_CFLAGS)
 
 libexec_PROGRAMS = ibus-engine-pinyin
 
-ibus_engine_built_h_sources = \
-	Table.h \
-	$(NULL)
-
 ibus_engine_c_sources = \
 	Config.cc \
 	Database.cc \
@@ -99,10 +95,10 @@ BUILT_SOURCES = \
 	$(ibus_engine_built_h_sources) \
 	$(NULL)
 
-db_DATA = \
-	py.db \
-	$(NULL)
-dbdir = $(pkgdatadir)
+# db_DATA = \
+# 	py.db \
+# 	$(NULL)
+# dbdir = $(pkgdatadir)
 
 component_DATA = \
 	pinyin.xml \
@@ -110,10 +106,7 @@ component_DATA = \
 componentdir = @datadir@/ibus/component
 
 EXTRA_DIST = \
-	$(GENPYSCANNER) \
-	$(GENPYTABLE) \
 	pinyin.xml.in \
-	scripts/pydict.py \
 	$(NULL)
 
 CLEANFILES = \
@@ -146,7 +139,7 @@ TESTS = \
 	$(check_PROGRAMS) \
 	$(NULL)
 
-Table.h: $(GENPYTABLE)
+Table.h:
 	$(skip_genpytable) $(PYTHON) $(srcdir)/$(GENPYTABLE) > $@
 
 pinyin.xml: pinyin.xml.in

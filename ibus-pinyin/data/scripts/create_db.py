@@ -1,6 +1,7 @@
 import sqlite3
 from pydict import *
 from id import *
+import sys
 
 con1 = sqlite3.connect("py.db")
 con2 = sqlite3.connect("py-new.db")
@@ -45,8 +46,7 @@ new_freq = 0
 freq = 0
 
 print "INSERTING"
-for r in con1.execute("SELECT * FROM py_phrase ORDER BY freq"):
-	
+for  r in con1.execute("SELECT * FROM py_phrase ORDER BY freq"):
 	ylen = r[0]
 	phrase = r[10]
 	if r[11] > freq:
@@ -75,7 +75,7 @@ for r in con1.execute("SELECT * FROM py_phrase ORDER BY freq"):
 	sql = insert_sql % (i, ",".join(["?"] * len(column)))
 	con2.execute (sql, column)
 
-print "Remove dupilcate"
+print "Remove duplicate"
 for i in xrange(0, 16):
     sql = "DELETE FROM py_phrase_%d WHERE rowid IN (SELECT rowid FROM (SELECT count() as count, rowid FROM py_phrase_%d GROUP by %s,phrase) WHERE count > 1)" % (i, i, ",".join(map(lambda i: "s%d,y%d"%(i,i), range(0, i + 1))))
     con2.execute(sql)
