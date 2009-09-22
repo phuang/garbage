@@ -96,7 +96,7 @@ msgstr "按[Shift]键选词"
 
 #: setup/ibus-pinyin-preferences.glade:350
 msgid "Press [-] [=] key to flip page"
-msgstr "按[-] [=]键翻页"
+msgstr "按[-][=]键翻页"
 
 #: setup/ibus-pinyin-preferences.glade:365
 msgid "Press [,] [.] key to flip page"
