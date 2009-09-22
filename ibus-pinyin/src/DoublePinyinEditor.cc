@@ -13,9 +13,9 @@ static inline gint
 char_to_id (gint ch)
 {
     switch (ch) {
-    case 'a' ... 'z':
-        return ch - 'a';
-    case ';':
+    case IBUS_a ... IBUS_z:
+        return ch - IBUS_a;
+    case IBUS_semicolon:
         return 26;
     default:
         return -1;

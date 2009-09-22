@@ -185,8 +185,9 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
                 break;
             }
         }
-        else
+        else {
             commit (keyval);
+        }
         return TRUE;
     }
 
@@ -210,6 +211,11 @@ PinyinEngine::processPunct (guint keyval, guint keycode, guint modifiers)
     case IBUS_equal:
         if (Config::minusEqualPage ())
             pageDown ();
+        return TRUE;
+    case IBUS_semicolon:
+        /* double pinyin need process ';' */
+        if (G_UNLIKELY (Config::doublePinyin ()))
+            return processPinyin (keyval, keycode, modifiers);
         return TRUE;
     default:
         return TRUE;
