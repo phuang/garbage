@@ -31,6 +31,18 @@ public:
         return m_candidates[i].phrase;
     }
 
+    gboolean candidateInUserPhease (guint i) const {
+        if (G_UNLIKELY (m_phrases2.length () > 1)) {
+            if (G_UNLIKELY (i == 0))
+                return FALSE;
+            else
+                return m_candidates[i - 1].user_freq > 0 && m_candidates[i - 1].freq == 0;
+        }
+        else {
+            return m_candidates[i].user_freq > 0 && m_candidates[i].freq == 0;
+        }
+    }
+
     void reset (void) {
         m_candidates.removeAll ();
         m_phrases1.removeAll ();
