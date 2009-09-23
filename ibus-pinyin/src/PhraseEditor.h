@@ -14,6 +14,7 @@ public:
     const String & string1 (void) const { return m_string1; }
     const String & string2 (void) const { return m_string2; }
     const PinyinArray & pinyin (void) const { return m_pinyin; }
+    const PhraseArray & candidates (void) const { return m_candidates; }
     guint cursor (void) const { return m_cursor; }
 
     guint candidateNumber (void) const {
