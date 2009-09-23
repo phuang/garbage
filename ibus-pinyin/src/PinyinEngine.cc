@@ -577,10 +577,10 @@ PinyinEngine::updateLookupTable (void)
     }
 
     for (guint i = 0; i < candidate_nr; i++) {
-        const Phrase &phrase = m_phrase_editor.candidates()[i];
-        Text text (phrase.phrase);
-        if (phrase.user_freq > 0 && phrase.freq == 0)
-            text.appendAttribute (IBUS_ATTR_TYPE_FOREGROUND, 0x000000ef, 0, -1);
+        //const Phrase &phrase = m_phrase_editor.candidates()[i];
+        Text text (m_phrase_editor.candidate (i));
+        // if (phrase.user_freq > 0 && phrase.freq == 0)
+        //    text.appendAttribute (IBUS_ATTR_TYPE_FOREGROUND, 0x000000ef, 0, -1);
 
         m_lookup_table.appendCandidate (text);
     }

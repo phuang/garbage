@@ -60,7 +60,7 @@ PhraseEditor::resetCandidate (guint i)
     if (G_UNLIKELY (i == 0 && m_phrases2.length () > 1))
         return FALSE;
 
-    m_database.remove (m_phrases2[i]);
+    m_database.remove (m_candidates[i]);
 
     updateCandidates ();
     updatePhrases ();
