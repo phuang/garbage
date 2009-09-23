@@ -87,20 +87,20 @@ Config::readDefaultValues (void)
     if (read (engine_pinyin, correct_pinyin, true))
         m_option_mask |= PINYIN_CORRECT_ALL;
     else
-        m_option_mask ^= PINYIN_CORRECT_ALL;
+        m_option_mask &= ~PINYIN_CORRECT_ALL;
 
     /* fuzzy pinyin */
     if (read (engine_pinyin, fuzzy_pinyin, false))
         m_option_mask |= PINYIN_FUZZY_ALL;
     else
-        m_option_mask ^= PINYIN_FUZZY_ALL;
+        m_option_mask &= ~PINYIN_FUZZY_ALL;
 
     /* read values */
     for (guint i = 0;i < sizeof (options) / sizeof (options[0]); i++) {
         if (read (engine_pinyin, options[i].name, options[i].defval))
             m_option |= options[i].option;
         else
-            m_option ^= options[i].option;
+            m_option &= ~options[i].option;
     }
 }
 
@@ -176,14 +176,14 @@ Config::valueChangedCallback (IBusConfig    *config,
         if (normalizeGValue (value, TRUE))
             m_option_mask |= PINYIN_CORRECT_ALL;
         else
-            m_option_mask ^= PINYIN_CORRECT_ALL;
+            m_option_mask &= ~PINYIN_CORRECT_ALL;
     }
     /* fuzzy pinyin */
     else if (fuzzy_pinyin == name) {
         if (normalizeGValue (value, TRUE))
             m_option_mask |= PINYIN_FUZZY_ALL;
         else
-            m_option_mask ^= PINYIN_FUZZY_ALL;
+            m_option_mask &= ~PINYIN_FUZZY_ALL;
     }
     else {
         for (guint i = 0;i < sizeof (options) / sizeof (options[0]); i++) {
@@ -192,7 +192,7 @@ Config::valueChangedCallback (IBusConfig    *config,
             if (normalizeGValue (value, options[i].defval))
                 m_option |= options[i].option;
             else
-                m_option ^= options[i].option;
+                m_option &= ~options[i].option;
             break;
         }
     }
