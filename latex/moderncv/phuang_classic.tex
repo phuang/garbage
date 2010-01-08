@@ -3,25 +3,21 @@
 %
 
 \documentclass[10pt]{moderncv}
-
-% moderncv styles
-%\moderncvstyle{casual}       % optional argument are 'nocolor' (black & white cv) and 'roman' (for roman fonts, instead of sans serif fonts)
-\moderncvstyle{classic}       % idem
+\moderncvstyle{classic}
 
 % character encoding
 \usepackage[utf8]{inputenc}   % replace by the encoding you are using
 
-% personal data (the given example is exhaustive; just give what you want)
+% personal data
 \firstname{Peng}
 \familyname{Huang}
 \title{Senior Software Engineer\dots}
-\address{12 somestreet\\100100 Beijing, China}  % for classic style
-%\address{12 somestreet, 3456 somecity} % for casual style
-\phone{+86 10 52107304}
+\address{4702 Shiji Xingcheng\\Yangzhuang Nanlu Tongzhou Qu\\100100 Beijing, China}
+\phone{+86 13717924071}
 \email{shawn.p.huang@gmail.com}
-\extrainfo{\weblink{shawnphuang.wordpress.com}}
-\photo[64pt]{phuang_picture} % also optional, and the optional argument is the height the picture must be resized to
-\quote{Any intelligent fool can make things bigger, more complex, and more violent. It takes a touch of genius -- and a lot of courage -- to move in the opposite direction.}% also optional
+\extrainfo{\weblink{http://shawnphuang.wordpress.com}}
+% \photo[64pt]{phuang_picture}
+% \quote{Any intelligent fool can make things bigger, more complex, and more violent. It takes a touch of genius -- and a lot of courage -- to move in the opposite direction.}
 
 %\renewcommand{\listsymbol}{{\fontencoding{U}\fontfamily{ding}\selectfont\tiny\symbol{'102}}} % define another symbol to be used in front of the list items
 
@@ -43,14 +39,14 @@
 \definecolor{see}{rgb}{0.5,0.5,0.5} % for web links
 \newcommand{\up}[1]{\ensuremath{^\textrm{\scriptsize#1}}}% for text subscripts
 \definecolor{subsectioncolor}{rgb}{0.2,0.4,0.65}
-\renewcommand{\subsectionfont}{\Large\sffamily\mdseries\upshape}
+\newcommand{\ssf}{\large\sffamily\mdseries\upshape}
 
 %----------------------------------------------------------------------------------
 %            content
 %----------------------------------------------------------------------------------
 \begin{document}
 \maketitle
-%\makequote
+% \makequote
 \section{Professional skills}
 % \cvcomputer{OS}{Linux, Unix, Windows}{Developer}
 
@@ -69,20 +65,14 @@
 
 \section{Experience}
 \\
-\subsection{\subsectionfont{Employment}}
+\subsection{\ssf{Employments}}
 %\subsection{\large\sffamily\mdseries\upshape{Employment}}
-\cventry{Nov 2006--\\current}{Senior software engineer}{Red Hat}{aaa}{bbb}{ccc}
+\cventry{Nov 2006--\\present}{Senior software engineer}{Red Hat}{aaa}{bbb}{ccc}
 \cventry{May 2005--\\Nov 2006}{Senior software engineer \& Member of the Technology Working Group}{Motorola}{}{}{}
 \cventry{July 2002--\\May 2005}{Senior software engineer \& Team leader}{Cass Hopen}{}{}{}
-
-\closesection{}
-\pagebreak{}
-
-\section{Computer skills}
-\cvcomputer{OS}{Linux, Unix, Windows}{administration}{Apache, Mailman}
-\cvcomputer{programming}{\textsc{Java}, C/C++}{scripting}{PHP, Shell, Ruby}
-\cvcomputer{scientific}{Matlab, Autocad, Abaqus}{typography}{\LaTeX, \ConTeXt, Scribus, QuarkXPress}
-\cvcomputer{web design}{XHTML, CSS, AJAX}{database}{MySQL, PostgreSQL}
+\\
+\\
+\subsection{\ssf{Projects}}
 
 \section{Interests}
 \cvitem{design}{\small I am a design fan, especially when it comes to typography and photography.}
@@ -103,11 +93,7 @@ put some table or figure, \dots
 \emptysection{}
 \cvitem{Now}{Back to moderncv layout, without making a new section :-)}
 
-\nocite{*}
-\bibliographystyle{plain}
-\bibliography{jdoe_publications}
 
 \end{document}
 
-
-%% end of file `jdoe_classic.tex'.
+%% end of file `phuang_classic.tex'.
