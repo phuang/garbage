@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 import sys
 
 '''
@@ -17,16 +18,21 @@ import sys
 {1,2,4,7} and {3,5,6}
 
 给出N，你的程序应该输出划分方案总数，如果不存在这样的划分方案，则输出0。程序不能预存结果直接输出。
+
 '''
 
 def subset_sum(n):
+    # 求和
     _sum = (n * (n + 1)) / 2
     
-    # if is odd, return 0
+    # 和是奇数，没有解
     if _sum & 1:
         return 0
-
+    
+    # 和的 1/2
     _sum = _sum / 2
+
+    # 分配空间
     dyn = [0] * (_sum + 1)
     dyn[0] = 1
     
