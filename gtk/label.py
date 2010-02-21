@@ -3,8 +3,23 @@ import pango
 import glib
 import random
 
-def clicked_cb(button, label):
-    label.set_attributes(pango.AttrList())
+def empty_clicked_cb(button, label):
+    attrs = pango.AttrList()
+    '''
+    attrs.insert(pango.AttrBackground(
+                    random.randint(256, 256*256),
+                    random.randint(256, 256*256),
+                    random.randint(256, 256*256), 0, 11))
+    '''
+    label.set_attributes(attrs)
+
+def random_clicked_cb(button, label):
+    attrs = pango.AttrList()
+    attrs.insert(pango.AttrBackground(
+                    random.randint(256, 256*256),
+                    random.randint(256, 256*256),
+                    random.randint(256, 256*256), 0, 11))
+    label.set_attributes(attrs)
 
 def main():
     global l
@@ -13,13 +28,14 @@ def main():
     window.add(vbox)
     
     label = gtk.Label("Hello World")
-    attr = pango.AttrList()
-    attr.insert(pango.AttrBackground(0, 255*255, 0, 0, 11))
-    label.set_attributes(attr)
     vbox.pack_start(label)
 
-    button = gtk.Button("Change Attributes")
-    button.connect("clicked", clicked_cb, label)
+    button = gtk.Button("Empty Attributes")
+    button.connect("clicked", empty_clicked_cb, label)
+    vbox.pack_start(button)
+    
+    button = gtk.Button("Random Attributes")
+    button.connect("clicked", random_clicked_cb, label)
     vbox.pack_start(button)
     
     window.show_all()
