@@ -19,15 +19,22 @@ import sys
 
 给出N，你的程序应该输出划分方案总数，如果不存在这样的划分方案，则输出0。程序不能预存结果直接输出。
 
+动态规划求解方程
+f(0, 0) = 1
+f(x, sum) = f(x - 1, sum - x) + f(x - 1, sum)
+
+解是：
+f(N, SUM(1 to N) / 2) = ?
+
 '''
-dyn = {(0, 0):1}
+dyn = {(0,0):1}
 def get_subset(*args):
     n, remain = args
     # check cached result
     if args in dyn:
         return dyn[args]
-    
-    if remain > ((n + 1) * n) >> 1 or n <= 0:
+
+    if remain > ((n + 1) * n) >> 1 or n == 0:
         cnt = 0
     elif remain >= n:
         cnt = get_subset(n - 1, remain - n) + get_subset(n - 1, remain)
@@ -39,8 +46,6 @@ def get_subset(*args):
     return cnt
 
 def subset_sum(n):
-    global ccc
-    ccc = 0
     # 求和
     _sum = (n * (n + 1)) / 2
     
