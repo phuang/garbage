@@ -48,7 +48,9 @@ int main(int argc, char **argv)
     
     start[0] = 1;
     best = 0;
+
     for (lv = 0; lv < ndata; lv++)
+    {
         if (start[lv]) 
         { 
             /* for each expressible prefix */
@@ -63,6 +65,7 @@ int main(int argc, char **argv)
                     start[lv + lv3] = 1; /* so the expanded prefix is also expressive */
             }
         } 
+    }
 
     /* see if the entire sequence is expressible */
     if (start[ndata]) best = ndata; 
