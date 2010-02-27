@@ -20,6 +20,9 @@ def forward_viterbi(obs, states, start_p, trans_p, emit_p):
     T = {}
     for state in states:
         ##          prob.           V. path  V. prob.
+        # prob.:  The total probability of all paths from start to current state
+        # V.path: The Viterbi path from start to current state
+        # V.prob: The Viterbi probability of the Viterbi path up to current state
         T[state] = (start_p[state], [state], start_p[state])
 
     for output in obs:
@@ -39,7 +42,6 @@ def forward_viterbi(obs, states, start_p, trans_p, emit_p):
                     valmax = v_prob
             U[next_state] = (total, argmax, valmax)
         T = U
-        print T
     ## apply sum/max to the final states:
     total = 0
     argmax = None
