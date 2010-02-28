@@ -29,6 +29,8 @@ def match(buf, p):
             result.append(i)
         c = ord(buf[i + m])
         i += t[c]
+
+    # if p is the suffix of buffer 
     if i == n - m:
         j = 0
         while j < m:
