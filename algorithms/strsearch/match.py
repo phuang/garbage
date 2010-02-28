@@ -6,17 +6,15 @@ def search(buf, p):
     n = len(buf)
     m = len(p)
     t = [m + 1] * 256
-    t = {}
 
     # create skip table
     i = m - 1 
     while i >= 0:
-        c = p[i]
+        c = ord(p[i])
         # if t[c] == m + 1:
-        if c not in t:
+        if t[c] == m + 1:
             t[c] = m - i
         i -= 1
-    print t
 
     # match buf
     result = []
@@ -30,9 +28,8 @@ def search(buf, p):
         else:
             result.append(i)
         
-        c = buf[i + m]
-        i += t.get(c, m)
-        print i
+        c = ord(buf[i + m])
+        i += t[c]
 
     return result
 
