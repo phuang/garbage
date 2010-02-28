@@ -2,7 +2,7 @@
 
 import sys
 
-def search(buf, p):
+def match(buf, p):
     n = len(buf)
     m = len(p)
     t = [m + 1] * 256
@@ -19,7 +19,7 @@ def search(buf, p):
     # match buf
     result = []
     i = 0
-    while i < n - m:
+    while i <= n - m - 1:
         j = 0
         while j < m:
             if buf[i + j] != p[j]:
@@ -27,14 +27,21 @@ def search(buf, p):
             j += 1
         else:
             result.append(i)
-        
         c = ord(buf[i + m])
         i += t[c]
+    if i == n - m:
+        j = 0
+        while j < m:
+            if buf[i + j] != p[j]:
+                break
+            j += 1
+        else:
+            result.append(i)
 
     return result
 
 def main():
-    print search(sys.argv[1], sys.argv[2])
+    print match("phuang", "phuang")
 
 if __name__ == "__main__":
     main()
