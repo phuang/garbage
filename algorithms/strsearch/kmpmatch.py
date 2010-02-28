@@ -8,7 +8,8 @@ def kmp_match(buf, p):
     t = compute_prefix(p)
     q = 0
     result = []
-    for i in xrange(0, n):
+    i = 0
+    while i < n:
         while q > 0 and p[q] != buf[i]:
             q = t[q]
         if p[q] == buf[i]:
@@ -16,18 +17,21 @@ def kmp_match(buf, p):
         if q == m:
             result.append(i - m + 1)
             q = t[q - 1]
+        i += 1
     return result
 
 def compute_prefix(p):
     m = len(p)
     T = [0] * len(p)
     k = 0
-    for q in xrange(1, m):
+    q = 1
+    while q < m:
         while k > 0 and p[k] != p[q]:
             k = T[k]
         if p[k] == p[q]:
             k = k + 1
         T[q] = k
+        q += 1
     return T
 
 def main():
