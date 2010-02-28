@@ -43,7 +43,7 @@ def match(buf, p):
     return result
 
 def main():
-    print match("phuang", "phuang")
+    print match(*sys.argv[1:3])
 
 if __name__ == "__main__":
     main()
