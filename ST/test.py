@@ -3,7 +3,7 @@
 def parse_1():
     f = file("sctc.csv")
     for l in f:
-        l = unicode(l)
+        l = unicode(l, "utf8")
         l = l.strip()
         values = l.split(",")
         values = map(lambda x: x.strip("\""), values)
@@ -33,12 +33,13 @@ def print_dict(name, d):
     for k in sorted(d.iterkeys()):
         v = d[k]
         if len(v) == 1:
-            print '    u"%s" : (u"%s", ),  # %04X => %04X' % (k, v[0], ord(k), ord(v[0]))
+            output = u'    u"%s" : (u"%s", ),  # %04X => %04X' % (k, v[0], ord(k), ord(v[0]))
         else:
             v = sorted(v)
             vd = map(lambda x: '%04X' % ord(x), v)
             vs = map(lambda x: 'u"%s"' % x, v)
-            print '    u"%s" : (%s),  # %04X => %s' % (k, ", ".join(vs), ord(k), " ".join(vd))
+            output = '    u"%s" : (%s),  # %04X => %s' % (k, ", ".join(vs), ord(k), " ".join(vd))
+        print output.encode("utf8")
     print "}"
 
 def parse_csv():
