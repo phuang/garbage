@@ -28,12 +28,22 @@
 %token KEY
 
 %token GROUP1
-
+%token GROUP2
+%token GROUP3
+%token GROUP4
 
 %%
 
 symbols:
-    options XKB_SYMBOLS STRING '{' symbols_items '}' ';';
+    symbols_declare symbols_body ';';
+
+symbols_declare:
+    options symbols_name
+    ;
+
+symbols_name:
+    XKB_SYMBOLS STRING
+    ;
 
 options:
     option |
@@ -51,6 +61,9 @@ option:
     OPT_ALTERNATE_GROUP
     ;
 
+symbols_body:
+    '{' symbols_items '}'
+    ;
 symbols_items:
     symbols_item ';' |
     symbols_items symbols_item ';'
@@ -58,7 +71,8 @@ symbols_items:
 
 symbols_item:
     KEY KEYCODE_NAME '{' '[' symbol_names ']' '}' |
-    NAME '['  group ']' '=' STRING
+    NAME '['  group ']' '=' STRING |
+    INCLUDE STRING
     ;
 
 symbol_names:
@@ -67,5 +81,8 @@ symbol_names:
     ;
 
 group:
-    GROUP1
+    GROUP1 |
+    GROUP2 |
+    GROUP3 |
+    GROUP4
     ;
