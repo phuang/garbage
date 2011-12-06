@@ -11,7 +11,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.provider.Settings.SettingNotFoundException;
-// import android.util.Log;
 import android.widget.Toast;
 
 
@@ -19,11 +18,9 @@ public class RotationLockActivity extends Activity {
     /**
      * Tag used for logging errors.
      */
-    private static final String LOG_TAG = "RL";
+    // private static final String LOG_TAG = "RL";
     
     private static final int RETRY_COUNT = 5;
-    
-    // private static int i = 0;
     
     private static long mTime;
     
@@ -35,7 +32,6 @@ public class RotationLockActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    	// Log.v(LOG_TAG, "onCreate i = " + (i++));
 
         mLocked = isPortraitOrientationLocked();
 
@@ -56,8 +52,6 @@ public class RotationLockActivity extends Activity {
     @Override
     public void onStart() {
     	super.onStart();
-    	// Log.v(LOG_TAG, "onStart i = " + (i++));
-		
 		long time = System.currentTimeMillis();
 		if (time > mTime + 1000) {
 			mTime = time;
@@ -72,16 +66,9 @@ public class RotationLockActivity extends Activity {
     }
     
     @Override
-    public void onStop() {
-    	super.onStop();
-    	// Log.v(LOG_TAG, "onStop i = " + (i++));
-    }
-    
-    @Override
     public void onDestroy() {
+        mNotificationManager.cancelAll();
     	super.onDestroy();
-    	// Log.v(LOG_TAG, "onDestroy i = " + (i++));
-        mNotificationManager.cancel(R.string.app_name);
     }
     
     // Check accelerometer.
@@ -132,8 +119,6 @@ public class RotationLockActivity extends Activity {
 	
 	// Toggle portrait orientation lock setting.
 	private boolean togglePortraitOrientationLock() {
-		// Log.v(LOG_TAG, "togglePortraitOrientationLock i = " + (i++));
-		
 		boolean locked = isPortraitOrientationLocked();
 
 		for (int count = 0; count < RETRY_COUNT; count++) {
@@ -167,8 +152,6 @@ public class RotationLockActivity extends Activity {
 	
 	// Handle system settings change.
 	private void systemSettingsChange() {
-		// Log.v(LOG_TAG, "systemSettingsChange i = " + (i++));
-
 		boolean locked = isPortraitOrientationLocked();
 		if (mLocked != locked) {
 			mLocked = locked;
