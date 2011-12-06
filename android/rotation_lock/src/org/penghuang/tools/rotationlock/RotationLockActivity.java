@@ -124,7 +124,7 @@ public class RotationLockActivity extends Activity {
                 new Intent(this, RotationLockActivity.class), 0);
         notification.setLatestEventInfo((Context)this, 
         		getText(R.string.app_name), (CharSequence)getText(message), contentIntent);
-        notification.flags |= Notification.FLAG_ONGOING_EVENT;
+        notification.flags |= Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT;
         notification.icon = locked ? R.drawable.ic_stat_locked : R.drawable.ic_stat_unlocked; 
         
         mNotificationManager.notify(R.string.app_name, notification);		
