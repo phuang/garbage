@@ -67,7 +67,7 @@ int main() {
   test.push_back(4);
   
   print_array(test);
-  qsort<int>(test, 0, test.size() - 1);
+  qsort(test, 0, test.size() - 1);
   print_array(test);
 
   std::vector<std::string> words;
@@ -78,7 +78,7 @@ int main() {
     words.push_back(word);
   }
 
-  qsort<std::string>(words, 0, words.size() - 1);
+  qsort(words, 0, words.size() - 1);
 
   print_array(words);
 }
