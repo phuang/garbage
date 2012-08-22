@@ -4,32 +4,41 @@
 
 namespace {
 
-template<class T>
-void qsort(
-    std::vector<T>& array,
-    int first,
-    int last) {
-  if (first == last)
-    return;
+template<typename T>
+void print_array(std::vector<T>& array, int first = 0, int last = -1) {
+  if (last == -1)
+    last = array.size() - 1;
+  for (int c = first; c <= last; ++c) {
+    std::cout << array[c] << " ";
+  }
+  std::cout << std::endl;
+}
 
+template<typename T>
+void qsort(std::vector<T>& array, int first, int last) {
+  if (first >= last)
+    return;
+  
   int i = first;
   int j = last;
   
   T pv = array[j];
   
   while (i != j) {
+
     while (i < j) {
       if (array[i] > pv) {
-        array[j] = array[i];
-        j--;
+        array[j--] = array[i];
+        break;
       } else {
         i++;
       }
     }
+
     while (j > i) {
       if (array[j] < pv) {
-        array[i] = array[j];
-        i++;
+        array[i++] = array[j];
+        break;
       } else {
         j--;
       }
@@ -37,16 +46,8 @@ void qsort(
   }
   array[i] = pv;
 
-  for (int c = first; c <= last; ++c) {
-    std::cout << array[c] << " ";
-  }
-
-  std::cout << std::endl;
- 
-  if (i > first + 1)
-    qsort(array, first, i - 1);
-  if (i < last - 1)
-    qsort(array, i + 1, last);
+  qsort(array, first, i - 1);
+  qsort(array, i + 1, last);
 }
 
 }
@@ -59,7 +60,15 @@ int main() {
   test.push_back(10);
   test.push_back(11);
   test.push_back(1);
+  test.push_back(1);
+  test.push_back(45);
+  test.push_back(17);
+  test.push_back(13);
+  test.push_back(4);
+  
+  print_array(test);
   qsort<int>(test, 0, test.size() - 1);
+  print_array(test);
 
   std::vector<std::string> words;
 
@@ -71,7 +80,5 @@ int main() {
 
   qsort<std::string>(words, 0, words.size() - 1);
 
-  for(int i = 0; i < words.size(); ++i) {
-    std::cout << words[i] << std::endl;
-  }
+  print_array(words);
 }
