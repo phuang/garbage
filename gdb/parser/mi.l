@@ -1,8 +1,9 @@
 %{
 #include <stdlib.h>
-#include "mi.h"
+#include "mi.tab.h"
 
-void yyerror(char*);
+void yyerror (const char* s);
+
 %}
 
 %%

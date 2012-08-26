@@ -1,5 +1,10 @@
 %{
 #include <stdio.h>
+
+void yyerror(const char* s) {
+    fprintf(stderr, "%s\n", s);
+}
+
 %}
 
 %union {
@@ -15,7 +20,6 @@
 outputs:
       output
     | outputs output
-    | /* NULL */
     ;
 
 output:
@@ -144,11 +148,6 @@ token:
     INTEGER
     ;
 %%
-
-void yyerror(char *s) {
-    fprintf(stderr, "%s\n", s);
-}
-
 
 int main(void) {
     yyparse();
